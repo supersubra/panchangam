@@ -1,0 +1,961 @@
+<title>Dina Panchangam</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Arima:wght@500;700&family=Hind+Madurai:wght@400;500;600&display=swap">
+<style>
+/* Layout: one column almanac; a control bar, a summary band for the day, then a two-column grid of panels. */
+:root {
+  --bg: #f3f6f1; --surface: #ffffff; --line: #dbe3d9; --ink: #16231b; --muted: #58685d;
+  --accent: #8f5f00; --accent-soft: #fbefd6;
+  --bad: #a8261c; --bad-soft: #fbe6e3; --good: #1d7148; --good-soft: #e0f2e7;
+  --display: "Arima", "Noto Serif Tamil", Georgia, serif;
+  --body: "Hind Madurai", "Noto Sans Tamil", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0f1612; --surface: #16201a; --line: #2a3a30; --ink: #e5ece6; --muted: #98aa9d;
+  --accent: #e3ab45; --accent-soft: #33280f;
+  --bad: #f08a7e; --bad-soft: #3a1a17; --good: #6fd09b; --good-soft: #143223; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #0f1612; --surface: #16201a; --line: #2a3a30; --ink: #e5ece6; --muted: #98aa9d;
+  --accent: #e3ab45; --accent-soft: #33280f;
+  --bad: #f08a7e; --bad-soft: #3a1a17; --good: #6fd09b; --good-soft: #143223; color-scheme: dark }
+
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.5; }
+.wrap { max-width: 1040px; margin: 0 auto; padding-block: 20px 40px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: flex; flex-direction: column; gap: 18px; }
+h1, h2, .big { font-family: var(--display); text-wrap: balance; }
+h1 { margin: 0; font-size: 1.9rem; line-height: 1.1; font-weight: 700; }
+h1 small { display: block; font-size: 1rem; color: var(--accent); font-weight: 500; margin-top: 2px; }
+h2 { margin: 0; font-size: 1.15rem; font-weight: 700; display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
+h2 span { font-family: var(--body); font-size: .85rem; color: var(--muted); font-weight: 500; }
+.ta { color: var(--muted); }
+.num { font-variant-numeric: tabular-nums; }
+
+/* Controls */
+.controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: end; }
+.field { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.field label { font-size: .72rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+.city { position: relative; flex: 1 1 260px; }
+input { font: inherit; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 9px 11px; min-width: 0; }
+input:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.btns { display: flex; gap: 6px; flex-wrap: wrap; }
+button { font: inherit; font-weight: 600; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 9px 13px; cursor: pointer; }
+button:hover { border-color: var(--accent); }
+button.primary { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+.suggest { position: absolute; z-index: 5; left: 0; right: 0; top: 100%; margin-top: 4px; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; box-shadow: 0 8px 24px rgb(0 0 0 / .12); }
+.suggest button { display: block; width: 100%; text-align: left; border: 0; border-radius: 0; font-weight: 500; padding: 8px 11px; }
+.suggest button span { color: var(--muted); font-size: .85rem; }
+.suggest button[aria-selected="true"], .suggest button:hover { background: var(--accent-soft); }
+.msg { font-size: .9rem; color: var(--bad); min-height: 0; }
+.where { font-size: .88rem; color: var(--muted); }
+.where b { color: var(--ink); font-weight: 600; }
+
+/* Summary band */
+.day { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 18px 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px 24px; }
+.day .date { grid-column: 1 / -1; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 6px 16px; align-items: baseline; border-bottom: 1px solid var(--line); padding-bottom: 12px; }
+.day .date .big { font-size: 1.45rem; font-weight: 700; }
+.day .date .tamil { color: var(--accent); font-weight: 600; }
+.kv { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.kv .k { font-size: .72rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+.kv .v { font-family: var(--display); font-size: 1.3rem; font-weight: 700; line-height: 1.2; }
+.kv .s { font-size: .9rem; color: var(--muted); }
+
+/* Panels */
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr)); gap: 18px; align-items: start; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+table { width: 100%; border-collapse: collapse; }
+td, th { padding: 8px 0; vertical-align: top; border-top: 1px solid var(--line); text-align: left; }
+tr:first-child td, tr:first-child th { border-top: 0; }
+th { width: 38%; font-weight: 600; padding-right: 12px; }
+th .ta, td .ta { display: block; font-weight: 400; font-size: .88rem; }
+.seq { display: flex; flex-direction: column; gap: 4px; }
+.seq .until { font-size: .88rem; color: var(--muted); }
+.seq .then { color: var(--muted); }
+.when { white-space: nowrap; }
+.nd { font-size: .78rem; color: var(--muted); }
+.chip { display: inline-block; font-size: .72rem; font-weight: 600; letter-spacing: .04em; padding: 1px 8px; border-radius: 99px; margin-left: 6px; vertical-align: 1px; }
+.chip.bad { background: var(--bad-soft); color: var(--bad); }
+.chip.good { background: var(--good-soft); color: var(--good); }
+.note { font-size: .82rem; color: var(--muted); }
+
+.gowri { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
+.g { border-radius: 8px; padding: 7px 8px; display: flex; flex-direction: column; gap: 1px; border: 1px solid transparent; }
+.g.good { background: var(--good-soft); color: var(--good); }
+.g.bad { background: var(--bad-soft); color: var(--bad); }
+.g b { font-size: .9rem; } .g .t { font-size: .8rem; color: var(--ink); opacity: .85; } .g .ta { font-size: .78rem; color: inherit; }
+.g.now { border-color: var(--ink); }
+.subh { font-size: .72rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 600; margin-top: 4px; }
+.nosun { background: var(--accent-soft); border-radius: 12px; padding: 16px 18px; }
+footer { font-size: .82rem; color: var(--muted); max-width: 70ch; }
+@media (max-width: 520px) { .gowri { grid-template-columns: repeat(2, minmax(0, 1fr)); } th { width: 42%; } h1 { font-size: 1.6rem; } }
+@media (prefers-reduced-motion: no-preference) { .day, .panel { transition: opacity .2s; } }
+.busy .day, .busy .panel { opacity: .55; }
+
+[hidden] { display: none !important; }
+/* Tabs */
+.tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--line); }
+.tabs button { border: 0; border-bottom: 3px solid transparent; border-radius: 0; background: none; padding: 8px 14px; color: var(--muted); margin-bottom: -1px; }
+.tabs button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--accent); }
+.tabpane { display: flex; flex-direction: column; gap: 18px; }
+
+/* Tappable terms */
+button.term { all: unset; cursor: pointer; font-weight: inherit; border-bottom: 1px dotted var(--muted); }
+button.term::after { content: "?"; display: inline-grid; place-items: center; width: 15px; height: 15px; margin-left: 5px; border-radius: 50%; font-size: 10px; font-weight: 700; color: var(--accent); border: 1px solid var(--accent); vertical-align: 2px; letter-spacing: 0; }
+button.term:hover { color: var(--accent); }
+button.term:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 3px; }
+.hint { font-size: .85rem; color: var(--muted); }
+
+/* Explanation card */
+dialog { border: 1px solid var(--line); border-radius: 14px; background: var(--surface); color: var(--ink); padding: 0; width: min(520px, calc(100% - 32px)); max-height: calc(100% - 48px); box-shadow: 0 20px 50px rgb(0 0 0 / .25); }
+dialog::backdrop { background: rgb(10 20 14 / .45); }
+.dlg { padding: 20px 22px 18px; display: flex; flex-direction: column; gap: 10px; }
+.dlg h3 { margin: 0; font-family: var(--display); font-size: 1.4rem; }
+.dlg .ta { margin-top: -6px; }
+.dlg .lead { font-weight: 600; margin: 0; }
+.dlg p { margin: 0; max-width: 65ch; }
+.dlg .acts { display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap; margin-top: 6px; }
+
+/* Meanings tab */
+.gloss { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr)); gap: 18px; align-items: start; }
+.gloss .panel h3 { margin: 0; font-family: var(--display); font-size: 1.1rem; }
+.gloss dl { margin: 0; display: flex; flex-direction: column; }
+.gloss .item { border-top: 1px solid var(--line); padding: 12px 0; display: flex; flex-direction: column; gap: 6px; }
+.gloss .item:first-child { border-top: 0; padding-top: 4px; }
+.gloss dt { font-weight: 600; font-size: 1.02rem; }
+.gloss dt .ta { font-weight: 400; font-size: .9rem; margin-left: 6px; }
+.gloss dd { margin: 0; display: flex; flex-direction: column; gap: 6px; max-width: 65ch; }
+.gloss dd .lead { font-weight: 500; }
+.gloss .item.hl { background: var(--accent-soft); border-radius: 8px; padding-inline: 10px; }
+</style>
+
+<div class="wrap" id="app">
+  <header>
+    <h1>Dina Panchangam <small>தின பஞ்சாங்கம்</small></h1>
+  </header>
+
+  <div class="tabs" role="tablist" aria-label="Sections">
+    <button type="button" role="tab" id="tab-today" aria-controls="pane-today" aria-selected="true">Today's Panchangam</button>
+    <button type="button" role="tab" id="tab-meanings" aria-controls="pane-meanings" aria-selected="false">Meanings</button>
+  </div>
+
+  <div class="tabpane" id="pane-today" role="tabpanel" aria-labelledby="tab-today">
+  <div class="hint">Tap any word with a <b>?</b> to learn what it means.</div>
+  <form class="controls" id="form" autocomplete="off">
+    <div class="field city">
+      <label for="cityInput">City · ஊர்</label>
+      <input id="cityInput" type="text" placeholder="Type a city, e.g. Madurai" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="suggest">
+      <div class="suggest" id="suggest" role="listbox" hidden></div>
+    </div>
+    <div class="field">
+      <label for="dateInput">Date · தேதி</label>
+      <input id="dateInput" type="date" required>
+    </div>
+    <div class="btns" role="group" aria-label="Change day">
+      <button type="button" id="prev">◀ Previous</button>
+      <button type="button" id="today" class="primary">Today</button>
+      <button type="button" id="next">Next ▶</button>
+    </div>
+  </form>
+  <div class="msg" id="msg" role="status" hidden></div>
+  <div class="where" id="where"></div>
+
+  <section class="day" id="summary" aria-live="polite"></section>
+  <div id="nosun" class="nosun" hidden></div>
+
+  <div class="grid" id="panels">
+    <section class="panel">
+      <h2><button type="button" class="term" data-term="panchangam">Pancha Angam</button> <span>பஞ்ச அங்கம் · five limbs</span></h2>
+      <table><tbody id="limbs"></tbody></table>
+      <div class="note">Shown from this day's sunrise to the next sunrise, with the time each one ends.</div>
+    </section>
+    <section class="panel">
+      <h2>Timings to avoid <span>தவிர்க்க வேண்டிய நேரம்</span></h2>
+      <table><tbody id="avoid"></tbody></table>
+      <h2><button type="button" class="term" data-term="nallaneram">Good timings</button> <span>நல்ல நேரம்</span></h2>
+      <table><tbody id="goodt"></tbody></table>
+    </section>
+    <section class="panel">
+      <h2>Year &amp; month <span>வருடம் · மாதம்</span></h2>
+      <table><tbody id="year"></tbody></table>
+    </section>
+    <section class="panel">
+      <h2>Sun &amp; Moon <span>சூரியன் · சந்திரன்</span></h2>
+      <table><tbody id="sunmoon"></tbody></table>
+    </section>
+    <section class="panel" style="grid-column: 1 / -1">
+      <h2><button type="button" class="term" data-term="gowri">Gowri Panchangam</button> <span>கௌரி பஞ்சாங்கம் · Gowri Nalla Neram</span></h2>
+      <div class="subh">Day · பகல்</div>
+      <div class="gowri" id="gday"></div>
+      <div class="subh">Night · இரவு</div>
+      <div class="gowri" id="gnight"></div>
+      <div class="note">Green periods (Amirdha, Uthi, Laabam, Dhanam, Sugam) are Nalla Neram. Red periods (Soram, Visham, Rogam) are avoided.</div>
+    </section>
+  </div>
+
+  <footer id="foot"></footer>
+  </div>
+
+  <div class="tabpane" id="pane-meanings" role="tabpanel" aria-labelledby="tab-meanings" hidden>
+    <p class="hint">What each Panchangam word means and why people use it, in plain English.</p>
+    <div class="gloss" id="gloss"></div>
+  </div>
+</div>
+
+<dialog id="dlg" aria-labelledby="dlgTitle">
+  <div class="dlg">
+    <h3 id="dlgTitle"></h3>
+    <div class="ta" id="dlgTa"></div>
+    <p class="lead" id="dlgLead"></p>
+    <div id="dlgMore" style="display:flex;flex-direction:column;gap:8px"></div>
+    <div class="acts">
+      <button type="button" id="dlgAll">See all meanings</button>
+      <button type="button" id="dlgClose" class="primary">Close</button>
+    </div>
+  </div>
+</dialog>
+
+<script src="https://cdn.jsdelivr.net/npm/astronomy-engine@2.1.19/astronomy.browser.min.js"></script>
+<script>
+// Panchangam calculation engine (Drik / Thirukanitha, Lahiri ayanamsa).
+// Needs the global `Astronomy` object from astronomy-engine.
+(function (root) {
+  'use strict';
+  const A = root.Astronomy;
+  const HOUR = 3600e3, DAY = 86400e3;
+
+  // ---------- Names (English, Tamil) ----------
+  const N = {
+    tithi: [['Prathamai','பிரதமை'],['Dvitiyai','துவிதியை'],['Tritiyai','திருதியை'],['Chaturthi','சதுர்த்தி'],['Panchami','பஞ்சமி'],['Shashti','சஷ்டி'],['Saptami','சப்தமி'],['Ashtami','அஷ்டமி'],['Navami','நவமி'],['Dasami','தசமி'],['Ekadasi','ஏகாதசி'],['Dvadasi','துவாதசி'],['Trayodasi','திரயோதசி'],['Chaturdasi','சதுர்த்தசி'],['Pournami','பௌர்ணமி'],['Amavasai','அமாவாசை']],
+    nakshatra: [['Ashwini','அஸ்வினி'],['Bharani','பரணி'],['Karthigai','கார்த்திகை'],['Rohini','ரோகிணி'],['Mirugasirisham','மிருகசீரிடம்'],['Thiruvathirai','திருவாதிரை'],['Punarpoosam','புனர்பூசம்'],['Poosam','பூசம்'],['Ayilyam','ஆயில்யம்'],['Magam','மகம்'],['Pooram','பூரம்'],['Uthiram','உத்திரம்'],['Hastham','அஸ்தம்'],['Chithirai','சித்திரை'],['Swathi','சுவாதி'],['Visakam','விசாகம்'],['Anusham','அனுஷம்'],['Kettai','கேட்டை'],['Moolam','மூலம்'],['Pooradam','பூராடம்'],['Uthiradam','உத்திராடம்'],['Thiruvonam','திருவோணம்'],['Avittam','அவிட்டம்'],['Sadhayam','சதயம்'],['Poorattathi','பூரட்டாதி'],['Uthirattathi','உத்திரட்டாதி'],['Revathi','ரேவதி']],
+    yoga: [['Vishkambha','விஷ்கம்பம்'],['Priti','ப்ரீதி'],['Ayushman','ஆயுஷ்மான்'],['Saubhagya','சௌபாக்கியம்'],['Shobhana','சோபனம்'],['Atiganda','அதிகண்டம்'],['Sukarma','சுகர்மம்'],['Dhriti','திருதி'],['Shoola','சூலம்'],['Ganda','கண்டம்'],['Vriddhi','விருத்தி'],['Dhruva','துருவம்'],['Vyaghata','வியாகாதம்'],['Harshana','ஹர்ஷணம்'],['Vajra','வஜ்ரம்'],['Siddhi','சித்தி'],['Vyatipata','வியதீபாதம்'],['Variyan','வரீயான்'],['Parigha','பரிகம்'],['Shiva','சிவம்'],['Siddha','சித்தம்'],['Sadhya','சாத்தியம்'],['Shubha','சுபம்'],['Shukla','சுக்லம்'],['Brahma','பிராம்மம்'],['Indra','ஐந்திரம்'],['Vaidhriti','வைதிருதி']],
+    karanaMov: [['Bava','பவம்'],['Balava','பாலவம்'],['Kaulava','கௌலவம்'],['Taitila','தைதுலம்'],['Garaja','கரசை'],['Vanija','வணிசை'],['Vishti (Bhadra)','பத்திரை']],
+    karanaFix: { k0: ['Kimstughna','கிம்ஸ்துக்னம்'], 57: ['Shakuni','சகுனி'], 58: ['Chatushpada','சதுஷ்பாதம்'], 59: ['Nagava','நாகவம்'] },
+    vara: [['Sunday','ஞாயிறு'],['Monday','திங்கள்'],['Tuesday','செவ்வாய்'],['Wednesday','புதன்'],['Thursday','வியாழன்'],['Friday','வெள்ளி'],['Saturday','சனி']],
+    rasi: [['Mesham','மேஷம்'],['Rishabam','ரிஷபம்'],['Mithunam','மிதுனம்'],['Kadagam','கடகம்'],['Simmam','சிம்மம்'],['Kanni','கன்னி'],['Thulam','துலாம்'],['Viruchigam','விருச்சிகம்'],['Dhanusu','தனுசு'],['Magaram','மகரம்'],['Kumbam','கும்பம்'],['Meenam','மீனம்']],
+    month: [['Chithirai','சித்திரை'],['Vaikasi','வைகாசி'],['Aani','ஆனி'],['Aadi','ஆடி'],['Aavani','ஆவணி'],['Purattasi','புரட்டாசி'],['Aippasi','ஐப்பசி'],['Karthigai','கார்த்திகை'],['Margazhi','மார்கழி'],['Thai','தை'],['Maasi','மாசி'],['Panguni','பங்குனி']],
+    samvatsara: [['Prabhava','பிரபவ'],['Vibhava','விபவ'],['Sukla','சுக்ல'],['Pramodhoota','பிரமோதூத'],['Prajorpatti','பிரசோற்பத்தி'],['Angirasa','ஆங்கீரச'],['Srimukha','ஸ்ரீமுக'],['Bhava','பவ'],['Yuva','யுவ'],['Dhathu','தாது'],['Eeswara','ஈஸ்வர'],['Vehudhanya','வெகுதானிய'],['Pramathi','பிரமாதி'],['Vikrama','விக்கிரம'],['Vishu','விஷு'],['Chitrabhanu','சித்திரபானு'],['Subhanu','சுபானு'],['Tharana','தாரண'],['Parthiba','பார்த்திப'],['Viya','விய'],['Sarvajith','சர்வசித்து'],['Sarvadhari','சர்வதாரி'],['Virodhi','விரோதி'],['Vikruthi','விக்ருதி'],['Kara','கர'],['Nandana','நந்தன'],['Vijaya','விஜய'],['Jaya','ஜய'],['Manmatha','மன்மத'],['Dhunmukhi','துன்முகி'],['Hevilambi','ஹேவிளம்பி'],['Vilambi','விளம்பி'],['Vikari','விகாரி'],['Sarvari','சார்வரி'],['Plava','பிலவ'],['Subhakruth','சுபகிருது'],['Sobhakruth','சோபகிருது'],['Krodhi','குரோதி'],['Visuvasu','விசுவாவசு'],['Parabhava','பராபவ'],['Plavanga','பிலவங்க'],['Keelaka','கீலக'],['Saumya','சௌமிய'],['Sadharana','சாதாரண'],['Virodhikruth','விரோதகிருது'],['Paridhabi','பரிதாபி'],['Pramadheecha','பிரமாதீச'],['Ananda','ஆனந்த'],['Rakshasa','ராட்சச'],['Nala','நள'],['Pingala','பிங்கள'],['Kalayukthi','காளயுக்தி'],['Siddharthi','சித்தார்த்தி'],['Raudhri','ரௌத்திரி'],['Dhunmathi','துன்மதி'],['Dhundhubhi','துந்துபி'],['Rudhirodhgari','ருத்ரோத்காரி'],['Rakthakshi','ரக்தாட்சி'],['Krodhana','குரோதன'],['Akshaya','அட்சய']],
+    paksha: [['Shukla Paksha (Valarpirai)','சுக்ல பட்சம் (வளர்பிறை)'],['Krishna Paksha (Theipirai)','கிருஷ்ண பட்சம் (தேய்பிறை)']],
+    ayana: [['Uttarayanam','உத்தராயணம்'],['Dakshinayanam','தட்சிணாயனம்']],
+    ritu: [['Vasantha Ritu','வசந்த ருது'],['Grishma Ritu','கிரீஷ்ம ருது'],['Varsha Ritu','வர்ஷ ருது'],['Sharad Ritu','சரத் ருது'],['Hemantha Ritu','ஹேமந்த ருது'],['Shishira Ritu','சிசிர ருது']],
+    gowri: { A:['Amirdha','அமிர்தம்',1], U:['Uthi','உத்தி',1], L:['Laabam','லாபம்',1], D:['Dhanam','தனம்',1], S:['Sugam','சுகம்',1], O:['Soram','சோரம்',0], V:['Visham','விஷம்',0], R:['Rogam','ரோகம்',0] }
+  };
+
+  // Gowri Panchangam sequences (Sun..Sat), as published by Tamil Gowri Panchangam tables.
+  const GOWRI_DAY = ['UARLDSOV','AVRLDSOU','RLDSOUVA','LDSOVUAR','DSOUAVRL','SOUAVRLD','OUVARLDS'];
+  const GOWRI_NIGHT = ['DSOVUARL','SOUAVRLD','OUVARLDS','UARLDSOV','AVRLDSOU','RLDSOUVA','LDSOUVAO'];
+
+  // Day split into 8 parts; 1-based part number for each weekday (Sun..Sat).
+  const RAHU = [8,2,7,5,6,4,3], YAMA = [5,4,3,2,1,7,6], GULIKA = [7,6,5,4,3,2,1];
+
+  // ---------- Time zone helpers ----------
+  const dtfCache = {};
+  function tzParts(ms, tz) {
+    let f = dtfCache[tz];
+    if (!f) f = dtfCache[tz] = new Intl.DateTimeFormat('en-US', { timeZone: tz, hourCycle: 'h23', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    const p = {}; for (const x of f.formatToParts(new Date(ms))) p[x.type] = x.value;
+    return { y: +p.year, m: +p.month, d: +p.day, h: +p.hour % 24, mi: +p.minute, s: +p.second };
+  }
+  function tzOffset(ms, tz) { const p = tzParts(ms, tz); return Date.UTC(p.y, p.m - 1, p.d, p.h, p.mi, p.s) - Math.floor(ms / 1000) * 1000; }
+  function localToUTC(y, m, d, h, tz) { // local wall time -> UTC ms
+    const guess = Date.UTC(y, m - 1, d, h || 0);
+    let t = guess - tzOffset(guess, tz);
+    t = guess - tzOffset(t, tz);
+    return t;
+  }
+  function localDateKey(ms, tz) { const p = tzParts(ms, tz); return Date.UTC(p.y, p.m - 1, p.d); }
+
+  // ---------- Astronomy ----------
+  const norm = a => ((a % 360) + 360) % 360;
+  function ayanamsa(ms) { // Lahiri (Chitrapaksha), precession polynomial from J2000
+    const T = (ms - Date.UTC(2000, 0, 1, 12)) / (DAY * 36525);
+    return 23.85305 + (5028.796195 * T + 1.1054348 * T * T) / 3600;
+  }
+  function sunTrop(ms) { return A.SunPosition(new Date(ms)).elon; }
+  function moonTrop(ms) { return A.EclipticGeoMoon(new Date(ms)).lon; }
+  function sunSid(ms) { return norm(sunTrop(ms) - ayanamsa(ms)); }
+  function moonSid(ms) { return norm(moonTrop(ms) - ayanamsa(ms)); }
+
+  const F = {
+    tithi: { n: 30, f: ms => norm(moonTrop(ms) - sunTrop(ms)) },
+    nakshatra: { n: 27, f: moonSid },
+    yoga: { n: 27, f: ms => norm(sunSid(ms) + moonSid(ms)) },
+    karana: { n: 60, f: ms => norm(moonTrop(ms) - sunTrop(ms)) },
+    moonRasi: { n: 12, f: moonSid },
+    sunRasi: { n: 12, f: sunSid }
+  };
+  const idxAt = (k, ms) => Math.floor(F[k].f(ms) / (360 / F[k].n)) % F[k].n;
+
+  // Time when index of quantity k changes away from its value at `ms` (searching forward or backward).
+  function nextChange(k, ms, dir, stepH, maxDays) {
+    dir = dir || 1; stepH = stepH || 1; maxDays = maxDays || 3;
+    const i0 = idxAt(k, ms); let a = ms, b;
+    for (let t = ms + dir * stepH * HOUR; Math.abs(t - ms) <= maxDays * DAY; t += dir * stepH * HOUR) {
+      if (idxAt(k, t) !== i0) { b = t; break; }
+      a = t;
+    }
+    if (b === undefined) return null;
+    while (Math.abs(b - a) > 1000) { const m = (a + b) / 2; if (idxAt(k, m) === i0) a = m; else b = m; }
+    return dir > 0 ? b : a;
+  }
+
+  // All values of quantity k from `start` until `end`, with end times.
+  function spans(k, start, end) {
+    const out = []; let t = start;
+    for (let guard = 0; guard < 6; guard++) {
+      const i = idxAt(k, t), e = nextChange(k, t, 1);
+      out.push({ i, end: e });
+      if (e === null || e >= end) break;
+      t = e + 1000;
+    }
+    return out;
+  }
+
+  function riseSet(dir, fromMs, obs) {
+    const r = A.SearchRiseSet(A.Body.Sun, obs, dir, new Date(fromMs), 1.2);
+    return r ? r.date.getTime() : null;
+  }
+
+  // ---------- Main ----------
+  function calculate(opts) { // {y,m,d, lat, lon, tz}
+    const { y, m, d, lat, lon, tz } = opts;
+    const obs = new A.Observer(lat, lon, 0);
+    const midnight = localToUTC(y, m, d, 0, tz);
+    const weekday = new Date(Date.UTC(y, m - 1, d)).getUTCDay();
+    const res = { input: opts, weekday, vara: N.vara[weekday] };
+
+    const sunrise = riseSet(+1, midnight, obs);
+    const sunset = sunrise && riseSet(-1, sunrise, obs);
+    const nextSunrise = sunset && riseSet(+1, sunset, obs);
+    if (!sunrise || !sunset || !nextSunrise || sunrise - midnight > DAY) {
+      res.noSun = true; return res;
+    }
+    Object.assign(res, { sunrise, sunset, nextSunrise });
+    const at = sunrise, until = nextSunrise;
+
+    res.ayanamsa = ayanamsa(at);
+    res.tithi = spans('tithi', at, until).map(s => ({ ...s, name: N.tithi[s.i === 29 ? 15 : s.i % 15], paksha: s.i < 15 ? 0 : 1 }));
+    res.paksha = N.paksha[res.tithi[0].paksha];
+    res.nakshatra = spans('nakshatra', at, until).map(s => ({ ...s, name: N.nakshatra[s.i] }));
+    res.yoga = spans('yoga', at, until).map(s => ({ ...s, name: N.yoga[s.i] }));
+    res.karana = spans('karana', at, until).map(s => ({ ...s, name: s.i === 0 ? N.karanaFix.k0 : (N.karanaFix[s.i] || N.karanaMov[(s.i - 1) % 7]) }));
+    res.moonRasi = spans('moonRasi', at, until).map(s => ({ ...s, name: N.rasi[s.i] }));
+
+    // Tamil solar month: Sun's sidereal sign at sunset; month day counted from sankranti
+    const mi = idxAt('sunRasi', sunset);
+    const sank = nextChange('sunRasi', sunset, -1, 6, 35); // moment Sun entered this sign
+    const sp = tzParts(sank, tz);
+    const sankSunset = riseSet(-1, riseSet(+1, localToUTC(sp.y, sp.m, sp.d, 0, tz), obs), obs);
+    let startKey = Date.UTC(sp.y, sp.m - 1, sp.d);
+    if (sank > sankSunset) startKey += DAY;
+    const dayNo = Math.round((Date.UTC(y, m - 1, d) - startKey) / DAY) + 1;
+    res.tamilMonth = { name: N.month[mi], day: dayNo, sankranti: sank };
+    res.ritu = N.ritu[Math.floor(mi / 2)];
+    const ss = sunSid(sunset);
+    res.ayana = N.ayana[(ss >= 270 || ss < 90) ? 0 : 1];
+    let ty = y; if (m <= 4 && mi >= 8) ty--;
+    res.samvatsara = N.samvatsara[(((ty - 1987) % 60) + 60) % 60];
+
+    // Kalams
+    const day = sunset - sunrise, part = day / 8;
+    const seg = n => ({ start: sunrise + (n - 1) * part, end: sunrise + n * part });
+    res.rahu = seg(RAHU[weekday]); res.yama = seg(YAMA[weekday]); res.gulika = seg(GULIKA[weekday]);
+    const mu = day / 15;
+    res.abhijit = { start: sunrise + 7 * mu, end: sunrise + 8 * mu, wednesday: weekday === 3 };
+
+    // Gowri Panchangam (Nalla Neram)
+    const night = nextSunrise - sunset;
+    const g = (seq, from, len) => seq.split('').map((c, i) => ({ code: c, name: N.gowri[c], good: !!N.gowri[c][2], start: from + i * len / 8, end: from + (i + 1) * len / 8 }));
+    res.gowriDay = g(GOWRI_DAY[weekday], sunrise, day);
+    res.gowriNight = g(GOWRI_NIGHT[weekday], sunset, night);
+    return res;
+  }
+
+  root.Panchang = { calculate, tzParts, localToUTC, localDateKey, N };
+})(typeof globalThis !== 'undefined' ? globalThis : this);
+
+</script>
+<script>
+// [name, region/country, latitude, longitude, IANA time zone]
+// The first city listed for a time zone is the default guess for that zone.
+const CITIES = [
+['Chennai','Tamil Nadu, India',13.0827,80.2707,'Asia/Kolkata'],
+['Ariyalur','Tamil Nadu, India',11.1401,79.0786,'Asia/Kolkata'],
+['Chengalpattu','Tamil Nadu, India',12.6819,79.9888,'Asia/Kolkata'],
+['Chidambaram','Tamil Nadu, India',11.3993,79.6936,'Asia/Kolkata'],
+['Coimbatore','Tamil Nadu, India',11.0168,76.9558,'Asia/Kolkata'],
+['Cuddalore','Tamil Nadu, India',11.7480,79.7714,'Asia/Kolkata'],
+['Dharmapuri','Tamil Nadu, India',12.1211,78.1582,'Asia/Kolkata'],
+['Dindigul','Tamil Nadu, India',10.3624,77.9695,'Asia/Kolkata'],
+['Erode','Tamil Nadu, India',11.3410,77.7172,'Asia/Kolkata'],
+['Hosur','Tamil Nadu, India',12.7409,77.8253,'Asia/Kolkata'],
+['Kallakurichi','Tamil Nadu, India',11.7383,78.9639,'Asia/Kolkata'],
+['Kanchipuram','Tamil Nadu, India',12.8342,79.7036,'Asia/Kolkata'],
+['Kanyakumari','Tamil Nadu, India',8.0883,77.5385,'Asia/Kolkata'],
+['Karaikudi','Tamil Nadu, India',10.0731,78.7732,'Asia/Kolkata'],
+['Karur','Tamil Nadu, India',10.9601,78.0766,'Asia/Kolkata'],
+['Kattur (Tiruchirappalli)','Tamil Nadu, India',10.8130,78.7400,'Asia/Kolkata'],
+['Kodaikanal','Tamil Nadu, India',10.2381,77.4892,'Asia/Kolkata'],
+['Krishnagiri','Tamil Nadu, India',12.5186,78.2137,'Asia/Kolkata'],
+['Kumbakonam','Tamil Nadu, India',10.9617,79.3881,'Asia/Kolkata'],
+['Madurai','Tamil Nadu, India',9.9252,78.1198,'Asia/Kolkata'],
+['Mayiladuthurai','Tamil Nadu, India',11.1018,79.6522,'Asia/Kolkata'],
+['Nagapattinam','Tamil Nadu, India',10.7672,79.8449,'Asia/Kolkata'],
+['Nagercoil','Tamil Nadu, India',8.1833,77.4119,'Asia/Kolkata'],
+['Namakkal','Tamil Nadu, India',11.2189,78.1674,'Asia/Kolkata'],
+['Ooty (Udhagamandalam)','Tamil Nadu, India',11.4102,76.6950,'Asia/Kolkata'],
+['Palani','Tamil Nadu, India',10.4500,77.5200,'Asia/Kolkata'],
+['Perambalur','Tamil Nadu, India',11.2342,78.8807,'Asia/Kolkata'],
+['Pollachi','Tamil Nadu, India',10.6609,77.0048,'Asia/Kolkata'],
+['Pudukkottai','Tamil Nadu, India',10.3797,78.8205,'Asia/Kolkata'],
+['Rameswaram','Tamil Nadu, India',9.2876,79.3129,'Asia/Kolkata'],
+['Ramanathapuram','Tamil Nadu, India',9.3639,78.8395,'Asia/Kolkata'],
+['Ranipet','Tamil Nadu, India',12.9273,79.3330,'Asia/Kolkata'],
+['Salem','Tamil Nadu, India',11.6643,78.1460,'Asia/Kolkata'],
+['Sivaganga','Tamil Nadu, India',9.8433,78.4809,'Asia/Kolkata'],
+['Sivakasi','Tamil Nadu, India',9.4533,77.8024,'Asia/Kolkata'],
+['Srirangam','Tamil Nadu, India',10.8624,78.6896,'Asia/Kolkata'],
+['Tenkasi','Tamil Nadu, India',8.9594,77.3152,'Asia/Kolkata'],
+['Thanjavur','Tamil Nadu, India',10.7870,79.1378,'Asia/Kolkata'],
+['Theni','Tamil Nadu, India',10.0104,77.4768,'Asia/Kolkata'],
+['Thoothukudi (Tuticorin)','Tamil Nadu, India',8.7642,78.1348,'Asia/Kolkata'],
+['Tiruchendur','Tamil Nadu, India',8.4946,78.1219,'Asia/Kolkata'],
+['Tiruchirappalli (Trichy)','Tamil Nadu, India',10.7905,78.7047,'Asia/Kolkata'],
+['Tirunelveli','Tamil Nadu, India',8.7139,77.7567,'Asia/Kolkata'],
+['Tirupattur','Tamil Nadu, India',12.4950,78.5730,'Asia/Kolkata'],
+['Tiruppur','Tamil Nadu, India',11.1085,77.3411,'Asia/Kolkata'],
+['Tiruvallur','Tamil Nadu, India',13.1439,79.9086,'Asia/Kolkata'],
+['Tiruvannamalai','Tamil Nadu, India',12.2253,79.0747,'Asia/Kolkata'],
+['Tiruvarur','Tamil Nadu, India',10.7661,79.6344,'Asia/Kolkata'],
+['Vellore','Tamil Nadu, India',12.9165,79.1325,'Asia/Kolkata'],
+['Viluppuram','Tamil Nadu, India',11.9401,79.4861,'Asia/Kolkata'],
+['Virudhunagar','Tamil Nadu, India',9.5680,77.9624,'Asia/Kolkata'],
+['Puducherry','Puducherry, India',11.9416,79.8083,'Asia/Kolkata'],
+['Karaikal','Puducherry, India',10.9254,79.8380,'Asia/Kolkata'],
+['Bengaluru','Karnataka, India',12.9716,77.5946,'Asia/Kolkata'],
+['Mysuru','Karnataka, India',12.2958,76.6394,'Asia/Kolkata'],
+['Mangaluru','Karnataka, India',12.9141,74.8560,'Asia/Kolkata'],
+['Udupi','Karnataka, India',13.3409,74.7421,'Asia/Kolkata'],
+['Hubballi','Karnataka, India',15.3647,75.1240,'Asia/Kolkata'],
+['Thiruvananthapuram','Kerala, India',8.5241,76.9366,'Asia/Kolkata'],
+['Kochi','Kerala, India',9.9312,76.2673,'Asia/Kolkata'],
+['Kozhikode','Kerala, India',11.2588,75.7804,'Asia/Kolkata'],
+['Thrissur','Kerala, India',10.5276,76.2144,'Asia/Kolkata'],
+['Palakkad','Kerala, India',10.7867,76.6548,'Asia/Kolkata'],
+['Guruvayur','Kerala, India',10.5946,76.0369,'Asia/Kolkata'],
+['Hyderabad','Telangana, India',17.3850,78.4867,'Asia/Kolkata'],
+['Tirupati','Andhra Pradesh, India',13.6288,79.4192,'Asia/Kolkata'],
+['Vijayawada','Andhra Pradesh, India',16.5062,80.6480,'Asia/Kolkata'],
+['Visakhapatnam','Andhra Pradesh, India',17.6868,83.2185,'Asia/Kolkata'],
+['Nellore','Andhra Pradesh, India',14.4426,79.9865,'Asia/Kolkata'],
+['Mumbai','Maharashtra, India',19.0760,72.8777,'Asia/Kolkata'],
+['Pune','Maharashtra, India',18.5204,73.8567,'Asia/Kolkata'],
+['Nagpur','Maharashtra, India',21.1458,79.0882,'Asia/Kolkata'],
+['Nashik','Maharashtra, India',19.9975,73.7898,'Asia/Kolkata'],
+['Panaji','Goa, India',15.4909,73.8278,'Asia/Kolkata'],
+['Ahmedabad','Gujarat, India',23.0225,72.5714,'Asia/Kolkata'],
+['Vadodara','Gujarat, India',22.3072,73.1812,'Asia/Kolkata'],
+['Surat','Gujarat, India',21.1702,72.8311,'Asia/Kolkata'],
+['Dwarka','Gujarat, India',22.2442,68.9685,'Asia/Kolkata'],
+['New Delhi','Delhi, India',28.6139,77.2090,'Asia/Kolkata'],
+['Noida','Uttar Pradesh, India',28.5355,77.3910,'Asia/Kolkata'],
+['Gurugram','Haryana, India',28.4595,77.0266,'Asia/Kolkata'],
+['Chandigarh','India',30.7333,76.7794,'Asia/Kolkata'],
+['Jaipur','Rajasthan, India',26.9124,75.7873,'Asia/Kolkata'],
+['Lucknow','Uttar Pradesh, India',26.8467,80.9462,'Asia/Kolkata'],
+['Varanasi','Uttar Pradesh, India',25.3176,82.9739,'Asia/Kolkata'],
+['Prayagraj','Uttar Pradesh, India',25.4358,81.8463,'Asia/Kolkata'],
+['Ayodhya','Uttar Pradesh, India',26.7922,82.1998,'Asia/Kolkata'],
+['Mathura','Uttar Pradesh, India',27.4924,77.6737,'Asia/Kolkata'],
+['Haridwar','Uttarakhand, India',29.9457,78.1642,'Asia/Kolkata'],
+['Rishikesh','Uttarakhand, India',30.0869,78.2676,'Asia/Kolkata'],
+['Ujjain','Madhya Pradesh, India',23.1765,75.7885,'Asia/Kolkata'],
+['Bhopal','Madhya Pradesh, India',23.2599,77.4126,'Asia/Kolkata'],
+['Indore','Madhya Pradesh, India',22.7196,75.8577,'Asia/Kolkata'],
+['Kolkata','West Bengal, India',22.5726,88.3639,'Asia/Kolkata'],
+['Bhubaneswar','Odisha, India',20.2961,85.8245,'Asia/Kolkata'],
+['Puri','Odisha, India',19.8135,85.8312,'Asia/Kolkata'],
+['Patna','Bihar, India',25.5941,85.1376,'Asia/Kolkata'],
+['Guwahati','Assam, India',26.1445,91.7362,'Asia/Kolkata'],
+['Srinagar','Jammu & Kashmir, India',34.0837,74.7973,'Asia/Kolkata'],
+['Port Blair','Andaman, India',11.6234,92.7265,'Asia/Kolkata'],
+['Colombo','Sri Lanka',6.9271,79.8612,'Asia/Colombo'],
+['Jaffna','Sri Lanka',9.6615,80.0255,'Asia/Colombo'],
+['Trincomalee','Sri Lanka',8.5874,81.2152,'Asia/Colombo'],
+['Kandy','Sri Lanka',7.2906,80.6337,'Asia/Colombo'],
+['Kathmandu','Nepal',27.7172,85.3240,'Asia/Kathmandu'],
+['Dhaka','Bangladesh',23.8103,90.4125,'Asia/Dhaka'],
+['Karachi','Pakistan',24.8607,67.0011,'Asia/Karachi'],
+['Male','Maldives',4.1755,73.5093,'Indian/Maldives'],
+['Singapore','Singapore',1.3521,103.8198,'Asia/Singapore'],
+['Kuala Lumpur','Malaysia',3.1390,101.6869,'Asia/Kuala_Lumpur'],
+['Penang (George Town)','Malaysia',5.4141,100.3288,'Asia/Kuala_Lumpur'],
+['Ipoh','Malaysia',4.5975,101.0901,'Asia/Kuala_Lumpur'],
+['Bangkok','Thailand',13.7563,100.5018,'Asia/Bangkok'],
+['Yangon','Myanmar',16.8409,96.1735,'Asia/Yangon'],
+['Jakarta','Indonesia',-6.2088,106.8456,'Asia/Jakarta'],
+['Bali (Denpasar)','Indonesia',-8.6705,115.2126,'Asia/Makassar'],
+['Ho Chi Minh City','Vietnam',10.8231,106.6297,'Asia/Ho_Chi_Minh'],
+['Hong Kong','China',22.3193,114.1694,'Asia/Hong_Kong'],
+['Shanghai','China',31.2304,121.4737,'Asia/Shanghai'],
+['Beijing','China',39.9042,116.4074,'Asia/Shanghai'],
+['Taipei','Taiwan',25.0330,121.5654,'Asia/Taipei'],
+['Manila','Philippines',14.5995,120.9842,'Asia/Manila'],
+['Tokyo','Japan',35.6762,139.6503,'Asia/Tokyo'],
+['Seoul','South Korea',37.5665,126.9780,'Asia/Seoul'],
+['Dubai','UAE',25.2048,55.2708,'Asia/Dubai'],
+['Abu Dhabi','UAE',24.4539,54.3773,'Asia/Dubai'],
+['Sharjah','UAE',25.3463,55.4209,'Asia/Dubai'],
+['Muscat','Oman',23.5880,58.3829,'Asia/Muscat'],
+['Doha','Qatar',25.2854,51.5310,'Asia/Qatar'],
+['Manama','Bahrain',26.2285,50.5860,'Asia/Bahrain'],
+['Kuwait City','Kuwait',29.3759,47.9774,'Asia/Kuwait'],
+['Riyadh','Saudi Arabia',24.7136,46.6753,'Asia/Riyadh'],
+['Jeddah','Saudi Arabia',21.4858,39.1925,'Asia/Riyadh'],
+['Tel Aviv','Israel',32.0853,34.7818,'Asia/Jerusalem'],
+['Istanbul','Turkey',41.0082,28.9784,'Europe/Istanbul'],
+['Moscow','Russia',55.7558,37.6173,'Europe/Moscow'],
+['London','United Kingdom',51.5074,-0.1278,'Europe/London'],
+['Birmingham','United Kingdom',52.4862,-1.8904,'Europe/London'],
+['Leicester','United Kingdom',52.6369,-1.1398,'Europe/London'],
+['Manchester','United Kingdom',53.4808,-2.2426,'Europe/London'],
+['Edinburgh','United Kingdom',55.9533,-3.1883,'Europe/London'],
+['Dublin','Ireland',53.3498,-6.2603,'Europe/Dublin'],
+['Paris','France',48.8566,2.3522,'Europe/Paris'],
+['Berlin','Germany',52.5200,13.4050,'Europe/Berlin'],
+['Frankfurt','Germany',50.1109,8.6821,'Europe/Berlin'],
+['Munich','Germany',48.1351,11.5820,'Europe/Berlin'],
+['Amsterdam','Netherlands',52.3676,4.9041,'Europe/Amsterdam'],
+['Brussels','Belgium',50.8503,4.3517,'Europe/Brussels'],
+['Zurich','Switzerland',47.3769,8.5417,'Europe/Zurich'],
+['Geneva','Switzerland',46.2044,6.1432,'Europe/Zurich'],
+['Vienna','Austria',48.2082,16.3738,'Europe/Vienna'],
+['Rome','Italy',41.9028,12.4964,'Europe/Rome'],
+['Milan','Italy',45.4642,9.1900,'Europe/Rome'],
+['Madrid','Spain',40.4168,-3.7038,'Europe/Madrid'],
+['Lisbon','Portugal',38.7223,-9.1393,'Europe/Lisbon'],
+['Stockholm','Sweden',59.3293,18.0686,'Europe/Stockholm'],
+['Oslo','Norway',59.9139,10.7522,'Europe/Oslo'],
+['Copenhagen','Denmark',55.6761,12.5683,'Europe/Copenhagen'],
+['Helsinki','Finland',60.1699,24.9384,'Europe/Helsinki'],
+['Warsaw','Poland',52.2297,21.0122,'Europe/Warsaw'],
+['Johannesburg','South Africa',-26.2041,28.0473,'Africa/Johannesburg'],
+['Durban','South Africa',-29.8587,31.0218,'Africa/Johannesburg'],
+['Cape Town','South Africa',-33.9249,18.4241,'Africa/Johannesburg'],
+['Nairobi','Kenya',-1.2921,36.8219,'Africa/Nairobi'],
+['Dar es Salaam','Tanzania',-6.7924,39.2083,'Africa/Dar_es_Salaam'],
+['Port Louis','Mauritius',-20.1609,57.5012,'Indian/Mauritius'],
+['Saint-Denis','Réunion',-20.8823,55.4504,'Indian/Reunion'],
+['Lagos','Nigeria',6.5244,3.3792,'Africa/Lagos'],
+['Cairo','Egypt',30.0444,31.2357,'Africa/Cairo'],
+['Sydney','NSW, Australia',-33.8688,151.2093,'Australia/Sydney'],
+['Melbourne','Victoria, Australia',-37.8136,144.9631,'Australia/Melbourne'],
+['Brisbane','Queensland, Australia',-27.4698,153.0251,'Australia/Brisbane'],
+['Perth','WA, Australia',-31.9505,115.8605,'Australia/Perth'],
+['Adelaide','SA, Australia',-34.9285,138.6007,'Australia/Adelaide'],
+['Canberra','ACT, Australia',-35.2809,149.1300,'Australia/Sydney'],
+['Auckland','New Zealand',-36.8485,174.7633,'Pacific/Auckland'],
+['Wellington','New Zealand',-41.2865,174.7762,'Pacific/Auckland'],
+['Suva','Fiji',-18.1416,178.4419,'Pacific/Fiji'],
+['San Francisco','California, USA',37.7749,-122.4194,'America/Los_Angeles'],
+['Fremont','California, USA',37.5485,-121.9886,'America/Los_Angeles'],
+['San Jose','California, USA',37.3382,-121.8863,'America/Los_Angeles'],
+['Sunnyvale','California, USA',37.3688,-122.0363,'America/Los_Angeles'],
+['Santa Clara','California, USA',37.3541,-121.9552,'America/Los_Angeles'],
+['Livermore','California, USA',37.6819,-121.7680,'America/Los_Angeles'],
+['Sacramento','California, USA',38.5816,-121.4944,'America/Los_Angeles'],
+['Los Angeles','California, USA',34.0522,-118.2437,'America/Los_Angeles'],
+['Irvine','California, USA',33.6846,-117.8265,'America/Los_Angeles'],
+['San Diego','California, USA',32.7157,-117.1611,'America/Los_Angeles'],
+['Seattle','Washington, USA',47.6062,-122.3321,'America/Los_Angeles'],
+['Redmond','Washington, USA',47.6740,-122.1215,'America/Los_Angeles'],
+['Portland','Oregon, USA',45.5152,-122.6784,'America/Los_Angeles'],
+['Las Vegas','Nevada, USA',36.1699,-115.1398,'America/Los_Angeles'],
+['Phoenix','Arizona, USA',33.4484,-112.0740,'America/Phoenix'],
+['Denver','Colorado, USA',39.7392,-104.9903,'America/Denver'],
+['Salt Lake City','Utah, USA',40.7608,-111.8910,'America/Denver'],
+['Dallas','Texas, USA',32.7767,-96.7970,'America/Chicago'],
+['Houston','Texas, USA',29.7604,-95.3698,'America/Chicago'],
+['Austin','Texas, USA',30.2672,-97.7431,'America/Chicago'],
+['San Antonio','Texas, USA',29.4241,-98.4936,'America/Chicago'],
+['Chicago','Illinois, USA',41.8781,-87.6298,'America/Chicago'],
+['Minneapolis','Minnesota, USA',44.9778,-93.2650,'America/Chicago'],
+['St. Louis','Missouri, USA',38.6270,-90.1994,'America/Chicago'],
+['Kansas City','Missouri, USA',39.0997,-94.5786,'America/Chicago'],
+['Nashville','Tennessee, USA',36.1627,-86.7816,'America/Chicago'],
+['New Orleans','Louisiana, USA',29.9511,-90.0715,'America/Chicago'],
+['New York','New York, USA',40.7128,-74.0060,'America/New_York'],
+['New Jersey (Edison)','New Jersey, USA',40.5187,-74.4121,'America/New_York'],
+['Boston','Massachusetts, USA',42.3601,-71.0589,'America/New_York'],
+['Philadelphia','Pennsylvania, USA',39.9526,-75.1652,'America/New_York'],
+['Pittsburgh','Pennsylvania, USA',40.4406,-79.9959,'America/New_York'],
+['Washington DC','USA',38.9072,-77.0369,'America/New_York'],
+['Baltimore','Maryland, USA',39.2904,-76.6122,'America/New_York'],
+['Richmond','Virginia, USA',37.5407,-77.4360,'America/New_York'],
+['Raleigh','North Carolina, USA',35.7796,-78.6382,'America/New_York'],
+['Charlotte','North Carolina, USA',35.2271,-80.8431,'America/New_York'],
+['Atlanta','Georgia, USA',33.7490,-84.3880,'America/New_York'],
+['Miami','Florida, USA',25.7617,-80.1918,'America/New_York'],
+['Orlando','Florida, USA',28.5383,-81.3792,'America/New_York'],
+['Tampa','Florida, USA',27.9506,-82.4572,'America/New_York'],
+['Detroit','Michigan, USA',42.3314,-83.0458,'America/Detroit'],
+['Columbus','Ohio, USA',39.9612,-82.9988,'America/New_York'],
+['Cleveland','Ohio, USA',41.4993,-81.6944,'America/New_York'],
+['Indianapolis','Indiana, USA',39.7684,-86.1581,'America/Indiana/Indianapolis'],
+['Anchorage','Alaska, USA',61.2181,-149.9003,'America/Anchorage'],
+['Honolulu','Hawaii, USA',21.3069,-157.8583,'Pacific/Honolulu'],
+['Toronto','Ontario, Canada',43.6532,-79.3832,'America/Toronto'],
+['Brampton','Ontario, Canada',43.7315,-79.7624,'America/Toronto'],
+['Ottawa','Ontario, Canada',45.4215,-75.6972,'America/Toronto'],
+['Montreal','Quebec, Canada',45.5017,-73.5673,'America/Toronto'],
+['Vancouver','BC, Canada',49.2827,-123.1207,'America/Vancouver'],
+['Calgary','Alberta, Canada',51.0447,-114.0719,'America/Edmonton'],
+['Edmonton','Alberta, Canada',53.5461,-113.4938,'America/Edmonton'],
+['Winnipeg','Manitoba, Canada',49.8951,-97.1384,'America/Winnipeg'],
+['Halifax','Nova Scotia, Canada',44.6488,-63.5752,'America/Halifax'],
+['Mexico City','Mexico',19.4326,-99.1332,'America/Mexico_City'],
+['Port of Spain','Trinidad and Tobago',10.6549,-61.5019,'America/Port_of_Spain'],
+['Georgetown','Guyana',6.8013,-58.1551,'America/Guyana'],
+['Paramaribo','Suriname',5.8520,-55.2038,'America/Paramaribo'],
+['São Paulo','Brazil',-23.5505,-46.6333,'America/Sao_Paulo'],
+['Buenos Aires','Argentina',-34.6037,-58.3816,'America/Argentina/Buenos_Aires']
+];
+
+</script>
+<script>
+// Plain-English meanings of Panchangam terms. Shown in the tap-to-explain card and the Meanings tab.
+// group: which heading the term sits under in the Meanings tab.
+const GLOSSARY = [
+{ id:'panchangam', group:'Basics', term:'Panchangam', ta:'பஞ்சாங்கம்',
+  short:'The Hindu almanac. "Pancha" means five and "angam" means limb, so it lists five parts of each day.',
+  more:['The five limbs are Vara (weekday), Tithi (lunar day), Nakshatra (star), Yoga and Karana. Together with sunrise, sunset and the daily timings, they are used to pick good times for weddings, house-warming, travel and starting new work, and to know the dates of fasts and festivals.',
+        'All of it comes from the positions of the Sun and the Moon, so the values change from city to city and day to day.'] },
+{ id:'sunrise', group:'Basics', term:'Sunrise', ta:'சூரிய உதயம்',
+  short:'In the Hindu calendar a day begins at sunrise, not at midnight.',
+  more:['The Tithi, Nakshatra and other limbs "of the day" are the ones running at the moment of sunrise. Rahu Kalam and the other timings are worked out from the local sunrise and sunset, which is why they are different in Chennai, Delhi and California.'] },
+{ id:'vara', group:'Five limbs', term:'Vara', ta:'வாரம்',
+  short:'The weekday. Each of the seven days is named after a planet.',
+  more:['Sunday (Gnayiru) – Sun, Monday (Thingal) – Moon, Tuesday (Sevvai) – Mars, Wednesday (Budhan) – Mercury, Thursday (Viyazhan) – Jupiter, Friday (Velli) – Venus, Saturday (Sani) – Saturn.',
+        'The weekday decides which part of the day is Rahu Kalam, Yamagandam and Gulika, and the order of the Gowri periods.'] },
+{ id:'tithi', group:'Five limbs', term:'Tithi', ta:'திதி',
+  short:'The lunar day. A new Tithi begins each time the Moon moves 12° further ahead of the Sun.',
+  more:['There are 30 Tithis from one new moon (Amavasai) to the next: 15 in the waxing half and 15 in the waning half. Because the Moon\'s speed changes, a Tithi lasts anywhere from about 19 to 26 hours, so it can start or end at any time of day or night.',
+        'Many observances follow the Tithi: Ekadasi fasting, Sankatahara Chaturthi, Pradosham on Trayodasi, Shashti for Murugan, and the yearly remembrance (Thithi or Shraddham) of a departed parent, which is done on the Tithi of their passing.'] },
+{ id:'paksha', group:'Five limbs', term:'Paksha', ta:'பட்சம்',
+  short:'The half of the lunar month: waxing (Shukla, Valarpirai) or waning (Krishna, Theipirai).',
+  more:['Shukla Paksha runs from new moon (Amavasai) to full moon (Pournami), when the Moon grows brighter each night. Krishna Paksha runs from full moon back to new moon. Waxing days are generally preferred for new beginnings.'] },
+{ id:'nakshatra', group:'Five limbs', term:'Nakshatra', ta:'நட்சத்திரம்',
+  short:'The star of the day: which of the 27 star groups the Moon is passing through.',
+  more:['The sky along the Moon\'s path is divided into 27 equal parts of 13°20′, each named after a star group, from Ashwini to Revathi. The Moon stays roughly one day in each.',
+        'The Nakshatra at your birth is your birth star (janma nakshatram), used for temple archanai, naming and marriage matching. Many festivals are fixed by the star, such as Thiruvathirai, Karthigai Deepam, Panguni Uthiram and Thiruvonam.'] },
+{ id:'yoga', group:'Five limbs', term:'Yoga', ta:'யோகம்',
+  short:'A measure that adds the positions of the Sun and the Moon, giving 27 Yogas in a cycle.',
+  more:['This Yoga has nothing to do with yoga exercise. The combined position of the Sun and Moon is divided into 27 parts of 13°20′, each with a name such as Siddhi, Shubha or Vaidhriti.',
+        'Some Yogas are considered unfavourable for important work, for example Vishkambha, Atiganda, Shoola, Ganda, Vyaghata, Vajra, Vyatipata, Parigha and Vaidhriti. Astrologers check the Yoga when fixing a muhurtham.'] },
+{ id:'karana', group:'Five limbs', term:'Karana', ta:'கரணம்',
+  short:'Half of a Tithi. There are two Karanas in every Tithi.',
+  more:['There are 11 Karanas. Seven of them (Bava, Balava, Kaulava, Taitila, Garaja, Vanija and Vishti) repeat through the month, and four (Shakuni, Chatushpada, Nagava and Kimstughna) come once, around the new moon.',
+        'Vishti, also called Bhadra (பத்திரை), is considered unfavourable for starting new work.'] },
+{ id:'rahu', group:'Timings', term:'Rahu Kalam', ta:'ராகு காலம்',
+  short:'About 1½ hours each day that people avoid for starting anything new or important.',
+  more:['The time from sunrise to sunset is split into eight equal parts. One part, fixed by the weekday, belongs to Rahu, a "shadow planet" (one of the Moon\'s nodes, linked with eclipses). It is believed that work begun in this period does not go well.',
+        'It is not a fixed clock time. It depends on your local sunrise and sunset, so it moves slightly through the year and between cities. Many temples hold special Rahu Kala pujas to Durga, especially on Tuesdays and Fridays.'] },
+{ id:'yama', group:'Timings', term:'Yamagandam', ta:'எமகண்டம்',
+  short:'Another eighth part of the daytime, linked with Yama, that is avoided for good beginnings and travel.',
+  more:['Like Rahu Kalam, it is one of the eight parts of the daytime, chosen by the weekday, and lasts about 1½ hours. "Yama" is the god of death and "gandam" means danger, so people avoid starting journeys, ceremonies or new ventures in this period.'] },
+{ id:'gulika', group:'Timings', term:'Gulika Kalam', ta:'குளிகை',
+  short:'An eighth part of the daytime ruled by Gulika, son of Saturn. Whatever is done now is believed to repeat.',
+  more:['Because of this belief, it is avoided for sad or unwanted events, such as funerals, taking a loan or selling property. Some people deliberately choose it for things they want repeated, such as buying gold or paying back a debt.'] },
+{ id:'muhurtham', group:'Timings', term:'Muhurtham', ta:'முகூர்த்தம்',
+  short:'A unit of time of about 48 minutes, and also the word for an auspicious time.',
+  more:['Daytime and night-time are each divided into 15 muhurthams, so their length changes with the season. In everyday use, "muhurtham" means the good time chosen for a wedding or ceremony.'] },
+{ id:'abhijit', group:'Timings', term:'Abhijit Muhurtham', ta:'அபிஜித் முகூர்த்தம்',
+  short:'The middle part of the day, around local noon, considered very auspicious.',
+  more:['It is the 8th of the 15 daytime muhurthams, lasting about 48 minutes, when the Sun is highest. It is believed to be strong enough to overcome many other bad factors, so it is used when no other good time is available. Traditionally it is not used on Wednesdays.'] },
+{ id:'gowri', group:'Timings', term:'Gowri Nalla Neram', ta:'கௌரி நல்ல நேரம்',
+  short:'A Tamil system that splits day and night into 8 periods each, marked good or bad.',
+  more:['Good periods: Amirdha (nectar, the best), Uthi (progress), Laabam (gain), Dhanam (wealth) and Sugam (comfort). Bad periods: Soram (loss), Visham (poison) and Rogam (illness).',
+        'Tamil families often look at Gowri Nalla Neram for daily matters such as starting a journey, signing papers, paying an advance or a first visit. The order of the periods depends on the weekday, and the length depends on local sunrise and sunset.'] },
+{ id:'nallaneram', group:'Timings', term:'Nalla Neram', ta:'நல்ல நேரம்',
+  short:'"Good time" in Tamil: periods considered favourable for beginning things.',
+  more:['Printed calendars give Nalla Neram in different ways. This page shows Abhijit Muhurtham and the good Gowri periods, which are worked out from your own sunrise and sunset.'] },
+{ id:'samvatsara', group:'Year and month', term:'Samvatsara', ta:'வருடம்',
+  short:'The name of the year, from a cycle of 60 year names.',
+  more:['The 60 names, from Prabhava to Akshaya, repeat every 60 years. The Tamil year begins on Chithirai 1, usually 14 April. The year from April 2026 to April 2027 is Parabhava. A 60th birthday (Shashtiabdapoorthi) celebrates the return of one\'s birth year name.'] },
+{ id:'month', group:'Year and month', term:'Tamil month', ta:'தமிழ் மாதம்',
+  short:'A solar month. It starts when the Sun moves into a new zodiac sign.',
+  more:['When the Sun enters Mesham, Chithirai begins; when it enters Rishabam, Vaikasi begins, and so on through Panguni. The moment of entry is the Sankranti (month birth, "maasa pirappu"). If it happens after sunset, the month starts the next day.',
+        'Tamil months are 29 to 32 days long. Festivals such as Pongal (Thai 1), Tamil New Year (Chithirai 1) and Aadi Perukku are fixed by the Tamil month.'] },
+{ id:'ayana', group:'Year and month', term:'Ayana', ta:'அயனம்',
+  short:'The Sun\'s half-year journey: northward (Uttarayanam) or southward (Dakshinayanam).',
+  more:['Uttarayanam runs from Thai 1 (Pongal, Makara Sankranti) to the end of Aani. Dakshinayanam runs from Aadi 1 to the end of Margazhi. Uttarayanam is considered the more auspicious half; Dakshinayanam is associated with worship of ancestors and the Devi.'] },
+{ id:'ritu', group:'Year and month', term:'Ritu', ta:'ருது',
+  short:'The season. The year has six seasons of two months each.',
+  more:['Vasantha (spring): Chithirai, Vaikasi. Grishma (summer): Aani, Aadi. Varsha (rains): Aavani, Purattasi. Sharad (autumn): Aippasi, Karthigai. Hemantha (early winter): Margazhi, Thai. Shishira (late winter): Maasi, Panguni.'] },
+{ id:'rasi', group:'Sun and Moon', term:'Moon rasi', ta:'சந்திர ராசி',
+  short:'The zodiac sign the Moon is in today. It changes about every 2¼ days.',
+  more:['The zodiac is divided into 12 signs (rasis) of 30° each, from Mesham to Meenam. Your rasi is the sign the Moon was in when you were born. Daily rasi palan and Chandrashtamam are read from the Moon\'s rasi.'] },
+{ id:'method', group:'Sun and Moon', term:'Thirukanitha and Ayanamsa', ta:'திருக்கணிதம் · அயனாம்சம்',
+  short:'Thirukanitha uses exact modern astronomy. Ayanamsa is the correction between the Western and Indian zodiacs.',
+  more:['Thirukanitha (Drik Ganita) calculates the true positions of the Sun and Moon. The older Vakya method uses traditional verses and tables, so its times can differ by minutes or even hours.',
+        'Indian astronomy measures positions against the fixed stars. Because the Earth\'s axis slowly wobbles, this differs from the Western zodiac by about 24° today. That difference is the Ayanamsa; this page uses Lahiri, the Indian Government standard.'] }
+];
+
+</script>
+<script>
+(function () {
+  'use strict';
+  const $ = id => document.getElementById(id);
+  const P = window.Panchang, DAY = 86400e3;
+  const state = { city: null, y: 0, m: 0, d: 0, source: '' };
+
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const bi = (n, cls) => `<span class="${cls || ''}">${esc(n[0])}</span> <span class="ta">${esc(n[1])}</span>`;
+  const MONTHS_EN = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+
+  // ---------- time formatting in the city's own zone ----------
+  function fmt(ms) {
+    if (ms == null) return '—';
+    const tz = state.city.tz;
+    const t = new Date(ms).toLocaleTimeString('en-US', { timeZone: tz, hour: 'numeric', minute: '2-digit' });
+    const p = P.tzParts(ms, tz);
+    const diff = Math.round((Date.UTC(p.y, p.m - 1, p.d) - Date.UTC(state.y, state.m - 1, state.d)) / DAY);
+    if (diff === 0) return `<span class="when num">${t}</span>`;
+    const lbl = new Date(Date.UTC(p.y, p.m - 1, p.d)).toLocaleDateString('en-US', { timeZone: 'UTC', weekday: 'short', day: 'numeric', month: 'short' });
+    return `<span class="when num">${t}</span> <span class="nd">${lbl}</span>`;
+  }
+  const range = r => `${fmt(r.start)} – ${fmt(r.end)}`;
+  function utcOffsetLabel(tz) {
+    const ms = P.localToUTC(state.y, state.m, state.d, 12, tz);
+    const p = P.tzParts(ms, tz);
+    let off = Math.round((Date.UTC(p.y, p.m - 1, p.d, p.h, p.mi) - ms) / 60000);
+    const sign = off < 0 ? '−' : '+'; off = Math.abs(off);
+    return `UTC${sign}${Math.floor(off / 60)}${off % 60 ? ':' + String(off % 60).padStart(2, '0') : ''}`;
+  }
+
+  function seqHTML(list) {
+    return '<div class="seq">' + list.map((s, i) =>
+      `<div class="${i ? 'then' : ''}">${i ? 'then ' : ''}${bi(s.name)} <span class="until">${s.end ? 'until ' + fmt(s.end) : ''}</span></div>`).join('') + '</div>';
+  }
+  const term = (id, label) => `<button type="button" class="term" data-term="${id}" aria-label="${esc(label)} – what does this mean?">${esc(label)}</button>`;
+  const row = (en, ta, html, id) => `<tr><th>${id ? term(id, en) : esc(en)}<span class="ta">${esc(ta)}</span></th><td>${html}</td></tr>`;
+
+  // ---------- render ----------
+  function render() {
+    const c = state.city;
+    $('dateInput').value = `${state.y}-${String(state.m).padStart(2, '0')}-${String(state.d).padStart(2, '0')}`;
+    $('cityInput').value = c.name;
+    const lat = `${Math.abs(c.lat).toFixed(2)}°${c.lat >= 0 ? 'N' : 'S'}`, lon = `${Math.abs(c.lon).toFixed(2)}°${c.lon >= 0 ? 'E' : 'W'}`;
+    $('where').innerHTML = `<b>${esc(c.name)}</b>${c.region ? ', ' + esc(c.region) : ''} · ${lat} ${lon} · ${esc(c.tz)} (${utcOffsetLabel(c.tz)})${state.source ? ' · ' + esc(state.source) : ''}`;
+
+    const r = P.calculate({ y: state.y, m: state.m, d: state.d, lat: c.lat, lon: c.lon, tz: c.tz });
+    const dateEn = `${r.vara[0]}, ${state.d} ${MONTHS_EN[state.m - 1]} ${state.y}`;
+
+    if (r.noSun) {
+      $('summary').innerHTML = `<div class="date"><div class="big">${esc(dateEn)}</div><div class="ta">${esc(r.vara[1])}</div></div>`;
+      $('nosun').hidden = false; $('panels').hidden = true;
+      $('nosun').textContent = `The Sun does not rise or does not set in ${c.name} on this day, so a sunrise-based Panchangam cannot be worked out here. Please choose a city closer to the equator.`;
+      return;
+    }
+    $('nosun').hidden = true; $('panels').hidden = false;
+    const tm = r.tamilMonth;
+    $('summary').innerHTML = `
+      <div class="date"><div class="big">${esc(dateEn)}</div>
+        <div class="tamil">${esc(tm.name[0])} ${tm.day} · ${esc(tm.name[1])} ${tm.day} · ${esc(r.samvatsara[0])} (${esc(r.samvatsara[1])})</div></div>
+      <div class="kv"><span class="k">${term('vara','Vara')} · வாரம்</span><span class="v">${esc(r.vara[1])}</span><span class="s">${esc(r.vara[0])}</span></div>
+      <div class="kv"><span class="k">${term('tithi','Tithi')} · திதி</span><span class="v">${esc(r.tithi[0].name[1])}</span><span class="s">${esc(r.tithi[0].name[0])}, until ${fmt(r.tithi[0].end)}</span></div>
+      <div class="kv"><span class="k">${term('nakshatra','Nakshatra')} · நட்சத்திரம்</span><span class="v">${esc(r.nakshatra[0].name[1])}</span><span class="s">${esc(r.nakshatra[0].name[0])}, until ${fmt(r.nakshatra[0].end)}</span></div>
+      <div class="kv"><span class="k">${term('rahu','Rahu Kalam')} · ராகு காலம்</span><span class="v num">${range(r.rahu)}</span></div>`;
+
+    $('limbs').innerHTML =
+      row('Vara', 'வாரம்', bi(r.vara), 'vara') +
+      row('Tithi', 'திதி', seqHTML(r.tithi), 'tithi') +
+      row('Nakshatra', 'நட்சத்திரம்', seqHTML(r.nakshatra), 'nakshatra') +
+      row('Yoga', 'யோகம்', seqHTML(r.yoga), 'yoga') +
+      row('Karana', 'கரணம்', seqHTML(r.karana), 'karana');
+
+    $('avoid').innerHTML =
+      row('Rahu Kalam', 'ராகு காலம்', range(r.rahu) + '<span class="chip bad">Avoid</span>', 'rahu') +
+      row('Yamagandam', 'எமகண்டம்', range(r.yama) + '<span class="chip bad">Avoid</span>', 'yama') +
+      row('Gulika Kalam', 'குளிகை', range(r.gulika) + '<span class="chip bad">Avoid</span>', 'gulika');
+
+    const goodDay = r.gowriDay.filter(g => g.good).map(g => `<div>${range(g)} <span class="ta">${esc(g.name[0])}</span></div>`).join('');
+    $('goodt').innerHTML =
+      row('Abhijit Muhurtham', 'அபிஜித் முகூர்த்தம்', range(r.abhijit) + (r.abhijit.wednesday ? '<div class="note">Traditionally not used on Wednesday.</div>' : '<span class="chip good">Good</span>'), 'abhijit') +
+      row('Gowri Nalla Neram (day)', 'கௌரி நல்ல நேரம் (பகல்)', `<div class="seq">${goodDay}</div>`, 'gowri');
+
+    $('year').innerHTML =
+      row('Samvatsara', 'வருடம்', bi(r.samvatsara), 'samvatsara') +
+      row('Tamil month', 'தமிழ் மாதம்', `${esc(tm.name[0])} ${tm.day} <span class="ta">${esc(tm.name[1])} ${tm.day}</span>`, 'month') +
+      row('Ayana', 'அயனம்', bi(r.ayana), 'ayana') +
+      row('Ritu', 'ருது', bi(r.ritu), 'ritu') +
+      row('Paksha', 'பட்சம்', bi(r.paksha), 'paksha');
+
+    $('sunmoon').innerHTML =
+      row('Sunrise', 'சூரிய உதயம்', fmt(r.sunrise), 'sunrise') +
+      row('Sunset', 'சூரிய அஸ்தமனம்', fmt(r.sunset)) +
+      row('Moon rasi', 'சந்திர ராசி', seqHTML(r.moonRasi), 'rasi') +
+      row('Next sunrise', 'மறுநாள் உதயம்', fmt(r.nextSunrise));
+
+    const now = Date.now();
+    const cells = list => list.map(g => `<div class="g ${g.good ? 'good' : 'bad'}${now >= g.start && now < g.end ? ' now' : ''}"><b>${esc(g.name[0])}</b><span class="ta">${esc(g.name[1])}</span><span class="t">${fmt(g.start)} – ${fmt(g.end)}</span></div>`).join('');
+    $('gday').innerHTML = cells(r.gowriDay);
+    $('gnight').innerHTML = cells(r.gowriNight);
+
+    const ay = r.ayanamsa, deg = Math.floor(ay), min = Math.round((ay - deg) * 60);
+    $('foot').innerHTML = `Calculated in your browser by the ${term('method', 'Thirukanitha (Drik)')} method with Lahiri ayanamsa (${deg}°${String(min).padStart(2, '0')}′). Tithi, Nakshatra, Yoga and Karana are those prevailing at local sunrise. All times are local time in ${esc(c.name)}. Rahu Kalam, Yamagandam and Gulika divide sunrise-to-sunset into eight parts.`;
+  }
+
+  function update() {
+    const app = $('app'); app.classList.add('busy');
+    try { render(); } catch (e) { showMsg('Could not calculate for this date. Please try another date.'); console.error(e); }
+    finally { app.classList.remove('busy'); }
+  }
+
+  // ---------- date handling ----------
+  function setToday() {
+    const p = P.tzParts(Date.now(), state.city.tz);
+    state.y = p.y; state.m = p.m; state.d = p.d;
+  }
+  function shift(n) {
+    const t = new Date(Date.UTC(state.y, state.m - 1, state.d) + n * DAY);
+    state.y = t.getUTCFullYear(); state.m = t.getUTCMonth() + 1; state.d = t.getUTCDate();
+    update();
+  }
+
+  // ---------- city search ----------
+  const LIST = CITIES.map(c => ({ name: c[0], region: c[1], lat: c[2], lon: c[3], tz: c[4] }));
+  const norm = s => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+  function localMatches(q) {
+    q = norm(q.trim()); if (!q) return [];
+    const starts = [], has = [];
+    for (const c of LIST) {
+      const n = norm(c.name), full = n + ' ' + norm(c.region);
+      if (n.startsWith(q) || n.includes('(' + q)) starts.push(c); else if (full.includes(q)) has.push(c);
+    }
+    return starts.concat(has).slice(0, 8);
+  }
+  async function withTimeout(url, ms) {
+    const ctl = new AbortController(); const t = setTimeout(() => ctl.abort(), ms);
+    try { const r = await fetch(url, { signal: ctl.signal }); if (!r.ok) throw new Error(r.status); return await r.json(); }
+    finally { clearTimeout(t); }
+  }
+  async function onlineMatches(q) { // works when the page is hosted on a normal web server
+    try {
+      const j = await withTimeout('https://geocoding-api.open-meteo.com/v1/search?count=6&language=en&name=' + encodeURIComponent(q), 3000);
+      return (j.results || []).filter(x => x.timezone).map(x => ({ name: x.name, region: [x.admin1, x.country].filter(Boolean).join(', '), lat: x.latitude, lon: x.longitude, tz: x.timezone }));
+    } catch (e) { return []; }
+  }
+
+  let options = [], active = 0, seq = 0;
+  function showSuggest(list) {
+    options = list; active = 0;
+    const box = $('suggest');
+    if (!list.length) { box.hidden = true; $('cityInput').setAttribute('aria-expanded', 'false'); return; }
+    box.innerHTML = list.map((c, i) => `<button type="button" role="option" id="opt${i}" aria-selected="${i === 0}" data-i="${i}">${esc(c.name)} <span>${esc(c.region)}</span></button>`).join('');
+    box.hidden = false; $('cityInput').setAttribute('aria-expanded', 'true');
+  }
+  function choose(c, source) {
+    state.city = c; state.source = source || '';
+    showSuggest([]); hideMsg(); update();
+  }
+  function showMsg(t) { $('msg').textContent = t; $('msg').hidden = false; }
+  function hideMsg() { $('msg').hidden = true; }
+
+  $('cityInput').addEventListener('input', async e => {
+    hideMsg();
+    const q = e.target.value, my = ++seq;
+    const local = localMatches(q);
+    showSuggest(local);
+    if (q.trim().length >= 3 && local.length < 3) {
+      const more = await onlineMatches(q);
+      if (my === seq && more.length) showSuggest(local.concat(more.filter(m => !local.some(l => l.name === m.name && l.region === m.region))).slice(0, 8));
+    }
+  });
+  $('cityInput').addEventListener('keydown', e => {
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+      if (!options.length) return; e.preventDefault();
+      active = (active + (e.key === 'ArrowDown' ? 1 : -1) + options.length) % options.length;
+      [...$('suggest').children].forEach((b, i) => b.setAttribute('aria-selected', i === active));
+    } else if (e.key === 'Escape') { showSuggest([]); }
+  });
+  $('suggest').addEventListener('mousedown', e => e.preventDefault());
+  $('suggest').addEventListener('click', e => { const b = e.target.closest('button'); if (b) choose(options[+b.dataset.i]); });
+  $('cityInput').addEventListener('blur', () => setTimeout(() => { showSuggest([]); if (state.city && !$('cityInput').value.trim()) $('cityInput').value = state.city.name; }, 150));
+  $('form').addEventListener('submit', e => {
+    e.preventDefault();
+    if (options.length) { choose(options[active]); return; }
+    const q = $('cityInput').value.trim();
+    if (q && (!state.city || q !== state.city.name)) showMsg(`City “${q}” was not found. Try a nearby larger city.`);
+  });
+
+  $('dateInput').addEventListener('change', e => {
+    const v = e.target.value; if (!v) return;
+    const [y, m, d] = v.split('-').map(Number);
+    if (y < 1600 || y > 2400) { showMsg('Please choose a year between 1600 and 2400.'); return; }
+    hideMsg(); state.y = y; state.m = m; state.d = d; update();
+  });
+  $('prev').addEventListener('click', () => shift(-1));
+  $('next').addEventListener('click', () => shift(1));
+  $('today').addEventListener('click', () => { setToday(); update(); });
+
+  // ---------- starting location ----------
+  function guessFromZone() {
+    let tz = ''; try { tz = Intl.DateTimeFormat().resolvedOptions().timeZone || ''; } catch (e) {}
+    if (tz === 'Asia/Calcutta') tz = 'Asia/Kolkata';
+    const c = LIST.find(x => x.tz === tz);
+    return c ? [c, 'guessed from your time zone'] : [LIST[0], 'default city'];
+  }
+  async function start() {
+    const pick = guessFromZone();
+    state.city = pick[0]; state.source = pick[1];
+    setToday(); update();
+    try { // IP lookup: works when hosted on a normal web server; silently skipped where blocked
+      const j = await withTimeout('https://ipwho.is/', 3000);
+      if (j && j.success && j.timezone && j.timezone.id) {
+        state.city = { name: j.city, region: [j.region, j.country].filter(Boolean).join(', '), lat: j.latitude, lon: j.longitude, tz: j.timezone.id };
+        state.source = 'found from your internet address';
+        setToday(); update();
+      }
+    } catch (e) { /* keep the time-zone guess */ }
+  }
+  // ---------- meanings: tap-to-explain card and Meanings tab ----------
+  const G = Object.fromEntries(GLOSSARY.map(g => [g.id, g]));
+  const dlg = $('dlg');
+  function explain(id) {
+    const g = G[id]; if (!g) return;
+    $('dlgTitle').textContent = g.term; $('dlgTa').textContent = g.ta; $('dlgLead').textContent = g.short;
+    $('dlgMore').innerHTML = g.more.map(t => `<p>${esc(t)}</p>`).join('');
+    dlg.dataset.term = id;
+    if (dlg.showModal) dlg.showModal(); else dlg.setAttribute('open', '');
+  }
+  function closeDlg() { if (dlg.close) dlg.close(); else dlg.removeAttribute('open'); }
+  document.addEventListener('click', e => { const b = e.target.closest('button.term'); if (b) { e.preventDefault(); explain(b.dataset.term); } });
+  $('dlgClose').addEventListener('click', closeDlg);
+  dlg.addEventListener('click', e => { if (e.target === dlg) closeDlg(); }); // tap outside the card
+  $('dlgAll').addEventListener('click', () => {
+    const id = dlg.dataset.term; closeDlg(); showTab('meanings');
+    const el = document.getElementById('m-' + id);
+    if (el) { el.scrollIntoView({ block: 'start' }); el.classList.add('hl'); }
+  });
+
+  const groups = [...new Set(GLOSSARY.map(g => g.group))];
+  $('gloss').innerHTML = groups.map(gr => `<section class="panel"><h3>${esc(gr)}</h3><dl>` +
+    GLOSSARY.filter(g => g.group === gr).map(g => `<div class="item" id="m-${g.id}"><dt>${esc(g.term)}<span class="ta">${esc(g.ta)}</span></dt><dd><span class="lead">${esc(g.short)}</span>${g.more.map(t => `<span>${esc(t)}</span>`).join('')}</dd></div>`).join('') +
+    '</dl></section>').join('');
+
+  function showTab(name) {
+    const m = name === 'meanings';
+    $('pane-today').hidden = m; $('pane-meanings').hidden = !m;
+    $('tab-today').setAttribute('aria-selected', !m); $('tab-meanings').setAttribute('aria-selected', m);
+    document.querySelectorAll('.gloss .item.hl').forEach(x => x.classList.remove('hl'));
+    window.scrollTo(0, 0);
+  }
+  $('tab-today').addEventListener('click', () => showTab('today'));
+  $('tab-meanings').addEventListener('click', () => showTab('meanings'));
+  if (location.hash === '#meanings') showTab('meanings');
+
+  start();
+})();
+</script>
