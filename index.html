@@ -206,6 +206,22 @@ dialog::backdrop { background: rgb(10 20 14 / .45); }
 .lt tr.cur td { background: var(--accent-soft); }
 .lt .bad { color: var(--bad); font-weight: 600; } .lt .good { color: var(--good); font-weight: 600; }
 .gloss .item.hl { background: var(--accent-soft); border-radius: 8px; padding-inline: 10px; }
+
+/* Sankalpa tab */
+:root { --sv: #0b5cad; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --sv: #7fb9ff } }
+:root[data-theme="dark"] { --sv: #7fb9ff }
+.sv { color: var(--sv); font-weight: 600; }
+.sv.ph { border-bottom: 1px dashed var(--sv); font-weight: 500; }
+.sk-in { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; }
+.sk-in input { width: 100%; box-sizing: border-box; }
+.sk-vars td, .sk-vars th { padding: 6px 10px 6px 0; width: auto; font-size: .92rem; }
+.sk-vars th { width: 34%; font-weight: 600; }
+.sk-vars th .ta { display: block; font-weight: 400; font-size: .85rem; }
+.mantra { display: flex; flex-direction: column; gap: 8px; font-size: 1.04rem; line-height: 1.75; }
+.mantra p { margin: 0; }
+.sk-mean p { margin: 0 0 8px; }
+.sk-sec h3 { margin: 0; font-family: var(--display); font-size: 1.1rem; }
 </style>
 
 <div class="wrap" id="app">
@@ -217,6 +233,7 @@ dialog::backdrop { background: rgb(10 20 14 / .45); }
     <button type="button" role="tab" id="tab-today" aria-controls="pane-today" aria-selected="true">Today's Panchangam</button>
     <button type="button" role="tab" id="tab-hourly" aria-controls="pane-hourly" aria-selected="false">Hour by hour</button>
     <button type="button" role="tab" id="tab-jathagam" aria-controls="pane-jathagam" aria-selected="false">Jathagam · ஜாதகம்</button>
+    <button type="button" role="tab" id="tab-sankalpa" aria-controls="pane-sankalpa" aria-selected="false">Sankalpa Mantra · சங்கல்பம்</button>
     <button type="button" role="tab" id="tab-meanings" aria-controls="pane-meanings" aria-selected="false">Meanings</button>
   </div>
 
@@ -318,6 +335,30 @@ dialog::backdrop { background: rgb(10 20 14 / .45); }
       <div class="tblwrap"><table class="jtbl"><thead><tr><th>Planet · கிரகம்</th><th>Rasi · ராசி</th><th>Degree</th><th>Star · நட்சத்திரம்</th><th>Pada</th></tr></thead><tbody id="jRows"></tbody></table></div>
       <p class="note">Sidereal (Lahiri) positions. Rahu and Ketu are the mean nodes. <b>R</b> means retrograde (வக்ரம்). The Lagna (லக்னம்) depends on the exact birth time, so please enter it carefully.</p>
     </section>
+  </div>
+
+  <div class="tabpane" id="pane-sankalpa" role="tabpanel" aria-labelledby="tab-sankalpa" hidden>
+    <p class="hint">The detailed daily pooja sankalpa (South Indian Smarta style) with today's Panchangam filled in. <span class="sv">Blue words</span> are the filled-in values. Wording differs by family, region and Veda, so please follow your own family text where it differs. The short Sandhyavandanam sankalpa has no calendar values.</p>
+    <section class="panel">
+      <div class="sk-in">
+        <div class="field"><label for="skName">Your name</label><input id="skName" type="text" autocomplete="off"></div>
+        <div class="field"><label for="skNameTa">பெயர் (Tamil, optional)</label><input id="skNameTa" type="text" autocomplete="off"></div>
+        <div class="field"><label for="skGotra">Gotra</label><input id="skGotra" type="text" autocomplete="off"></div>
+        <div class="field"><label for="skGotraTa">கோத்திரம் (Tamil, optional)</label><input id="skGotraTa" type="text" autocomplete="off"></div>
+      </div>
+      <div class="hfilter" role="group" aria-label="Month style">
+        <span class="subh">Month</span>
+        <button type="button" class="pill" id="skLunar" aria-pressed="true">Lunar (Chaitra…)</button>
+        <button type="button" class="pill" id="skSolar" aria-pressed="false">Tamil solar (Chithirai…)</button>
+      </div>
+      <div class="hfilter" role="group" aria-label="Language">
+        <span class="subh">Show</span>
+        <button type="button" class="pill" id="skBoth" aria-pressed="true">Both</button>
+        <button type="button" class="pill" id="skEn" aria-pressed="false">English</button>
+        <button type="button" class="pill" id="skTa" aria-pressed="false">தமிழ்</button>
+      </div>
+    </section>
+    <div id="skBody"></div>
   </div>
 
   <div class="tabpane" id="pane-meanings" role="tabpanel" aria-labelledby="tab-meanings" hidden>
@@ -483,6 +524,10 @@ dialog::backdrop { background: rgb(10 20 14 / .45); }
     const dayNo = Math.round((Date.UTC(y, m - 1, d) - startKey) / DAY) + 1;
     res.tamilMonth = { name: N.month[mi], day: dayNo, sankranti: sank };
     res.ritu = N.ritu[Math.floor(mi / 2)];
+    res.solarRasi = mi;
+    // Lunar (amanta) month: named from the Sun's sidereal sign at the preceding new moon (Meena -> Chaitra, Mesha -> Vaisakha ...). Adhika masa is not handled.
+    let nm = at; for (let i = 0; i < 4; i++) { let e = F.tithi.f(nm); if (e > 180) e -= 360; nm -= e / 12.19 * DAY; }
+    res.lunarMonth = (Math.floor(sunSid(nm) / 30) + 1) % 12;
     const ss = sunSid(sunset);
     res.ayana = N.ayana[(ss >= 270 || ss < 90) ? 0 : 1];
     let ty = y; if (m <= 4 && mi >= 8) ty--;
@@ -1033,6 +1078,123 @@ const LISTS = {
 
 </script>
 <script>
+// Sankalpa Mantra: fills the detailed daily-puja sankalpa (South Indian Smarta style) from a Panchang.calculate() result.
+// Each variable has: panch (name as in the Panchangam), say (as recited), mean (as used in the translation), in [English, Tamil].
+(function (root) {
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+  // [roman, Tamil script] Sanskrit forms as recited
+  const AYANA = [['Uttarayane', 'உத்தராயணே'], ['Dakshinayane', 'தக்ஷிணாயனே']];
+  const AYANA_M = [['Uttarayana (the Sun\'s northward course)', 'உத்தராயணம் (சூரியன் வடக்கே செல்லும்)'], ['Dakshinayana (the Sun\'s southward course)', 'தட்சிணாயனம் (சூரியன் தெற்கே செல்லும்)']];
+  const RITU = [['Vasanta ritau', 'வஸந்த ருதௌ'], ['Grishma ritau', 'க்ரீஷ்ம ருதௌ'], ['Varsha ritau', 'வர்ஷ ருதௌ'], ['Sharad ritau', 'ஶரத் ருதௌ'], ['Hemanta ritau', 'ஹேமந்த ருதௌ'], ['Shishira ritau', 'ஶிஶிர ருதௌ']];
+  const RITU_M = [['Vasanta (spring)', 'வசந்த (இளவேனில்)'], ['Grishma (summer)', 'கிரீஷ்ம (முதுவேனில்)'], ['Varsha (rainy season)', 'வர்ஷ (கார்)'], ['Sharad (autumn)', 'சரத் (கூதிர்)'], ['Hemanta (early winter)', 'ஹேமந்த (முன்பனி)'], ['Shishira (late winter)', 'சிசிர (பின்பனி)']];
+  const LUNAR = [['Chaitra', 'சைத்ர'], ['Vaishakha', 'வைஶாக'], ['Jyeshtha', 'ஜ்யேஷ்ட'], ['Ashadha', 'ஆஷாட'], ['Shravana', 'ஶ்ராவண'], ['Bhadrapada', 'பாத்ரபத'], ['Ashvayuja', 'ஆஶ்வயுஜ'], ['Karttika', 'கார்த்திக'], ['Margashirsha', 'மார்கஶீர்ஷ'], ['Pushya', 'பௌஷ'], ['Magha', 'மாக'], ['Phalguna', 'பால்குன']];
+  const LUNAR_M = [['Chaitra', 'சைத்ர'], ['Vaishakha', 'வைசாக'], ['Jyeshtha', 'ஜ்யேஷ்ட'], ['Ashadha', 'ஆஷாட'], ['Shravana', 'ஸ்ராவண'], ['Bhadrapada', 'பாத்ரபத'], ['Ashvayuja', 'ஆஸ்வயுஜ'], ['Karttika', 'கார்த்திகை'], ['Margashirsha', 'மார்கசீர்ஷ'], ['Pushya', 'பௌஷ'], ['Magha', 'மாக'], ['Phalguna', 'பால்குன']];
+  const SOLAR = [['Mesha', 'மேஷ'], ['Vrishabha', 'வ்ருஷப'], ['Mithuna', 'மிதுன'], ['Karkataka', 'கர்கடக'], ['Simha', 'ஸிம்ஹ'], ['Kanya', 'கன்யா'], ['Tula', 'துலா'], ['Vrishchika', 'வ்ருஶ்சிக'], ['Dhanus', 'தனுஸ்'], ['Makara', 'மகர'], ['Kumbha', 'கும்ப'], ['Meena', 'மீன']];
+  const PAKSHA = [['Shukla pakshe', 'ஶுக்ல பக்ஷே'], ['Krishna pakshe', 'க்ருஷ்ண பக்ஷே']];
+  const PAKSHA_M = [['Shukla paksha (waxing fortnight)', 'வளர்பிறை (சுக்ல பட்சம்)'], ['Krishna paksha (waning fortnight)', 'தேய்பிறை (கிருஷ்ண பட்சம்)']];
+  const TITHI = [['Prathamayam', 'ப்ரதமாயாம்'], ['Dvitiyayam', 'த்விதீயாயாம்'], ['Tritiyayam', 'த்ருதீயாயாம்'], ['Chaturthyam', 'சதுர்த்யாம்'], ['Panchamyam', 'பஞ்சம்யாம்'], ['Shashthyam', 'ஷஷ்ட்யாம்'], ['Saptamyam', 'ஸப்தம்யாம்'], ['Ashtamyam', 'அஷ்டம்யாம்'], ['Navamyam', 'நவம்யாம்'], ['Dashamyam', 'தஶம்யாம்'], ['Ekadashyam', 'ஏகாதஶ்யாம்'], ['Dvadashyam', 'த்வாதஶ்யாம்'], ['Trayodashyam', 'த்ரயோதஶ்யாம்'], ['Chaturdashyam', 'சதுர்தஶ்யாம்'], ['Purnimayam', 'பூர்ணிமாயாம்'], ['Amavasyayam', 'அமாவாஸ்யாயாம்']];
+  const VASARA = [['Bhanu vasare', 'பானு வாஸரே'], ['Indu vasare', 'இந்து வாஸரே'], ['Bhauma vasare', 'பௌம வாஸரே'], ['Saumya vasare', 'ஸௌம்ய வாஸரே'], ['Guru vasare', 'குரு வாஸரே'], ['Bhrigu vasare', 'ப்ருகு வாஸரே'], ['Sthira vasare', 'ஸ்திர வாஸரே']];
+  const VASARA_TA = ['ஞாயிற்றுக்கிழமை', 'திங்கட்கிழமை', 'செவ்வாய்க்கிழமை', 'புதன்கிழமை', 'வியாழக்கிழமை', 'வெள்ளிக்கிழமை', 'சனிக்கிழமை'];
+  const NAK = [['Ashvini', 'அஶ்வினி'], ['Bharani', 'பரணி'], ['Krittika', 'க்ருத்திகா'], ['Rohini', 'ரோஹிணீ'], ['Mrigashira', 'ம்ருகஶீர்ஷ'], ['Ardra', 'ஆர்த்ரா'], ['Punarvasu', 'புனர்வஸு'], ['Pushya', 'புஷ்ய'], ['Ashlesha', 'ஆஶ்லேஷா'], ['Magha', 'மகா'], ['Purva Phalguni', 'பூர்வ பல்குனீ'], ['Uttara Phalguni', 'உத்தர பல்குனீ'], ['Hasta', 'ஹஸ்த'], ['Chitra', 'சித்ரா'], ['Svati', 'ஸ்வாதீ'], ['Vishakha', 'விஶாகா'], ['Anuradha', 'அனுராதா'], ['Jyeshtha', 'ஜ்யேஷ்டா'], ['Mula', 'மூல'], ['Purvashadha', 'பூர்வாஷாடா'], ['Uttarashadha', 'உத்தராஷாடா'], ['Shravana', 'ஶ்ரவண'], ['Dhanishta', 'தனிஷ்டா'], ['Shatabhisha', 'ஶதபிஷக்'], ['Purva Proshthapada', 'பூர்வ ப்ரோஷ்டபதா'], ['Uttara Proshthapada', 'உத்தர ப்ரோஷ்டபதா'], ['Revati', 'ரேவதீ']];
+  const YOGA = [['Vishkambha', 'விஷ்கம்ப'], ['Priti', 'ப்ரீதி'], ['Ayushman', 'ஆயுஷ்மான்'], ['Saubhagya', 'ஸௌபாக்ய'], ['Shobhana', 'ஶோபன'], ['Atiganda', 'அதிகண்ட'], ['Sukarma', 'ஸுகர்ம'], ['Dhriti', 'த்ருதி'], ['Shula', 'ஶூல'], ['Ganda', 'கண்ட'], ['Vriddhi', 'வ்ருத்தி'], ['Dhruva', 'த்ருவ'], ['Vyaghata', 'வ்யாகாத'], ['Harshana', 'ஹர்ஷண'], ['Vajra', 'வஜ்ர'], ['Siddhi', 'ஸித்தி'], ['Vyatipata', 'வ்யதீபாத'], ['Variyan', 'வரீயான்'], ['Parigha', 'பரிக'], ['Shiva', 'ஶிவ'], ['Siddha', 'ஸித்த'], ['Sadhya', 'ஸாத்ய'], ['Shubha', 'ஶுப'], ['Shukla', 'ஶுக்ல'], ['Brahma', 'ப்ராஹ்ம'], ['Aindra', 'ஐந்த்ர'], ['Vaidhriti', 'வைத்ருதி']];
+  // keyed by the English name used in the engine
+  const KARANA = { 'Bava': ['Bava', 'பவ'], 'Balava': ['Balava', 'பாலவ'], 'Kaulava': ['Kaulava', 'கௌலவ'], 'Taitila': ['Taitila', 'தைதில'], 'Garaja': ['Gara', 'கர'], 'Vanija': ['Vanija', 'வணிஜ'], 'Vishti (Bhadra)': ['Vishti', 'விஷ்டி'], 'Shakuni': ['Shakuni', 'ஶகுனி'], 'Chatushpada': ['Chatushpada', 'சதுஷ்பாத'], 'Nagava': ['Naga', 'நாக'], 'Kimstughna': ['Kimstughna', 'கிம்ஸ்துக்ந'] };
+
+  // ---------- mantra and translation templates; {key} marks a variable ----------
+  const MANTRA = {
+    en: [
+      'Mamopatta-samasta-duritakshaya-dvara Sri-Parameshvara-pritiartham.',
+      'Shubhe shobhane muhurte Sri-Maha-Vishnor-ajnaya pravartamanasya, adya Brahmanah dvitiya-parardhe, Shveta-Varaha-kalpe, Vaivasvata-manvantare, ashtavimshatitame kaliyuge prathame pade,',
+      'Jambudvipe Bharatavarshe Bharatakhande, Meroh dakshina-dig-bhage, {region} pradeshe, {city} nagare, mama svagrihe,',
+      'asmin vartamane vyavaharike Prabhavadi-shashti-samvatsaranam madhye, {samv} nama samvatsare, {ayana}, {ritu}, {masa}, {paksha}, {tithi} tithau, {vasara}, {nak} nakshatre, {yoga} yoge, {karana} karane,',
+      'evam-guna-visheshana-vishishtayam asyam shubha-tithau,',
+      '{gotra} gotrotpannah, {name} namaham,',
+      'mama sa-kutumbasya kshema-sthairya-ayur-arogya-aishvarya-abhivriddhyartham, dharma-artha-kama-moksha-chaturvidha-purushartha-siddhyartham, Sri-Parameshvara-pritiartham, yathashakti Sri-Parameshvara-pujam karishye.'
+    ],
+    ta: [
+      'மமோபாத்த ஸமஸ்த துரித க்ஷய த்வாரா ஸ்ரீ பரமேஶ்வர ப்ரீத்யர்த்தம்.',
+      'ஶுபே ஶோபனே முஹூர்த்தே ஸ்ரீ மஹா விஷ்ணோ: ஆஜ்ஞயா ப்ரவர்த்தமானஸ்ய, அத்ய ப்ரஹ்மண: த்விதீய பரார்தே, ஶ்வேத வராஹ கல்பே, வைவஸ்வத மன்வந்தரே, அஷ்டாவிம்ஶதிதமே கலியுகே ப்ரதம பாதே,',
+      'ஜம்பூ த்வீபே பரத வர்ஷே பரத கண்டே, மேரோ: தக்ஷிண திக்பாகே, {region} ப்ரதேஶே, {city} நகரே, மம ஸ்வக்ருஹே,',
+      'அஸ்மின் வர்த்தமானே வ்யாவஹாரிகே ப்ரபவாதி ஷஷ்டி ஸம்வத்ஸராணாம் மத்யே, {samv} நாம ஸம்வத்ஸரே, {ayana}, {ritu}, {masa}, {paksha}, {tithi} திதௌ, {vasara}, {nak} நக்ஷத்ரே, {yoga} யோகே, {karana} கரணே,',
+      'ஏவம் குண விஶேஷண விஶிஷ்டாயாம் அஸ்யாம் ஶுப திதௌ,',
+      '{gotra} கோத்ரோத்பன்ன:, {name} நாமாஹம்,',
+      'மம ஸ குடும்பஸ்ய க்ஷேம ஸ்தைர்ய ஆயுர் ஆரோக்ய ஐஶ்வர்ய அபிவ்ருத்த்யர்த்தம், தர்ம அர்த்த காம மோக்ஷ சதுர்வித புருஷார்த்த ஸித்த்யர்த்தம், ஸ்ரீ பரமேஶ்வர ப்ரீத்யர்த்தம், யதாஶக்தி ஸ்ரீ பரமேஶ்வர பூஜாம் கரிஷ்யே.'
+    ]
+  };
+  const MEANING = {
+    en: [
+      'Through the removal of all my accumulated wrongdoings, and for the pleasure of the Supreme Lord (Sri Parameshvara).',
+      'In this auspicious and splendid moment, moved by the command of Sri Maha Vishnu, today, in the second half of Brahma\'s lifespan, in the Shveta-Varaha kalpa, in the age of Vaivasvata Manu, in the first quarter of the 28th Kali Yuga,',
+      'on the continent of Jambudvipa, in the land of Bharatavarsha, in Bharatakhanda, to the south of Mount Meru, in {region}, in the city of {city}, in my own home,',
+      'in the present working calendar, among the sixty years beginning with Prabhava, in the year named {samv}, in {ayana}, in the {ritu} season, in the month of {masa}, in the {paksha}, on the {tithi} tithi, on {vasara}, under the star {nak}, in the {yoga} yoga, in the {karana} karana,',
+      'on this day, which has all these distinguishing qualities,',
+      'I, {name}, born in the {gotra} gotra,',
+      'for the welfare, stability, long life, health and prosperity of myself and my family, for the attainment of the four aims of life (dharma, artha, kama and moksha), and to please the Supreme Lord, shall perform, as well as I am able, the worship of Sri Parameshvara.'
+    ],
+    ta: [
+      'என்னுடைய சேர்ந்துள்ள எல்லாப் பாவங்களும் நீங்குவதன் மூலமும், பரமேஶ்வரனின் திருப்திக்காகவும்,',
+      'இந்த மங்களகரமான, சிறப்பான முஹூர்த்தத்தில், ஸ்ரீ மகா விஷ்ணுவின் ஆணையால் நடைபெறும் காலத்தில், இன்று, பிரம்மாவின் ஆயுளின் இரண்டாம் பாதியில், ஸ்வேத வராஹ கல்பத்தில், வைவஸ்வத மன்வந்தரத்தில், இருபத்தெட்டாவது கலியுகத்தின் முதல் பாதத்தில்,',
+      'ஜம்பூ த்வீபத்தில், பரத வர்ஷத்தில், பரத கண்டத்தில், மேரு மலைக்குத் தெற்கே, {region} பகுதியில், {city} நகரில், என் சொந்த இல்லத்தில்,',
+      'தற்போது நடைமுறையில் உள்ள, பிரபவ முதலான அறுபது வருடங்களுள், {samv} என்னும் வருடத்தில், {ayana} காலத்தில், {ritu} ருதுவில், {masa} மாதத்தில், {paksha}, {tithi} என்னும் திதியில், {vasara} அன்று, {nak} நட்சத்திரத்தில், {yoga} என்னும் யோகத்தில், {karana} என்னும் கரணத்தில்,',
+      'இத்தகைய சிறப்பு அம்சங்கள் அமைந்த இந்த நல்ல நாளில்,',
+      '{gotra} கோத்திரத்தில் பிறந்த, {name} என்னும் பெயருடைய நான்,',
+      'எனக்கும் என் குடும்பத்தினருக்கும் நலம், நிலைத்த தன்மை, நீண்ட ஆயுள், ஆரோக்கியம், செல்வம் ஆகியவை பெருகவும், தர்மம், அர்த்தம், காமம், மோக்ஷம் என்னும் நான்கு புருஷார்த்தங்கள் கிடைக்கவும், பரமேஶ்வரனின் திருப்திக்காகவும், என்னால் இயன்ற அளவு ஸ்ரீ பரமேஶ்வர பூஜையைச் செய்கிறேன்.'
+    ]
+  };
+
+  const pick = (list, t) => list.find(s => s.end == null || s.end > t) || list[0];
+  const idx = (arr, name) => Math.max(0, arr.findIndex(n => n[0] === name[0]));
+
+  // r: Panchang.calculate() result; o: { t, name:[en,ta], gotra:[en,ta], city, region, solar, dateLabel:[en,ta], timeLabel:[en,ta], tzLabel }
+  function build(r, o) {
+    const N = root.Panchang.N, t = o.t;
+    const ti = pick(r.tithi, t), nk = pick(r.nakshatra, t), yg = pick(r.yoga, t), kr = pick(r.karana, t);
+    const tiI = N.tithi.indexOf(ti.name), nkI = N.nakshatra.indexOf(nk.name), ygI = N.yoga.indexOf(yg.name);
+    const ktab = KARANA[kr.name[0]] || kr.name;
+    const sI = N.samvatsara.indexOf(r.samvatsara), rI = N.ritu.indexOf(r.ritu), aI = N.ayana.indexOf(r.ayana);
+    const ph = (en, ta) => [`[${en}]`, `[${ta}]`, true];
+    const gotra = o.gotra[0] || o.gotra[1] ? [o.gotra[0] || o.gotra[1], o.gotra[1] || o.gotra[0]] : null;
+    const name = o.name[0] || o.name[1] ? [o.name[0] || o.name[1], o.name[1] || o.name[0]] : null;
+    const region = (o.region || '').trim() || '—';
+    const sol = N.month[r.solarRasi], mI = r.lunarMonth;
+
+    // key: [label en, label ta, panch en, panch ta, say en, say ta, mean en, mean ta, placeholder?]
+    const V = {
+      samv: { label: ['Samvatsara · year', 'ஸம்வத்ஸரம் · வருடம்'], panch: r.samvatsara, say: r.samvatsara, mean: [`${r.samvatsara[0]} (year ${sI + 1} of 60)`, `${r.samvatsara[1]} (60 வருடங்களில் ${sI + 1}-வது)`] },
+      ayana: { label: ['Ayana · half-year', 'அயனம்'], panch: r.ayana, say: AYANA[aI], mean: AYANA_M[aI] },
+      ritu: { label: ['Ritu · season', 'ருது'], panch: r.ritu, say: RITU[rI], mean: RITU_M[rI] },
+      masa: o.solar
+        ? { label: ['Masa · month (Tamil solar)', 'மாஸம் · மாதம் (தமிழ்)'], panch: [`${sol[0]} ${r.tamilMonth.day}`, `${sol[1]} ${r.tamilMonth.day}`], say: [SOLAR[r.solarRasi][0] + ' maase', SOLAR[r.solarRasi][1] + ' மாஸே'], mean: [`${sol[0]} (Tamil solar month, ${SOLAR[r.solarRasi][0]} rasi)`, sol[1]] }
+        : { label: ['Masa · month (lunar)', 'மாஸம் · மாதம் (சாந்திரமானம்)'], panch: LUNAR_M[mI], say: [LUNAR[mI][0] + ' maase', LUNAR[mI][1] + ' மாஸே'], mean: [LUNAR_M[mI][0] + ' (lunar)', LUNAR_M[mI][1]] },
+      paksha: { label: ['Paksha · fortnight', 'பக்ஷம்'], panch: N.paksha[ti.paksha], say: PAKSHA[ti.paksha], mean: PAKSHA_M[ti.paksha] },
+      tithi: { label: ['Tithi · lunar day', 'திதி'], panch: ti.name, say: [TITHI[tiI][0], TITHI[tiI][1]], mean: ti.name },
+      vasara: { label: ['Vasara · weekday', 'வாஸரம் · கிழமை'], panch: r.vara, say: VASARA[r.weekday], mean: [r.vara[0], VASARA_TA[r.weekday]] },
+      nak: { label: ['Nakshatra · star', 'நக்ஷத்ரம்'], panch: nk.name, say: [NAK[nkI][0], NAK[nkI][1]], mean: nk.name },
+      yoga: { label: ['Yoga', 'யோகம்'], panch: yg.name, say: YOGA[ygI], mean: yg.name },
+      karana: { label: ['Karana', 'கரணம்'], panch: kr.name, say: ktab, mean: kr.name },
+      date: { label: ['Date · today', 'தேதி · இன்று'], panch: o.dateLabel, say: null, mean: null },
+      time: { label: ['Time used', 'நேரம்'], panch: o.timeLabel, say: null, mean: null },
+      region: { label: ['Region', 'பகுதி'], panch: [region, region], say: [region, region], mean: [region, region] },
+      city: { label: ['City / village', 'நகரம் / ஊர்'], panch: [o.city, o.city], say: [o.city, o.city], mean: [o.city, o.city] },
+      gotra: { label: ['Gotra', 'கோத்திரம்'], panch: gotra || ['not entered', 'உள்ளிடவில்லை'], say: gotra || ph('your gotra', 'உங்கள் கோத்ரம்'), mean: gotra || ph('your gotra', 'உங்கள் கோத்ரம்'), ph: !gotra },
+      name: { label: ['Name', 'பெயர்'], panch: name || ['not entered', 'உள்ளிடவில்லை'], say: name || ph('your name', 'உங்கள் பெயர்'), mean: name || ph('your name', 'உங்கள் பெயர்'), ph: !name }
+    };
+    const fill = (tpl, lang, field) => esc(tpl).replace(/\{(\w+)\}/g, (_, k) => {
+      const v = V[k]; const s = v[field][lang === 'en' ? 0 : 1];
+      return `<span class="sv${v.ph ? ' ph' : ''}">${esc(s)}</span>`;
+    });
+    const tr = (lang, field, list) => list.map(l => fill(l, lang, field));
+    const order = ['samv', 'ayana', 'ritu', 'masa', 'paksha', 'tithi', 'vasara', 'nak', 'yoga', 'karana', 'date', 'time', 'region', 'city', 'gotra', 'name'];
+    const rows = order.map(k => ({ k, label: V[k].label, panch: V[k].panch, say: V[k].say, ph: !!V[k].ph }));
+    return { rows, mantra: { en: tr('en', 'say', MANTRA.en), ta: tr('ta', 'say', MANTRA.ta) }, meaning: { en: tr('en', 'mean', MEANING.en), ta: tr('ta', 'mean', MEANING.ta) } };
+  }
+
+  root.Sankalpa = { build };
+})(typeof window !== 'undefined' ? window : globalThis);
+
+</script>
+<script>
 (function () {
   'use strict';
   const $ = id => document.getElementById(id);
@@ -1085,7 +1247,7 @@ const LISTS = {
     if (r.noSun) {
       $('summary').innerHTML = `<div class="date"><div class="big">${esc(dateEn)}</div><div class="ta">${esc(r.vara[1])}</div></div>`;
       $('nosun').hidden = false; $('panels').hidden = true;
-      $('hourTop').innerHTML = ''; $('hours').innerHTML = '';
+      $('hourTop').innerHTML = ''; $('hours').innerHTML = ''; $('skBody').innerHTML = '';
       $('nosun').textContent = `The Sun does not rise or does not set in ${c.name} on this day, so a sunrise-based Panchangam cannot be worked out here. Please choose a city closer to the equator.`;
       return;
     }
@@ -1137,6 +1299,7 @@ const LISTS = {
     $('hday').innerHTML = hcells(r.hora.filter(h => h.day));
     $('hnight').innerHTML = hcells(r.hora.filter(h => !h.day));
     renderHourly(r, dateEn);
+    renderSankalpa(r);
 
     const ay = r.ayanamsa, deg = Math.floor(ay), min = Math.round((ay - deg) * 60);
     $('foot').innerHTML = `Calculated in your browser by the ${term('method', 'Thirukanitha (Drik)')} method with Lahiri ayanamsa (${deg}°${String(min).padStart(2, '0')}′). Tithi, Nakshatra, Yoga and Karana are those prevailing at local sunrise. All times are local time in ${esc(c.name)}. Rahu Kalam, Yamagandam and Gulika divide sunrise-to-sunset into eight parts.`;
@@ -1464,12 +1627,52 @@ const LISTS = {
   $('jNorth').addEventListener('click', () => setStyle('north'));
   $('jTime').addEventListener('input', renderJathagam);
 
-  const TABS = ['today', 'hourly', 'jathagam', 'meanings'];
+  // ---------- Sankalpa Mantra ----------
+  const sk = { lang: 'both', solar: false };
+  const SK_IDS = ['skName', 'skNameTa', 'skGotra', 'skGotraTa'];
+  try { for (const id of SK_IDS) $(id).value = localStorage.getItem(id) || ''; } catch (e) {}
+  const TA_MONTHS = ['ஜனவரி','பிப்ரவரி','மார்ச்','ஏப்ரல்','மே','ஜூன்','ஜூலை','ஆகஸ்ட்','செப்டம்பர்','அக்டோபர்','நவம்பர்','டிசம்பர்'];
+  function renderSankalpa(r) {
+    if ($('pane-sankalpa').hidden || !r || r.noSun) return;
+    const c = state.city, now = Date.now(), p = P.tzParts(now, c.tz);
+    const isToday = p.y === state.y && p.m === state.m && p.d === state.d;
+    const t = isToday ? Math.min(Math.max(now, r.sunrise), r.nextSunrise - 1) : r.sunrise;
+    const clock = ms => new Date(ms).toLocaleTimeString('en-US', { timeZone: c.tz, hour: 'numeric', minute: '2-digit' });
+    const time = isToday ? [`${clock(t)} (now)`, `${clock(t)} (இப்போது)`] : [`${clock(t)} (sunrise)`, `${clock(t)} (சூரிய உதயம்)`];
+    const o = {
+      t, solar: sk.solar, city: c.name, region: (c.region || '').split(',')[0],
+      name: [$('skName').value.trim(), $('skNameTa').value.trim()], gotra: [$('skGotra').value.trim(), $('skGotraTa').value.trim()],
+      dateLabel: [`${r.vara[0]}, ${state.d} ${MONTHS_EN[state.m - 1]} ${state.y}`, `${r.vara[1]}, ${state.d} ${TA_MONTHS[state.m - 1]} ${state.y}`],
+      timeLabel: time
+    };
+    const s = Sankalpa.build(r, o);
+    const section = (i, lang) => {
+      const en = i === 0;
+      const rows = s.rows.map(x => `<tr><th>${esc(x.label[i])}</th><td>${esc(x.panch[i])}</td><td>${x.say ? `<span class="sv${x.ph ? ' ph' : ''}">${esc(x.say[i])}</span>` : '<span class="ta">—</span>'}</td></tr>`).join('');
+      return `<div class="sk-sec" lang="${lang}"><section class="panel"><h2>${en ? 'Values used' : 'பயன்படுத்திய மதிப்புகள்'} <span>${en ? 'Sankalpa variables, today\'s Panchangam' : 'சங்கல்ப மாறிகள் · இன்றைய பஞ்சாங்கம்'}</span></h2>
+        <div class="tblwrap"><table class="sk-vars"><thead><tr><th></th><td class="subh">${en ? 'Panchangam' : 'பஞ்சாங்கம்'}</td><td class="subh">${en ? 'Recited as' : 'சங்கல்பத்தில்'}</td></tr></thead><tbody>${rows}</tbody></table></div>
+        <div class="note">${en ? 'Tithi, Nakshatra, Yoga and Karana are those running at the time shown. Adhika masa is not handled. Outside India the place wording needs adjusting to your family practice.' : 'திதி, நட்சத்திரம், யோகம், கரணம் ஆகியவை காட்டப்பட்ட நேரத்தில் நடப்பவை. அதிக மாதம் கணக்கில் கொள்ளப்படவில்லை. இந்தியாவுக்கு வெளியே இடம் குறித்த சொற்களை உங்கள் குடும்ப வழக்கப்படி மாற்றவும்.'}</div></section>
+        <section class="panel"><h2>${en ? 'Sankalpa Mantra' : 'சங்கல்ப மந்திரம்'} <span>${en ? 'in English letters' : 'தமிழ் எழுத்தில்'}</span></h2><div class="mantra">${s.mantra[lang].map(l => `<p>${l}</p>`).join('')}</div></section>
+        <section class="panel"><h2>${en ? 'Meaning' : 'பொருள்'} <span>${en ? 'English translation' : 'தமிழ் மொழிபெயர்ப்பு'}</span></h2><div class="sk-mean">${s.meaning[lang].map(l => `<p>${l}</p>`).join('')}</div></section></div>`;
+    };
+    $('skBody').innerHTML = (sk.lang !== 'ta' ? section(0, 'en') : '') + (sk.lang !== 'en' ? section(1, 'ta') : '');
+  }
+  for (const id of SK_IDS) $(id).addEventListener('input', () => { try { localStorage.setItem(id, $(id).value); } catch (e) {} update(); });
+  function skSet(kind, v) {
+    if (kind === 'lang') { sk.lang = v; for (const [k, b] of [['both', 'skBoth'], ['en', 'skEn'], ['ta', 'skTa']]) $(b).setAttribute('aria-pressed', k === v); }
+    else { sk.solar = v; $('skSolar').setAttribute('aria-pressed', v); $('skLunar').setAttribute('aria-pressed', !v); }
+    update();
+  }
+  $('skBoth').addEventListener('click', () => skSet('lang', 'both')); $('skEn').addEventListener('click', () => skSet('lang', 'en')); $('skTa').addEventListener('click', () => skSet('lang', 'ta'));
+  $('skLunar').addEventListener('click', () => skSet('solar', false)); $('skSolar').addEventListener('click', () => skSet('solar', true));
+
+  const TABS = ['today', 'hourly', 'jathagam', 'sankalpa', 'meanings'];
   function showTab(name) {
     for (const t of TABS) { $('pane-' + t).hidden = t !== name; $('tab-' + t).setAttribute('aria-selected', t === name); }
     $('ctrls').hidden = name === 'meanings';
     if (name === 'meanings') buildLists();
     if (name === 'jathagam') renderJathagam(); else leaveJathagam();
+    if (name === 'sankalpa') update();
     document.querySelectorAll('.gloss .item.hl').forEach(x => x.classList.remove('hl'));
     window.scrollTo(0, 0);
   }
