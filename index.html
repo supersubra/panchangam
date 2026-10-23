@@ -205,7 +205,7 @@ dialog::backdrop { background: rgb(10 20 14 / .45); }
 .lt .ta { display: inline; font-size: .9rem; }
 .lt tr.cur td { background: var(--accent-soft); }
 .lt .bad { color: var(--bad); font-weight: 600; } .lt .good { color: var(--good); font-weight: 600; }
-.totop { align-self: flex-end; font-size: .85rem; padding: 5px 12px; border-radius: 99px; }
+.totop { align-self: flex-end; font-size: .85rem; padding: 6px 14px; border-radius: 99px; background: var(--accent); color: var(--bg); border-color: var(--accent); }
 .gloss .item.hl { background: var(--accent-soft); border-radius: 8px; padding-inline: 10px; }
 
 /* Sankalpa tab */
@@ -1880,7 +1880,7 @@ const LISTS = {
   function route() {
     const on = location.hash === '#sankalpa';
     $('app').hidden = on; $('skpage').hidden = !on;
-    if (on) { if (!S.userLoc && !S.city && state.city) skSetCity(state.city, state.source); else if (!S.userTime && S.city) skNow(); skRender(); window.scrollTo(0, 0); }
+    if (on) { if (!S.userLoc && !S.city && state.city) skSetCity(state.city, state.source); else if (!S.userTime && S.city) skNow(); skRender(); skShow('ta'); }
   }
   window.addEventListener('hashchange', route);
 
