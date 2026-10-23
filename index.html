@@ -284,11 +284,11 @@ dialog::backdrop { background: rgb(10 20 14 / .45); }
   </div>
 
   <div class="tabpane" id="pane-jathagam" role="tabpanel" aria-labelledby="tab-jathagam" hidden>
-    <p class="hint">Rasi chart (ராசி கட்டம்) for a birth date, time and place. Choose the city and date above, then the birth time here.</p>
+    <p class="hint">Rasi chart (ராசி கட்டம்) for a birth date, time and place. The city and date above are set to the default birth details; change them to see another chart.</p>
     <div class="controls jctrl">
       <div class="field">
         <label for="jTime">Birth time · பிறந்த நேரம்</label>
-        <input id="jTime" type="time" value="06:00">
+        <input id="jTime" type="time" value="10:15">
       </div>
       <div class="hfilter" role="group" aria-label="Chart style">
         <button type="button" class="pill" id="jSouth" aria-pressed="true">South Indian · தென்னிந்திய</button>
@@ -1372,7 +1372,25 @@ const LISTS = {
 
   // ---------- Jathagam (Rasi chart) ----------
   const GR_ABBR = { surya: 'Su', chandra: 'Mo', sevvai: 'Ma', budhan: 'Me', guru: 'Ju', sukra: 'Ve', sani: 'Sa', rahu: 'Ra', ketu: 'Ke', lagna: 'Lag' };
-  const jstate = { style: 'south', timeSet: false };
+  const jstate = { style: 'south', active: false, saved: null, birth: { city: LIST.find(c => c.name === 'Chennai'), y: 1957, m: 9, d: 5 } };
+  // The tab keeps its own city and date (default: the owner's birth details); the other tabs get theirs back on leaving.
+  function enterJathagam() {
+    jstate.active = true;
+    jstate.saved = { city: state.city, source: state.source, y: state.y, m: state.m, d: state.d };
+    const b = jstate.birth;
+    Object.assign(state, { city: b.city, source: '', y: b.y, m: b.m, d: b.d });
+    $('cityInput').value = b.city.name;
+    update();
+  }
+  function leaveJathagam() {
+    if (!jstate.active) return;
+    jstate.active = false;
+    const { city, y, m, d } = state;
+    jstate.birth = { city, y, m, d };
+    Object.assign(state, jstate.saved);
+    $('cityInput').value = state.city.name;
+    update();
+  }
   const SOUTH_POS = { 11: [0, 0], 0: [1, 0], 1: [2, 0], 2: [3, 0], 10: [0, 1], 3: [3, 1], 9: [0, 2], 4: [3, 2], 8: [0, 3], 7: [1, 3], 6: [2, 3], 5: [3, 3] };
   const NORTH_HOUSE = [ // polygon points and label centre for houses 1..12
     ['200,0 300,100 200,200 100,100', 200, 85], ['0,0 200,0 100,100', 100, 38], ['0,0 100,100 0,200', 30, 100], ['0,200 100,100 200,200 100,300', 90, 200],
@@ -1411,11 +1429,7 @@ const LISTS = {
   }
   function renderJathagam() {
     if ($('pane-jathagam').hidden || !state.city) return;
-    if (!jstate.timeSet) {
-      const p = P.tzParts(Date.now(), state.city.tz);
-      $('jTime').value = `${String(p.h).padStart(2, '0')}:${String(p.mi).padStart(2, '0')}`;
-      jstate.timeSet = true;
-    }
+    if (!jstate.active) { enterJathagam(); return; }
     const [h, mi] = ($('jTime').value || '06:00').split(':').map(Number), c0 = state.city;
     const c = P.chart({ y: state.y, m: state.m, d: state.d, h, mi, lat: c0.lat, lon: c0.lon, tz: c0.tz });
     const dateLabel = `${state.d} ${MONTHS_EN[state.m - 1]} ${state.y}, ${$('jTime').value}`;
@@ -1440,7 +1454,7 @@ const LISTS = {
     for (const t of TABS) { $('pane-' + t).hidden = t !== name; $('tab-' + t).setAttribute('aria-selected', t === name); }
     $('ctrls').hidden = name === 'meanings';
     if (name === 'meanings') buildLists();
-    if (name === 'jathagam') renderJathagam();
+    if (name === 'jathagam') renderJathagam(); else leaveJathagam();
     document.querySelectorAll('.gloss .item.hl').forEach(x => x.classList.remove('hl'));
     window.scrollTo(0, 0);
   }
