@@ -1,4 +1,4 @@
-<title>Dina Panchangam</title>
+<title>Daily Panchangam</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -9,8 +9,8 @@
   --bg: #f3f6f1; --surface: #ffffff; --line: #dbe3d9; --ink: #16231b; --muted: #58685d;
   --accent: #8f5f00; --accent-soft: #fbefd6;
   --bad: #a8261c; --bad-soft: #fbe6e3; --good: #1d7148; --good-soft: #e0f2e7; --neutral-soft: #eceff0;
-  --display: "Arima", "Noto Serif Tamil", Georgia, serif;
-  --body: "Hind Madurai", "Noto Sans Tamil", system-ui, sans-serif;
+  --display: "Arima", "Noto Serif Tamil", var(--ix, Georgia), Georgia, serif;
+  --body: "Hind Madurai", "Noto Sans Tamil", var(--ix, system-ui), system-ui, sans-serif;
 }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
   --bg: #0f1612; --surface: #16201a; --line: #2a3a30; --ink: #e5ece6; --muted: #98aa9d;
@@ -93,20 +93,55 @@ footer { font-size: .82rem; color: var(--muted); max-width: 70ch; }
 @media (prefers-reduced-motion: no-preference) { .day, .panel { transition: opacity .2s; } }
 .busy .day, .busy .panel { opacity: .55; }
 
-/* Jathagam tab */
+/* Header, language menu and section icons */
+.top { display: flex; align-items: center; justify-content: space-between; gap: 12px 16px; flex-wrap: wrap; }
+.brand { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.logo { width: 48px; height: 48px; flex: none; }
+.logo .disc { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 1.5; }
+.logo .ray { stroke: var(--accent); stroke-width: 2.2; stroke-linecap: round; fill: none; }
+.logo .core { fill: var(--accent); }
+.subtop { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.langbox { display: inline-flex; align-items: center; gap: 6px; background: var(--surface); border: 1px solid var(--line); border-radius: 99px; padding: 3px 6px 3px 12px; }
+.langbox:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
+.langbox svg { width: 18px; height: 18px; flex: none; stroke: var(--accent); fill: none; stroke-width: 1.7; stroke-linecap: round; }
+.langsel { font: inherit; font-weight: 600; color: var(--ink); background: transparent; border: 0; padding: 7px 4px; cursor: pointer; max-width: 11em; }
+.langsel:focus-visible { outline: none; }
+.nav { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; }
+.nav button { position: relative; display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 12px 6px 10px; border-radius: 16px; background: var(--surface); }
+.nav .ico { width: 44px; height: 44px; border-radius: 14px; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent); }
+.nav svg { width: 24px; height: 24px; stroke: currentColor; fill: none; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.nav .lbl { font-size: .9rem; font-weight: 600; line-height: 1.15; text-align: center; overflow-wrap: break-word; }
+.nav .ta { font-size: .78rem; line-height: 1.15; text-align: center; font-weight: 400; overflow-wrap: anywhere; }
+.nav button[aria-selected="true"] { border-color: var(--accent); background: var(--accent-soft); box-shadow: inset 0 0 0 1px var(--accent); }
+.nav button[aria-selected="true"] .ico { background: var(--accent); color: var(--bg); }
+.nav .out { position: absolute; top: 6px; right: 9px; font-size: .75rem; color: var(--muted); }
+@media (prefers-reduced-motion: no-preference) { .nav button, .nav .ico { transition: background-color .15s, border-color .15s, color .15s; } }
+@media (max-width: 600px) {
+  .nav { gap: 6px; }
+  .nav button { padding: 9px 2px 8px; border-radius: 14px; gap: 4px; min-height: 0; }
+  .nav .ico { width: 38px; height: 38px; border-radius: 12px; }
+  .nav svg { width: 22px; height: 22px; }
+  .nav .lbl { font-size: .68rem; } .nav .ta { font-size: .64rem; }
+  .nav .out { top: 3px; right: 5px; font-size: .62rem; }
+  .brand { gap: 10px; } .logo { width: 40px; height: 40px; }
+}
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.pagehead { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; }
+
+/* Horoscope tab */
 .tabs { overflow-x: auto; scrollbar-width: none; }
 .tabs button { white-space: nowrap; }
 .jctrl { align-items: end; }
 .jpanel { align-items: center; }
-#jChart { width: 100%; max-width: 520px; margin: 0 auto; }
-#jChart svg { width: 100%; height: auto; display: block; }
-#jChart .ln { stroke: var(--ink); stroke-width: 1.4; fill: none; }
-#jChart .cellbg { fill: var(--surface); }
-#jChart .lagbg { fill: var(--accent-soft); }
-#jChart text { fill: var(--ink); font-family: inherit; }
-#jChart .pl { font-size: 11px; font-weight: 600; }
-#jChart .rn { font-size: 8.5px; fill: var(--muted); }
-#jChart .ctr { font-size: 12px; fill: var(--muted); }
+#hsChart { width: 100%; max-width: 520px; margin: 0 auto; }
+#hsChart svg { width: 100%; height: auto; display: block; }
+#hsChart .ln { stroke: var(--ink); stroke-width: 1.4; fill: none; }
+#hsChart .cellbg { fill: var(--surface); }
+#hsChart .lagbg { fill: var(--accent-soft); }
+#hsChart text { fill: var(--ink); font-family: inherit; }
+#hsChart .pl { font-size: 11px; font-weight: 600; }
+#hsChart .rn { font-size: 8.5px; fill: var(--muted); }
+#hsChart .ctr { font-size: 12px; fill: var(--muted); }
 .jtbl td, .jtbl th { padding: 6px 8px; }
 .tblwrap { overflow-x: auto; }
 
@@ -230,17 +265,15 @@ dialog::backdrop { background: rgb(10 20 14 / .45); }
 </style>
 
 <div class="wrap" id="app">
-  <header>
-    <h1>Dina Panchangam <small>தின பஞ்சாங்கம்</small></h1>
-  </header>
+  <div data-hdr="today"></div>
 
-  <div class="tabs" role="tablist" aria-label="Sections">
-    <button type="button" role="tab" id="tab-today" aria-controls="pane-today" aria-selected="true">Today's Panchangam</button>
-    <button type="button" role="tab" id="tab-hourly" aria-controls="pane-hourly" aria-selected="false">Hour by hour</button>
-    <button type="button" role="tab" id="tab-jathagam" aria-controls="pane-jathagam" aria-selected="false">Jathagam · ஜாதகம்</button>
-    <button type="button" role="tab" id="tab-sankalpa" aria-haspopup="true">Sankalpa Mantra · சங்கல்பம் ↗</button>
-    <button type="button" role="tab" id="tab-meanings" aria-controls="pane-meanings" aria-selected="false">Meanings</button>
-  </div>
+  <nav class="nav" role="tablist" aria-label="Sections">
+    <button type="button" role="tab" id="tab-today" aria-controls="pane-today" aria-selected="true"><span class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 10h18"/><circle cx="12" cy="15.5" r="2.4"/></svg></span><span class="lbl">Today</span><span class="ta">இன்று</span></button>
+    <button type="button" role="tab" id="tab-hourly" aria-controls="pane-hourly" aria-selected="false"><span class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg></span><span class="lbl">Hour by hour</span><span class="ta">மணி வாரியாக</span></button>
+    <button type="button" role="tab" id="tab-horoscope" aria-haspopup="true"><span class="out" aria-hidden="true">↗</span><span class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 3l18 18M21 3L3 21"/><path d="M12 3l9 9-9 9-9-9z"/></svg></span><span class="lbl">Horoscope</span><span class="ta">ஜாதகம்</span></button>
+    <button type="button" role="tab" id="tab-sankalpa" aria-haspopup="true"><span class="out" aria-hidden="true">↗</span><span class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5c2.2 3 3.2 4.6 3.2 6.6a3.2 3.2 0 0 1-6.4 0c0-2 1-3.6 3.2-6.6z"/><path d="M3.5 14h17c0 3.6-3.8 6.5-8.5 6.5S3.5 17.6 3.5 14z"/></svg></span><span class="lbl">Sankalpa</span><span class="ta">சங்கல்பம்</span></button>
+    <button type="button" role="tab" id="tab-meanings" aria-controls="pane-meanings" aria-selected="false"><span class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 6.5C10 5 7 4.5 4 4.5v14c3 0 6 .5 8 2 2-1.5 5-2 8-2v-14c-3 0-6 .5-8 2z"/><path d="M12 6.5v14"/></svg></span><span class="lbl">Meanings</span><span class="ta">பொருள்</span></button>
+  </nav>
 
   <div class="tabpane" id="ctrls">
   <div class="hint">Tap any word with a <b>?</b> to learn what it means.</div>
@@ -320,28 +353,6 @@ dialog::backdrop { background: rgb(10 20 14 / .45); }
     <p class="note">Each row is one <button type="button" class="term" data-term="hora">hora</button>, about an hour. When a factor starts or ends inside the hour, the row is split. <button type="button" class="term" data-term="planner">How verdicts are decided</button></p>
   </div>
 
-  <div class="tabpane" id="pane-jathagam" role="tabpanel" aria-labelledby="tab-jathagam" hidden>
-    <p class="hint">Rasi chart (ராசி கட்டம்) for a birth date, time and place. The city and date above are set to the default birth details; change them to see another chart.</p>
-    <div class="controls jctrl">
-      <div class="field">
-        <label for="jTime">Birth time · பிறந்த நேரம்</label>
-        <input id="jTime" type="time" value="10:15">
-      </div>
-      <div class="hfilter" role="group" aria-label="Chart style">
-        <button type="button" class="pill" id="jSouth" aria-pressed="true">South Indian · தென்னிந்திய</button>
-        <button type="button" class="pill" id="jNorth" aria-pressed="false">North Indian · வட இந்திய</button>
-      </div>
-    </div>
-    <section class="panel jpanel">
-      <div id="jChart"></div>
-    </section>
-    <section class="panel">
-      <h3>Planet positions · கிரக நிலை</h3>
-      <div class="tblwrap"><table class="jtbl"><thead><tr><th>Planet · கிரகம்</th><th>Rasi · ராசி</th><th>Degree</th><th>Star · நட்சத்திரம்</th><th>Pada</th></tr></thead><tbody id="jRows"></tbody></table></div>
-      <p class="note">Sidereal (Lahiri) positions. Rahu and Ketu are the mean nodes. <b>R</b> means retrograde (வக்ரம்). The Lagna (லக்னம்) depends on the exact birth time, so please enter it carefully.</p>
-    </section>
-  </div>
-
   <div class="tabpane" id="pane-meanings" role="tabpanel" aria-labelledby="tab-meanings" hidden>
     <p class="hint">What each Panchangam word means and why people use it, with the full list of names.</p>
     <nav class="jump" id="jump" aria-label="Jump to"></nav>
@@ -350,11 +361,36 @@ dialog::backdrop { background: rgb(10 20 14 / .45); }
   </div>
 </div>
 
+<div class="wrap" id="hspage" hidden>
+  <div data-hdr="horoscope"></div>
+  <p class="hint">Rasi chart (ராசி கட்டம்) for a birth date, time and place. Choose the birth details below; the Lagna (லக்னம்) depends on the exact time.</p>
+  <form class="controls jctrl" id="hsForm" autocomplete="off">
+    <div class="field city">
+      <label for="hsCity">Birth place · ஊர்</label>
+      <input id="hsCity" type="text" placeholder="Type a city, e.g. Madurai" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="hsSuggest">
+      <div class="suggest" id="hsSuggest" role="listbox" hidden></div>
+    </div>
+    <div class="field"><label for="hsDate">Birth date · தேதி</label><input id="hsDate" type="date"></div>
+    <div class="field"><label for="hsTime">Birth time · பிறந்த நேரம்</label><input id="hsTime" type="time"></div>
+    <div class="btns"><button type="button" id="hsNow">Use current date &amp; time</button></div>
+  </form>
+  <div class="where" id="hsWhere"></div>
+  <div class="hfilter" role="group" aria-label="Chart style">
+    <button type="button" class="pill" id="hsSouth" aria-pressed="true">South Indian · தென்னிந்திய</button>
+    <button type="button" class="pill" id="hsNorth" aria-pressed="false">North Indian · வட இந்திய</button>
+  </div>
+  <section class="panel jpanel">
+    <div id="hsChart"></div>
+  </section>
+  <section class="panel">
+    <h3>Planet positions · கிரக நிலை</h3>
+    <div class="tblwrap"><table class="jtbl"><thead><tr><th>Planet · கிரகம்</th><th>Rasi · ராசி</th><th>Degree</th><th>Star · நட்சத்திரம்</th><th>Pada</th></tr></thead><tbody id="hsRows"></tbody></table></div>
+    <p class="note">Sidereal (Lahiri) positions. Rahu and Ketu are the mean nodes. <b>R</b> means retrograde (வக்ரம்). The Lagna (லக்னம்) depends on the exact birth time, so please enter it carefully.</p>
+  </section>
+</div>
+
 <div class="wrap" id="skpage" hidden>
-  <header class="skhead">
-    <button type="button" id="skBack">◀ Back to Panchangam</button>
-    <h1>Sankalpa Mantra <small>சங்கல்ப மந்திரம்</small></h1>
-  </header>
+  <div data-hdr="sankalpa"></div>
   <div class="tabs" role="tablist" aria-label="Sankalpa sections">
     <button type="button" role="tab" id="sktab-set" aria-selected="true">1 · Settings · அமைப்பு</button>
     <button type="button" role="tab" id="sktab-var" aria-selected="false">2 · Values · மாறிகள்</button>
@@ -374,7 +410,7 @@ dialog::backdrop { background: rgb(10 20 14 / .45); }
         </div>
         <div class="field"><label for="skRegion">State / province · மாநிலம்</label><input id="skRegion" type="text" autocomplete="off"></div>
         <div class="field"><label for="skCountry">Country · நாடு</label><select id="skCountry"></select></div>
-        <div class="field"><label for="skContinent">Continent · கண்டம்</label><select id="skContinent"></select></div>
+        <div class="field"><label for="skContinent">Continent · மகாகண்டம்</label><select id="skContinent"></select></div>
       </div>
       <div class="note" id="skWhere"></div>
     </section>
@@ -391,9 +427,9 @@ dialog::backdrop { background: rgb(10 20 14 / .45); }
       <h2>Family <span>குடும்ப விவரம்</span></h2>
       <div class="sk-in">
         <div class="field"><label for="skName">Your name</label><input id="skName" type="text" autocomplete="off"></div>
-        <div class="field"><label for="skNameTa">பெயர் (Tamil, optional)</label><input id="skNameTa" type="text" autocomplete="off"></div>
+        <div class="field"><label for="skNameTa">பெயர் (<span class="lname">Tamil</span>, optional)</label><input id="skNameTa" type="text" autocomplete="off"></div>
         <div class="field"><label for="skGotra">Gotra</label><input id="skGotra" type="text" list="skGotraList" autocomplete="off"></div>
-        <div class="field"><label for="skGotraTa">கோத்திரம் (Tamil, optional)</label><input id="skGotraTa" type="text" list="skGotraTaList" autocomplete="off"></div>
+        <div class="field"><label for="skGotraTa">கோத்திரம் (<span class="lname">Tamil</span>, optional)</label><input id="skGotraTa" type="text" list="skGotraTaList" autocomplete="off"></div>
       </div>
       <datalist id="skGotraList"></datalist><datalist id="skGotraTaList"></datalist>
       <div class="note">Name and gotra are saved in this browser only. Gotras you type are remembered and offered next time.</div>
@@ -1131,7 +1167,7 @@ const LISTS = {
   const RITU = [['Vasanta ritau', 'வஸந்த ருதௌ'], ['Grishma ritau', 'க்ரீஷ்ம ருதௌ'], ['Varsha ritau', 'வர்ஷ ருதௌ'], ['Sharad ritau', 'ஶரத் ருதௌ'], ['Hemanta ritau', 'ஹேமந்த ருதௌ'], ['Shishira ritau', 'ஶிஶிர ருதௌ']];
   const RITU_M = [['Vasanta (spring)', 'வசந்த (இளவேனில்)'], ['Grishma (summer)', 'கிரீஷ்ம (முதுவேனில்)'], ['Varsha (rainy season)', 'வர்ஷ (கார்)'], ['Sharad (autumn)', 'சரத் (கூதிர்)'], ['Hemanta (early winter)', 'ஹேமந்த (முன்பனி)'], ['Shishira (late winter)', 'சிசிர (பின்பனி)']];
   const LUNAR = [['Chaitra', 'சைத்ர'], ['Vaishakha', 'வைஶாக'], ['Jyeshtha', 'ஜ்யேஷ்ட'], ['Ashadha', 'ஆஷாட'], ['Shravana', 'ஶ்ராவண'], ['Bhadrapada', 'பாத்ரபத'], ['Ashvayuja', 'ஆஶ்வயுஜ'], ['Karttika', 'கார்த்திக'], ['Margashirsha', 'மார்கஶீர்ஷ'], ['Pushya', 'பௌஷ'], ['Magha', 'மாக'], ['Phalguna', 'பால்குன']];
-  const LUNAR_M = [['Chaitra', 'சைத்ர'], ['Vaishakha', 'வைசாக'], ['Jyeshtha', 'ஜ்யேஷ்ட'], ['Ashadha', 'ஆஷாட'], ['Shravana', 'ஸ்ராவண'], ['Bhadrapada', 'பாத்ரபத'], ['Ashvayuja', 'ஆஸ்வயுஜ'], ['Karttika', 'கார்த்திகை'], ['Margashirsha', 'மார்கசீர்ஷ'], ['Pushya', 'பௌஷ'], ['Magha', 'மாக'], ['Phalguna', 'பால்குன']];
+  const LUNAR_M = [['Chaitra', 'சைத்ர'], ['Vaishakha', 'வைசாக'], ['Jyeshtha', 'ஜ்யேஷ்ட'], ['Ashadha', 'ஆஷாட'], ['Shravana', 'ஸ்ராவண'], ['Bhadrapada', 'பாத்ரபத'], ['Ashvayuja', 'ஆஸ்வயுஜ'], ['Karttika', 'கார்த்திக'], ['Margashirsha', 'மார்கசீர்ஷ'], ['Pushya', 'பௌஷ'], ['Magha', 'மாக'], ['Phalguna', 'பால்குன']];
   const SOLAR = [['Mesha', 'மேஷ'], ['Vrishabha', 'வ்ருஷப'], ['Mithuna', 'மிதுன'], ['Karkataka', 'கர்கடக'], ['Simha', 'ஸிம்ஹ'], ['Kanya', 'கன்யா'], ['Tula', 'துலா'], ['Vrishchika', 'வ்ருஶ்சிக'], ['Dhanus', 'தனுஸ்'], ['Makara', 'மகர'], ['Kumbha', 'கும்ப'], ['Meena', 'மீன']];
   const PAKSHA = [['Shukla pakshe', 'ஶுக்ல பக்ஷே'], ['Krishna pakshe', 'க்ருஷ்ண பக்ஷே']];
   const PAKSHA_M = [['Shukla paksha (waxing fortnight)', 'வளர்பிறை (சுக்ல பட்சம்)'], ['Krishna paksha (waning fortnight)', 'தேய்பிறை (கிருஷ்ண பட்சம்)']];
@@ -1174,7 +1210,7 @@ const LISTS = {
     const last = String(text).split(',').pop().trim().toLowerCase();
     return ALIAS[last] || byName[last] || '';
   }
-  const COUNTRIES = () => Object.keys(CODE_CONT).map(c => ({ code: c, en: dname(c, 'en'), ta: dname(c, 'ta') })).sort((a, b) => a.en.localeCompare(b.en));
+  const COUNTRIES = lang => Object.keys(CODE_CONT).map(c => ({ code: c, en: dname(c, 'en'), ta: dname(c, lang || 'ta') })).sort((a, b) => a.en.localeCompare(b.en));
   // Customary place words; practice differs by family and guru, so these are a starting point.
   function placeParts(contCode, countryCodeV) {
     const d = CONT[contCode] ? CONT[contCode][2] : null, india = countryCodeV === 'IN';
@@ -1186,6 +1222,8 @@ const LISTS = {
   }
 
   // ---------- mantra and translation templates; {key} marks a variable ----------
+  // The Sanskrit mantra is the same in every language; only the script changes. Hindi is written in Devanagari and
+  // converted to Telugu, Kannada and Malayalam letters (I18N.indic) when used.
   const MANTRA = {
     en: [
       'Mamopatta-samasta-duritakshaya-dvara Sri-Parameshvara-pritiartham.',
@@ -1204,6 +1242,15 @@ const LISTS = {
       'ஏவம் குண விஶேஷண விஶிஷ்டாயாம் அஸ்யாம் ஶுப திதௌ,',
       '{gotra} கோத்ரோத்பன்ன:, {name} நாமாஹம்,',
       'மம ஸ குடும்பஸ்ய க்ஷேம ஸ்தைர்ய ஆயுர் ஆரோக்ய ஐஶ்வர்ய அபிவ்ருத்த்யர்த்தம், தர்ம அர்த்த காம மோக்ஷ சதுர்வித புருஷார்த்த ஸித்த்யர்த்தம், ஸ்ரீ பரமேஶ்வர ப்ரீத்யர்த்தம், யதாஶக்தி ஸ்ரீ பரமேஶ்வர பூஜாம் கரிஷ்யே.'
+    ],
+    hi: [
+      'ममोपात्त समस्त दुरित क्षय द्वारा श्री परमेश्वर प्रीत्यर्थम्।',
+      'शुभे शोभने मुहूर्ते श्री महा विष्णोः आज्ञया प्रवर्तमानस्य, अद्य ब्रह्मणः द्वितीय परार्धे, श्वेत वराह कल्पे, वैवस्वत मन्वन्तरे, अष्टाविंशतितमे कलियुगे प्रथम पादे,',
+      '@place',
+      'अस्मिन् वर्तमाने व्यावहारिके प्रभवादि षष्टि संवत्सराणां मध्ये, {samv} नाम संवत्सरे, {ayana}, {ritu}, {masa}, {paksha}, {tithi} तिथौ, {vasara}, {nak} नक्षत्रे, {yoga} योगे, {karana} करणे,',
+      'एवं गुण विशेषण विशिष्टायाम् अस्यां शुभ तिथौ,',
+      '{gotra} गोत्रोत्पन्नः, {name} नामाहम्,',
+      'मम सकुटुम्बस्य क्षेम स्थैर्य आयुः आरोग्य ऐश्वर्य अभिवृद्ध्यर्थम्, धर्म अर्थ काम मोक्ष चतुर्विध पुरुषार्थ सिद्ध्यर्थम्, श्री परमेश्वर प्रीत्यर्थम्, यथाशक्ति श्री परमेश्वर पूजां करिष्ये।'
     ]
   };
   const MEANING = {
@@ -1224,15 +1271,70 @@ const LISTS = {
       'இத்தகைய சிறப்பு அம்சங்கள் அமைந்த இந்த நல்ல நாளில்,',
       '{gotra} கோத்திரத்தில் பிறந்த, {name} என்னும் பெயருடைய நான்,',
       'எனக்கும் என் குடும்பத்தினருக்கும் நலம், நிலைத்த தன்மை, நீண்ட ஆயுள், ஆரோக்கியம், செல்வம் ஆகியவை பெருகவும், தர்மம், அர்த்தம், காமம், மோக்ஷம் என்னும் நான்கு புருஷார்த்தங்கள் கிடைக்கவும், பரமேஶ்வரனின் திருப்திக்காகவும், என்னால் இயன்ற அளவு ஸ்ரீ பரமேஶ்வர பூஜையைச் செய்கிறேன்.'
+    ],
+    hi: [
+      'मेरे संचित समस्त पापों के क्षय द्वारा तथा परमेश्वर (श्री परमेश्वर) की प्रसन्नता के लिए,',
+      'इस शुभ और उत्तम मुहूर्त में, श्री महाविष्णु की आज्ञा से चल रहे काल में, आज, ब्रह्मा की आयु के दूसरे परार्ध में, श्वेत वराह कल्प में, वैवस्वत मन्वन्तर में, अट्ठाईसवें कलियुग के प्रथम चरण में,',
+      '@place',
+      'वर्तमान व्यवहार में, प्रभव से आरम्भ होने वाले साठ संवत्सरों में, {samv} नामक संवत्सर में, {ayana} में, {ritu} ऋतु में, {masa} मास में, {paksha} में, {tithi} तिथि में, {vasara} को, {nak} नक्षत्र में, {yoga} योग में, {karana} करण में,',
+      'इन सभी विशेषताओं से युक्त इस शुभ दिन पर,',
+      '{gotra} गोत्र में जन्मा, {name} नामक मैं,',
+      'अपने और अपने परिवार के कल्याण, स्थिरता, दीर्घायु, आरोग्य और ऐश्वर्य की वृद्धि के लिए, जीवन के चार पुरुषार्थों (धर्म, अर्थ, काम और मोक्ष) की सिद्धि के लिए तथा परमेश्वर की प्रसन्नता के लिए, यथाशक्ति श्री परमेश्वर की पूजा करूँगा।'
+    ],
+    te: [
+      'నా సంచిత పాపాలన్నీ నశించడం ద్వారా, పరమేశ్వరుని (శ్రీ పరమేశ్వర) ప్రీతి కొరకు,',
+      'ఈ శుభకరమైన, శోభాయమానమైన ముహూర్తంలో, శ్రీ మహావిష్ణువు ఆజ్ఞతో నడుస్తున్న కాలంలో, ఈ రోజు, బ్రహ్మ ఆయుష్షులో రెండవ అర్ధభాగంలో, శ్వేత వరాహ కల్పంలో, వైవస్వత మన్వంతరంలో, ఇరవై ఎనిమిదవ కలియుగంలో మొదటి పాదంలో,',
+      '@place',
+      'ప్రస్తుత వ్యవహారంలో, ప్రభవ మొదలైన అరవై సంవత్సరాలలో, {samv} అనే సంవత్సరంలో, {ayana} కాలంలో, {ritu} ఋతువులో, {masa} మాసంలో, {paksha} కాలంలో, {tithi} తిథిలో, {vasara} నాడు, {nak} నక్షత్రంలో, {yoga} యోగంలో, {karana} కరణంలో,',
+      'ఈ విశేష లక్షణాలన్నీ కలిగిన ఈ శుభ దినమున,',
+      '{gotra} గోత్రంలో పుట్టిన, {name} అనే పేరుగల నేను,',
+      'నాకు, నా కుటుంబానికి క్షేమం, స్థిరత్వం, దీర్ఘాయుష్షు, ఆరోగ్యం, ఐశ్వర్యం వృద్ధి చెందడానికి, ధర్మ అర్థ కామ మోక్షాలనే నాలుగు పురుషార్థాల సిద్ధికి, పరమేశ్వరుని ప్రీతికి, నా శక్తి మేరకు శ్రీ పరమేశ్వర పూజ చేస్తాను.'
+    ],
+    kn: [
+      'ನನ್ನ ಸಂಚಿತ ಎಲ್ಲಾ ಪಾಪಗಳ ಕ್ಷಯದ ಮೂಲಕ ಮತ್ತು ಪರಮೇಶ್ವರನ (ಶ್ರೀ ಪರಮೇಶ್ವರ) ಪ್ರೀತಿಗಾಗಿ,',
+      'ಈ ಶುಭಕರವಾದ, ಶೋಭಾಯಮಾನವಾದ ಮುಹೂರ್ತದಲ್ಲಿ, ಶ್ರೀ ಮಹಾವಿಷ್ಣುವಿನ ಆಜ್ಞೆಯಂತೆ ನಡೆಯುತ್ತಿರುವ ಕಾಲದಲ್ಲಿ, ಇಂದು, ಬ್ರಹ್ಮನ ಆಯುಷ್ಯದ ಎರಡನೇ ಪರಾರ್ಧದಲ್ಲಿ, ಶ್ವೇತ ವರಾಹ ಕಲ್ಪದಲ್ಲಿ, ವೈವಸ್ವತ ಮನ್ವಂತರದಲ್ಲಿ, ಇಪ್ಪತ್ತೆಂಟನೇ ಕಲಿಯುಗದ ಮೊದಲ ಪಾದದಲ್ಲಿ,',
+      '@place',
+      'ಪ್ರಸ್ತುತ ವ್ಯವಹಾರದಲ್ಲಿರುವ, ಪ್ರಭವ ಮೊದಲಾದ ಅರವತ್ತು ಸಂವತ್ಸರಗಳಲ್ಲಿ, {samv} ಎಂಬ ಸಂವತ್ಸರದಲ್ಲಿ, {ayana} ಕಾಲದಲ್ಲಿ, {ritu} ಋತುವಿನಲ್ಲಿ, {masa} ಮಾಸದಲ್ಲಿ, {paksha} ಕಾಲದಲ್ಲಿ, {tithi} ತಿಥಿಯಲ್ಲಿ, {vasara} ದಿನ, {nak} ನಕ್ಷತ್ರದಲ್ಲಿ, {yoga} ಯೋಗದಲ್ಲಿ, {karana} ಕರಣದಲ್ಲಿ,',
+      'ಈ ಎಲ್ಲಾ ವಿಶೇಷ ಲಕ್ಷಣಗಳಿಂದ ಕೂಡಿದ ಈ ಶುಭ ದಿನದಂದು,',
+      '{gotra} ಗೋತ್ರದಲ್ಲಿ ಜನಿಸಿದ, {name} ಎಂಬ ಹೆಸರಿನ ನಾನು,',
+      'ನನಗೂ ನನ್ನ ಕುಟುಂಬಕ್ಕೂ ಕ್ಷೇಮ, ಸ್ಥಿರತೆ, ದೀರ್ಘಾಯುಷ್ಯ, ಆರೋಗ್ಯ, ಐಶ್ವರ್ಯ ವೃದ್ಧಿಯಾಗಲು, ಧರ್ಮ, ಅರ್ಥ, ಕಾಮ, ಮೋಕ್ಷ ಎಂಬ ನಾಲ್ಕು ಪುರುಷಾರ್ಥಗಳ ಸಿದ್ಧಿಗಾಗಿ, ಪರಮೇಶ್ವರನ ಪ್ರೀತಿಗಾಗಿ, ನನ್ನ ಶಕ್ತಿಯ ಮೇರೆಗೆ ಶ್ರೀ ಪರಮೇಶ್ವರ ಪೂಜೆಯನ್ನು ಮಾಡುತ್ತೇನೆ.'
+    ],
+    ml: [
+      'എന്റെ സഞ്ചിതമായ എല്ലാ പാപങ്ങളുടെയും ക്ഷയം വഴിയും പരമേശ്വരന്റെ (ശ്രീ പരമേശ്വര) പ്രീതിക്കായും,',
+      'ശുഭകരവും ശോഭനവുമായ ഈ മുഹൂർത്തത്തിൽ, ശ്രീ മഹാവിഷ്ണുവിന്റെ ആജ്ഞയാൽ നടക്കുന്ന കാലത്ത്, ഇന്ന്, ബ്രഹ്മാവിന്റെ ആയുസ്സിന്റെ രണ്ടാം പകുതിയിൽ, ശ്വേത വരാഹ കല്പത്തിൽ, വൈവസ്വത മന്വന്തരത്തിൽ, ഇരുപത്തിയെട്ടാമത്തെ കലിയുഗത്തിന്റെ ഒന്നാം പാദത്തിൽ,',
+      '@place',
+      'ഇപ്പോൾ നടപ്പിലുള്ള, പ്രഭവം തുടങ്ങിയ അറുപത് സംവത്സരങ്ങളിൽ, {samv} എന്ന സംവത്സരത്തിൽ, {ayana} കാലത്ത്, {ritu} ഋതുവിൽ, {masa} മാസത്തിൽ, {paksha} കാലത്ത്, {tithi} തിഥിയിൽ, {vasara} ദിവസം, {nak} നക്ഷത്രത്തിൽ, {yoga} യോഗത്തിൽ, {karana} കരണത്തിൽ,',
+      'ഈ വിശേഷ ഗുണങ്ങളെല്ലാം ചേർന്ന ഈ ശുഭദിനത്തിൽ,',
+      '{gotra} ഗോത്രത്തിൽ ജനിച്ച, {name} എന്ന പേരുള്ള ഞാൻ,',
+      'എനിക്കും എന്റെ കുടുംബത്തിനും ക്ഷേമം, സ്ഥിരത, ദീർഘായുസ്സ്, ആരോഗ്യം, ഐശ്വര്യം എന്നിവ വർധിക്കാനും, ധർമ്മം, അർത്ഥം, കാമം, മോക്ഷം എന്നീ നാല് പുരുഷാർത്ഥങ്ങളുടെ സിദ്ധിക്കായും, പരമേശ്വരന്റെ പ്രീതിക്കായും, എന്റെ കഴിവിനൊത്ത് ശ്രീ പരമേശ്വര പൂജ ചെയ്യുന്നു.'
     ]
+  };
+  // "(year N of 60)" in each language
+  const SAMV_OF = { ta: n => `60 வருடங்களில் ${n}-வது`, hi: n => `60 में से ${n}वाँ`, te: n => `60లో ${n}వ`, kn: n => `60ರಲ್ಲಿ ${n}ನೇ`, ml: n => `60-ൽ ${n}-ാമത്തെ` };
+
+  // The place line depends on the continent and country, so only the lines that apply are used.
+  // Order: dvipa, varsha, khanda, direction from Meru, continent and country, state, city.
+  const PLACE_SAY = {
+    en: ['{dvipa}-dvipe,', '{varsha}-varshe,', '{khanda}-khande,', 'Meroh {dir}-dig-bhage,', '{continent} mahakhande, {country} deshe,', '{region} pradeshe,', '{city} nagare, mama svagrihe,'],
+    ta: ['{dvipa} த்வீபே,', '{varsha} வர்ஷே,', '{khanda} கண்டே,', 'மேரோ: {dir} திக்பாகே,', '{continent} மஹா கண்டே, {country} தேஶே,', '{region} ப்ரதேஶே,', '{city} நகரே, மம ஸ்வக்ருஹே,'],
+    hi: ['{dvipa} द्वीपे,', '{varsha} वर्षे,', '{khanda} खण्डे,', 'मेरोः {dir} दिग्भागे,', '{continent} महाखण्डे, {country} देशे,', '{region} प्रदेशे,', '{city} नगरे, मम स्वगृहे,']
+  };
+  const PLACE_MEAN = {
+    en: ['in the {dvipa} dvipa (island-continent),', 'in {varsha} varsha,', 'in {khanda} khanda,', 'to the {dir} of Mount Meru,', 'on the continent of {continent}, in the country of {country},', 'in {region},', 'in the city of {city}, in my own home,'],
+    ta: ['{dvipa} த்வீபத்தில்,', '{varsha} வர்ஷத்தில்,', '{khanda} கண்டத்தில்,', 'மேரு மலைக்கு {dir},', '{continent} கண்டத்தில், {country} நாட்டில்,', '{region} மாநிலத்தில்,', '{city} நகரில், என் சொந்த இல்லத்தில்,'],
+    hi: ['{dvipa} द्वीप में,', '{varsha} वर्ष (खण्ड) में,', '{khanda} खण्ड में,', 'मेरु पर्वत के {dir},', '{continent} महाद्वीप में, {country} देश में,', '{region} प्रदेश में,', '{city} नगर में, अपने घर में,'],
+    te: ['{dvipa} ద్వీపంలో,', '{varsha} వర్షంలో,', '{khanda} ఖండంలో,', 'మేరు పర్వతానికి {dir},', '{continent} ఖండంలో, {country} దేశంలో,', '{region} ప్రాంతంలో,', '{city} నగరంలో, నా స్వగృహంలో,'],
+    kn: ['{dvipa} ದ್ವೀಪದಲ್ಲಿ,', '{varsha} ವರ್ಷದಲ್ಲಿ,', '{khanda} ಖಂಡದಲ್ಲಿ,', 'ಮೇರು ಪರ್ವತದ {dir},', '{continent} ಖಂಡದಲ್ಲಿ, {country} ದೇಶದಲ್ಲಿ,', '{region} ಪ್ರದೇಶದಲ್ಲಿ,', '{city} ನಗರದಲ್ಲಿ, ನನ್ನ ಸ್ವಂತ ಮನೆಯಲ್ಲಿ,'],
+    ml: ['{dvipa} ദ്വീപിൽ,', '{varsha} വർഷത്തിൽ,', '{khanda} ഖണ്ഡത്തിൽ,', 'മേരു പർവതത്തിന്റെ {dir},', '{continent} ഭൂഖണ്ഡത്തിൽ, {country} രാജ്യത്ത്,', '{region} പ്രദേശത്ത്,', '{city} നഗരത്തിൽ, എന്റെ സ്വന്തം വീട്ടിൽ,']
   };
 
   const pick = (list, t) => list.find(s => s.end == null || s.end > t) || list[0];
-  const idx = (arr, name) => Math.max(0, arr.findIndex(n => n[0] === name[0]));
 
-  // r: Panchang.calculate() result; o: { t, name:[en,ta], gotra:[en,ta], city, region (state), countryCode, continentCode, solar, dateLabel:[en,ta], timeLabel:[en,ta] }
+  // r: Panchang.calculate() result;
+  // o: { t, lang ('ta'|'hi'|'te'|'kn'|'ml'), tx (Tamil -> language), name:[en,second], gotra:[en,second], city, region (state), countryCode, continentCode, solar, dateLabel:[en,second], timeLabel:[en,second] }
+  // Every pair is [English, second language]; the second slot is built in Tamil and turned into the chosen language at the end.
   function build(r, o) {
-    const N = root.Panchang.N, t = o.t;
+    const N = root.Panchang.N, t = o.t, lang = o.lang || 'ta', ix = root.I18N && root.I18N.indic;
     const ti = pick(r.tithi, t), nk = pick(r.nakshatra, t), yg = pick(r.yoga, t), kr = pick(r.karana, t);
     const tiI = N.tithi.indexOf(ti.name), nkI = N.nakshatra.indexOf(nk.name), ygI = N.yoga.indexOf(yg.name);
     const ktab = KARANA[kr.name[0]] || kr.name;
@@ -1242,19 +1344,23 @@ const LISTS = {
     const name = o.name[0] || o.name[1] ? [o.name[0] || o.name[1], o.name[1] || o.name[0]] : null;
     const region = (o.region || '').trim();
     const cc = o.countryCode || '', ct = o.continentCode || CODE_CONT[cc] || 'AS', pp = placeParts(ct, cc);
-    const country = [dname(cc, 'en'), dname(cc, 'ta')];
+    const country = [dname(cc, 'en'), dname(cc, lang)];
     const NONE = ['—', '—'];
     const sol = N.month[r.solarRasi], mI = r.lunarMonth;
+    const other = lang !== 'ta';
+    // meanings in other languages use the plain name, without the Tamil explanation in brackets
+    const bare = s => s.replace(/\s*\(.*$/, '');
+    const inBrackets = s => (s.match(/\(([^)]*)\)/) || [0, s])[1];
 
-    // key: [label en, label ta, panch en, panch ta, say en, say ta, mean en, mean ta, placeholder?]
+    // key: label, panch (name as in the Panchangam), say (as recited), mean (as used in the translation); each [English, second language]
     const V = {
-      samv: { label: ['Samvatsara · year', 'ஸம்வத்ஸரம் · வருடம்'], panch: r.samvatsara, say: r.samvatsara, mean: [`${r.samvatsara[0]} (year ${sI + 1} of 60)`, `${r.samvatsara[1]} (60 வருடங்களில் ${sI + 1}-வது)`] },
-      ayana: { label: ['Ayana · half-year', 'அயனம்'], panch: r.ayana, say: AYANA[aI], mean: AYANA_M[aI] },
-      ritu: { label: ['Ritu · season', 'ருது'], panch: r.ritu, say: RITU[rI], mean: RITU_M[rI] },
+      samv: { label: ['Samvatsara · year', 'ஸம்வத்ஸரம் · வருடம்'], panch: r.samvatsara, say: r.samvatsara, mean: [`${r.samvatsara[0]} (year ${sI + 1} of 60)`, other ? r.samvatsara[1] : `${r.samvatsara[1]} (${SAMV_OF.ta(sI + 1)})`] },
+      ayana: { label: ['Ayana · half-year', 'அயனம்'], panch: r.ayana, say: AYANA[aI], mean: other ? [AYANA_M[aI][0], r.ayana[1]] : AYANA_M[aI] },
+      ritu: { label: ['Ritu · season', 'ருது'], panch: r.ritu, say: RITU[rI], mean: other ? [RITU_M[rI][0], bare(RITU_M[rI][1])] : RITU_M[rI] },
       masa: o.solar
         ? { label: ['Masa · month (Tamil solar)', 'மாஸம் · மாதம் (தமிழ்)'], panch: [`${sol[0]} ${r.tamilMonth.day}`, `${sol[1]} ${r.tamilMonth.day}`], say: [SOLAR[r.solarRasi][0] + ' maase', SOLAR[r.solarRasi][1] + ' மாஸே'], mean: [`${sol[0]} (Tamil solar month, ${SOLAR[r.solarRasi][0]} rasi)`, sol[1]] }
         : { label: ['Masa · month (lunar)', 'மாஸம் · மாதம் (சாந்திரமானம்)'], panch: LUNAR_M[mI], say: [LUNAR[mI][0] + ' maase', LUNAR[mI][1] + ' மாஸே'], mean: [LUNAR_M[mI][0] + ' (lunar)', LUNAR_M[mI][1]] },
-      paksha: { label: ['Paksha · fortnight', 'பக்ஷம்'], panch: N.paksha[ti.paksha], say: PAKSHA[ti.paksha], mean: PAKSHA_M[ti.paksha] },
+      paksha: { label: ['Paksha · fortnight', 'பக்ஷம்'], panch: N.paksha[ti.paksha], say: PAKSHA[ti.paksha], mean: other ? [PAKSHA_M[ti.paksha][0], bare(N.paksha[ti.paksha][1])] : PAKSHA_M[ti.paksha] },
       tithi: { label: ['Tithi · lunar day', 'திதி'], panch: ti.name, say: [TITHI[tiI][0], TITHI[tiI][1]], mean: ti.name },
       vasara: { label: ['Vasara · weekday', 'வாஸரம் · கிழமை'], panch: r.vara, say: VASARA[r.weekday], mean: [r.vara[0], VASARA_TA[r.weekday]] },
       nak: { label: ['Nakshatra · star', 'நக்ஷத்ரம்'], panch: nk.name, say: [NAK[nkI][0], NAK[nkI][1]], mean: nk.name },
@@ -1266,32 +1372,206 @@ const LISTS = {
       varsha: { label: ['Varsha', 'வர்ஷம்'], panch: pp.varsha || NONE, say: pp.varsha || NONE, mean: pp.varsha || NONE },
       khanda: { label: ['Khanda', 'கண்டம்'], panch: pp.khanda || NONE, say: pp.khanda || NONE, mean: pp.khanda || NONE },
       dir: { label: ['Direction from Mount Meru', 'மேருவிலிருந்து திசை'], panch: pp.dir || NONE, say: pp.dir || NONE, mean: pp.dir ? ['south', 'தெற்கே'] : NONE },
-      continent: { label: ['Continent', 'கண்டம் (மகாகண்டம்)'], panch: CONT[ct], say: CONT[ct], mean: CONT[ct] },
+      continent: { label: ['Continent', 'மகாகண்டம்'], panch: CONT[ct], say: CONT[ct], mean: CONT[ct] },
       country: { label: ['Country', 'நாடு'], panch: country, say: country, mean: country },
       region: { label: ['State / province', 'மாநிலம் / மாகாணம்'], panch: region ? [region, region] : NONE, say: [region, region], mean: [region, region] },
       city: { label: ['City / village', 'நகரம் / ஊர்'], panch: [o.city, o.city], say: [o.city, o.city], mean: [o.city, o.city] },
       gotra: { label: ['Gotra', 'கோத்திரம்'], panch: gotra || ['not entered', 'உள்ளிடவில்லை'], say: gotra || ph('your gotra', 'உங்கள் கோத்ரம்'), mean: gotra || ph('your gotra', 'உங்கள் கோத்ரம்'), ph: !gotra },
       name: { label: ['Name', 'பெயர்'], panch: name || ['not entered', 'உள்ளிடவில்லை'], say: name || ph('your name', 'உங்கள் பெயர்'), mean: name || ph('your name', 'உங்கள் பெயர்'), ph: !name }
     };
-    // the place line depends on the continent and country, so it is built from the parts that apply
-    const place = {
-      say: { en: ['{dvipa}-dvipe,', pp.varsha && '{varsha}-varshe,', pp.khanda && '{khanda}-khande,', pp.dir && 'Meroh {dir}-dig-bhage,', '{continent} mahakhande, {country} deshe,', region && '{region} pradeshe,', '{city} nagare, mama svagrihe,'],
-        ta: ['{dvipa} த்வீபே,', pp.varsha && '{varsha} வர்ஷே,', pp.khanda && '{khanda} கண்டே,', pp.dir && 'மேரோ: {dir} திக்பாகே,', '{continent} மஹா கண்டே, {country} தேஶே,', region && '{region} ப்ரதேஶே,', '{city} நகரே, மம ஸ்வக்ருஹே,'] },
-      mean: { en: ['in the {dvipa} dvipa (island-continent),', pp.varsha && 'in {varsha} varsha,', pp.khanda && 'in {khanda} khanda,', pp.dir && 'to the {dir} of Mount Meru,', 'on the continent of {continent}, in the country of {country},', region && 'in {region},', 'in the city of {city}, in my own home,'],
-        ta: ['{dvipa} த்வீபத்தில்,', pp.varsha && '{varsha} வர்ஷத்தில்,', pp.khanda && '{khanda} கண்டத்தில்,', pp.dir && 'மேரு மலைக்கு {dir},', '{continent} கண்டத்தில், {country} நாட்டில்,', region && '{region} மாநிலத்தில்,', '{city} நகரில், என் சொந்த இல்லத்தில்,'] }
+    if (other) { // second slot: Tamil -> chosen language (the Sankalpa's own spellings first)
+      const tx = o.tx;
+      for (const k in V) for (const f of ['label', 'panch', 'say', 'mean']) if (V[k][f]) V[k][f] = [V[k][f][0], tx(V[k][f][1])];
+      V.samv.mean = [V.samv.mean[0], `${V.samv.say[1]} (${SAMV_OF[lang](sI + 1)})`];
+    }
+    const cond = [true, !!pp.varsha, !!pp.khanda, !!pp.dir, true, !!region, true];
+    const placeLines = (field, code) => {
+      let list;
+      if (field === 'say') list = code === 'en' ? PLACE_SAY.en : code === 'ta' ? PLACE_SAY.ta : PLACE_SAY.hi.map(l => ix(l, code));
+      else list = PLACE_MEAN[code];
+      return list.filter((_, i) => cond[i]).join(' ');
     };
-    const expand = (list, field, lang) => list.flatMap(l => l === '@place' ? [place[field][lang].filter(Boolean).join(' ')] : [l]);
-    const fill = (tpl, lang, field) => esc(tpl).replace(/\{(\w+)\}/g, (_, k) => {
-      const v = V[k]; const s = v[field][lang === 'en' ? 0 : 1];
-      return `<span class="sv${v.ph ? ' ph' : ''}">${esc(s)}</span>`;
-    });
-    const tr = (lang, field, list) => expand(list, field === 'say' ? 'say' : 'mean', lang).map(l => fill(l, lang, field));
+    const code = lang;
+    const line = (tpl, field, which) => {
+      return esc(tpl).replace(/\{(\w+)\}/g, (_, k) => {
+        const v = V[k]; const s = v[field][which === 'en' ? 0 : 1];
+        return `<span class="sv${v.ph ? ' ph' : ''}">${esc(s)}</span>`;
+      });
+    };
+    const tpls = (T, code2) => T[code2] || T.hi.map(l => ix(l, code2));
+    const render = (T, field, which) => {
+      const c2 = which === 'en' ? 'en' : code;
+      return tpls(T, c2).flatMap(l => l === '@place' ? [placeLines(field, c2)] : [l]).map(l => line(l, field, which));
+    };
     const order = ['samv', 'ayana', 'ritu', 'masa', 'paksha', 'tithi', 'vasara', 'nak', 'yoga', 'karana', 'date', 'time', 'dvipa', 'varsha', 'khanda', 'dir', 'continent', 'country', 'region', 'city', 'gotra', 'name'].filter(k => !(k === 'varsha' && !pp.varsha || k === 'khanda' && !pp.khanda || k === 'dir' && !pp.dir));
     const rows = order.map(k => ({ k, label: V[k].label, panch: V[k].panch, say: V[k].say, ph: !!V[k].ph }));
-    return { rows, mantra: { en: tr('en', 'say', MANTRA.en), ta: tr('ta', 'say', MANTRA.ta) }, meaning: { en: tr('en', 'mean', MEANING.en), ta: tr('ta', 'mean', MEANING.ta) } };
+    return { rows, mantra: { en: render(MANTRA, 'say', 'en'), x: render(MANTRA, 'say', 'x') }, meaning: { en: render(MEANING, 'mean', 'en'), x: render(MEANING, 'mean', 'x') } };
   }
 
-  root.Sankalpa = { build, CONT, COUNTRIES, countryCode, continentOf: c => CODE_CONT[c] || '', countryName: dname };
+  const T = { ayana: AYANA, ritu: RITU, lunar: LUNAR, lunarM: LUNAR_M, solar: SOLAR, paksha: PAKSHA, tithi: TITHI, vasara: VASARA, varaLong: VASARA_TA, nak: NAK, yoga: YOGA, karana: KARANA, cont: CONT };
+  root.Sankalpa = { build, T, CONT, COUNTRIES, countryCode, continentOf: c => CODE_CONT[c] || '', countryName: dname };
+})(typeof window !== 'undefined' ? window : globalThis);
+
+</script>
+<script>
+// Language support. The engine and the page write every second-language label in Tamil; this file turns those Tamil
+// words into Hindi, Telugu, Kannada or Malayalam by lookup (word or phrase). Names that come from Sanskrit are written
+// once in Devanagari and converted to the other scripts letter by letter.
+(function (root) {
+  const LANGS = [
+    { code: 'ta', name: 'தமிழ்', en: 'Tamil', font: '', gf: '' },
+    { code: 'hi', name: 'हिन्दी', en: 'Hindi', font: 'Noto Sans Devanagari', gf: 'Noto+Sans+Devanagari' },
+    { code: 'te', name: 'తెలుగు', en: 'Telugu', font: 'Noto Sans Telugu', gf: 'Noto+Sans+Telugu' },
+    { code: 'kn', name: 'ಕನ್ನಡ', en: 'Kannada', font: 'Noto Sans Kannada', gf: 'Noto+Sans+Kannada' },
+    { code: 'ml', name: 'മലയാളം', en: 'Malayalam', font: 'Noto Sans Malayalam', gf: 'Noto+Sans+Malayalam' }
+  ];
+  const SHIFT = { te: 0x300, kn: 0x380, ml: 0x400 };
+  const CHILLU = { 'ണ': 'ൺ', 'ന': 'ൻ', 'ര': 'ർ', 'ല': 'ൽ', 'ള': 'ൾ' };
+
+  // Devanagari -> Telugu / Kannada / Malayalam: the scripts share one letter layout, so it is a fixed shift.
+  function indic(s, lang) {
+    const d = SHIFT[lang]; if (!d) return s;
+    let out = s.replace(/[ँ-्]/g, c => String.fromCharCode(c.charCodeAt(0) + d));
+    if (lang === 'ml') out = out.replace(/([ണനരലള])്(?![ഀ-ൿ])/g, (_, c) => CHILLU[c]);
+    return out;
+  }
+
+  const MAP = {}, DUP = []; let MAXW = 1;
+  function put(ta, hi, te, kn, ml) {
+    if (MAP[ta] && MAP[ta].hi !== hi) DUP.push([ta, MAP[ta].hi, hi]);
+    MAP[ta] = { hi, te: te || indic(hi, 'te'), kn: kn || indic(hi, 'kn'), ml: ml || indic(hi, 'ml') };
+    MAXW = Math.max(MAXW, ta.split(' ').length);
+  }
+  const S = lines => lines.forEach(l => { const p = l.split('|'); put(p[0], p[1]); });                 // Sanskrit words: one Devanagari form
+  const U = lines => lines.forEach(l => { const p = l.split('|'); put(p[0], p[1], p[2], p[3], p[4]); }); // each language written out
+  const zip = (tamils, hindi) => tamils.forEach((ta, i) => { if (hindi[i] != null) put(ta, hindi[i]); });
+
+  // Tamil words that mean different things in different places get an invisible mark in the data, so they can be told apart:
+  // weekdays (Tuesday / Mars) and Tamil solar months (Chithirai month / Chitra star).
+  const ZW = '​';
+  const P = root.Panchang, SK = root.Sankalpa;
+  if (P) for (const k of ['vara', 'month']) P.N[k].forEach(n => { if (n[1][0] !== ZW) n[1] = ZW + n[1]; });
+
+  // ---------- names from the engine, in engine order ----------
+  if (P) {
+    const N = P.N, col = a => a.map(n => n[1]);
+    zip(col(N.tithi), ['प्रतिपदा', 'द्वितीया', 'तृतीया', 'चतुर्थी', 'पंचमी', 'षष्ठी', 'सप्तमी', 'अष्टमी', 'नवमी', 'दशमी', 'एकादशी', 'द्वादशी', 'त्रयोदशी', 'चतुर्दशी', 'पूर्णिमा', 'अमावस्या']);
+    zip(col(N.nakshatra), ['अश्विनी', 'भरणी', 'कृत्तिका', 'रोहिणी', 'मृगशिरा', 'आर्द्रा', 'पुनर्वसु', 'पुष्य', 'आश्लेषा', 'मघा', 'पूर्व फाल्गुनी', 'उत्तर फाल्गुनी', 'हस्त', 'चित्रा', 'स्वाति', 'विशाखा', 'अनुराधा', 'ज्येष्ठा', 'मूल', 'पूर्वाषाढा', 'उत्तराषाढा', 'श्रवण', 'धनिष्ठा', 'शतभिषा', 'पूर्वभाद्रपद', 'उत्तरभाद्रपद', 'रेवती']);
+    zip(col(N.yoga), ['विष्कम्भ', 'प्रीति', 'आयुष्मान्', 'सौभाग्य', 'शोभन', 'अतिगण्ड', 'सुकर्मा', 'धृति', 'शूल', 'गण्ड', 'वृद्धि', 'ध्रुव', 'व्याघात', 'हर्षण', 'वज्र', 'सिद्धि', 'व्यतीपात', 'वरीयान्', 'परिघ', 'शिव', 'सिद्ध', 'साध्य', 'शुभ', 'शुक्ल', 'ब्रह्म', 'ऐन्द्र', 'वैधृति']);
+    zip(col(N.karanaMov), ['बव', 'बालव', 'कौलव', 'तैतिल', 'गर', 'वणिज', 'विष्टि (भद्रा)']);
+    zip([N.karanaFix.k0[1], N.karanaFix[57][1], N.karanaFix[58][1], N.karanaFix[59][1]], ['किंस्तुघ्न', 'शकुनि', 'चतुष्पाद', 'नाग']);
+    zip(col(N.rasi), ['मेष', 'वृषभ', 'मिथुन', 'कर्क', 'सिंह', 'कन्या', 'तुला', 'वृश्चिक', 'धनु', 'मकर', 'कुंभ', 'मीन']);
+    zip(col(N.month), ['चित्तिरै', 'वैकासि', 'आनि', 'आडि', 'आवणि', 'पुरट्टासि', 'ऐप्पसि', 'कार्तिकै', 'मार्गळि', 'तै', 'मासि', 'पंगुनि']);
+    zip(col(N.samvatsara), ['प्रभव', 'विभव', 'शुक्ल', 'प्रमोद', 'प्रजोत्पत्ति', 'अंगिरा', 'श्रीमुख', 'भाव', 'युवा', 'धाता', 'ईश्वर', 'बहुधान्य', 'प्रमाथी', 'विक्रम', 'वृष', 'चित्रभानु', 'सुभानु', 'तारण', 'पार्थिव', 'अव्यय', 'सर्वजित्', 'सर्वधारी', 'विरोधी', 'विकृति', 'खर', 'नंदन', 'विजय', 'जय', 'मन्मथ', 'दुर्मुख', 'हेमलंबी', 'विलंबी', 'विकारी', 'शार्वरी', 'प्लव', 'शुभकृत्', 'शोभकृत्', 'क्रोधी', 'विश्वावसु', 'पराभव', 'प्लवंग', 'कीलक', 'सौम्य', 'साधारण', 'विरोधकृत्', 'परिधावी', 'प्रमादी', 'आनंद', 'राक्षस', 'नल', 'पिंगल', 'कालयुक्त', 'सिद्धार्थी', 'रौद्र', 'दुर्मति', 'दुन्दुभि', 'रुधिरोद्गारी', 'रक्ताक्षी', 'क्रोधन', 'अक्षय']);
+    const pl = N.planet, g = N.gowri;
+    zip([pl.surya[1], pl.chandra[1], pl.sevvai[1], pl.budhan[1], pl.guru[1], pl.sukra[1], pl.sani[1]], ['सूर्य', 'चंद्र', 'मंगल', 'बुध', 'गुरु', 'शुक्र', 'शनि']);
+    zip([g.A[1], g.U[1], g.L[1], g.D[1], g.S[1], g.O[1], g.V[1], g.R[1]], ['अमृत', 'उद्योग', 'लाभ', 'धन', 'सुख', 'चोर', 'विष', 'रोग']);
+    // weekdays are spelled differently in each language
+    const wd = [['रविवार', 'ఆదివారం', 'ಭಾನುವಾರ', 'ഞായറാഴ്ച'], ['सोमवार', 'సోమవారం', 'ಸೋಮವಾರ', 'തിങ്കളാഴ്ച'], ['मंगलवार', 'మంగళవారం', 'ಮಂಗಳವಾರ', 'ചൊവ്വാഴ്ച'], ['बुधवार', 'బుధవారం', 'ಬುಧವಾರ', 'ബുധനാഴ്ച'], ['गुरुवार', 'గురువారం', 'ಗುರುವಾರ', 'വ്യാഴാഴ്ച'], ['शुक्रवार', 'శుక్రవారం', 'ಶುಕ್ರವಾರ', 'വെള്ളിയാഴ്ച'], ['शनिवार', 'శనివారం', 'ಶನಿವಾರ', 'ശനിയാഴ്ച']];
+    N.vara.forEach((v, i) => put(v[1], wd[i][0], wd[i][1], wd[i][2], wd[i][3]));
+    // the long weekday names used in the Sankalpa meaning
+    if (SK) SK.T.varaLong.forEach((v, i) => put(v, wd[i][0], wd[i][1], wd[i][2], wd[i][3]));
+  }
+
+  // ---------- Sankalpa words (as recited), in table order ----------
+  if (SK) {
+    const T = SK.T, col = a => a.map(n => n[1]);
+    zip(col(T.ayana), ['उत्तरायणे', 'दक्षिणायने']);
+    zip(col(T.ritu), ['वसन्त ऋतौ', 'ग्रीष्म ऋतौ', 'वर्षा ऋतौ', 'शरद् ऋतौ', 'हेमन्त ऋतौ', 'शिशिर ऋतौ']);
+    zip(col(T.lunar), ['चैत्र', 'वैशाख', 'ज्येष्ठ', 'आषाढ', 'श्रावण', 'भाद्रपद', 'आश्वयुज', 'कार्त्तिक', 'मार्गशीर्ष', 'पौष', 'माघ', 'फाल्गुन']);
+    zip(col(T.lunarM), ['चैत्र', 'वैशाख', 'ज्येष्ठ', 'आषाढ', 'श्रावण', 'भाद्रपद', 'आश्वयुज', 'कार्त्तिक', 'मार्गशीर्ष', 'पौष', 'माघ', 'फाल्गुन']);
+    zip(col(T.solar), ['मेष', 'वृषभ', 'मिथुन', 'कर्कटक', 'सिंह', 'कन्या', 'तुला', 'वृश्चिक', 'धनुस्', 'मकर', 'कुंभ', 'मीन']);
+    zip(col(T.paksha), ['शुक्ल पक्षे', 'कृष्ण पक्षे']);
+    zip(col(T.tithi), ['प्रथमायाम्', 'द्वितीयायाम्', 'तृतीयायाम्', 'चतुर्थ्याम्', 'पञ्चम्याम्', 'षष्ठ्याम्', 'सप्तम्याम्', 'अष्टम्याम्', 'नवम्याम्', 'दशम्याम्', 'एकादश्याम्', 'द्वादश्याम्', 'त्रयोदश्याम्', 'चतुर्दश्याम्', 'पूर्णिमायाम्', 'अमावास्यायाम्']);
+    zip(col(T.vasara), ['भानु वासरे', 'इन्दु वासरे', 'भौम वासरे', 'सौम्य वासरे', 'गुरु वासरे', 'भृगु वासरे', 'स्थिर वासरे']);
+    zip(col(T.nak), ['अश्विनी', 'भरणी', 'कृत्तिका', 'रोहिणी', 'मृगशीर्ष', 'आर्द्रा', 'पुनर्वसु', 'पुष्य', 'आश्लेषा', 'मघा', 'पूर्व फल्गुनी', 'उत्तर फल्गुनी', 'हस्त', 'चित्रा', 'स्वाती', 'विशाखा', 'अनुराधा', 'ज्येष्ठा', 'मूल', 'पूर्वाषाढा', 'उत्तराषाढा', 'श्रवण', 'धनिष्ठा', 'शतभिषक्', 'पूर्व प्रोष्ठपदा', 'उत्तर प्रोष्ठपदा', 'रेवती']);
+    zip(col(T.yoga), ['विष्कम्भ', 'प्रीति', 'आयुष्मान्', 'सौभाग्य', 'शोभन', 'अतिगण्ड', 'सुकर्म', 'धृति', 'शूल', 'गण्ड', 'वृद्धि', 'ध्रुव', 'व्याघात', 'हर्षण', 'वज्र', 'सिद्धि', 'व्यतीपात', 'वरीयान्', 'परिघ', 'शिव', 'सिद्ध', 'साध्य', 'शुभ', 'शुक्ल', 'ब्रह्म', 'ऐन्द्र', 'वैधृति']);
+    const kn = Object.values(T.karana);
+    ['बव', 'बालव', 'कौलव', 'तैतिल', 'गर', 'वणिज', 'विष्टि', 'शकुनि', 'चतुष्पाद', 'नाग', 'किंस्तुघ्न'].forEach((h, n) => { if (!MAP[kn[n][1]]) put(kn[n][1], h); });
+    const ct = Object.values(T.cont);
+    zip(ct.map(c => c[2][1]), ['जम्बू', 'प्लक्ष', 'कुश', 'क्रौञ्च', 'शाल्मलि', 'शाक', 'पुष्कर']);
+    zip(['பரத', 'ரமணக', 'தக்ஷிண'], ['भरत', 'रमणक', 'दक्षिण']);
+    // the sankalpa's own spellings clash with a main-page word of another meaning; these win inside the Sankalpa only
+    SK.OVER = {};
+    const ov = (ta, hi) => { SK.OVER[ta] = { hi, te: indic(hi, 'te'), kn: indic(hi, 'kn'), ml: indic(hi, 'ml') }; };
+    ov('பவ', 'बव'); ov('கர', 'गर'); ov('கண்டம்', 'खण्ड');
+  }
+
+  // ---------- Sanskrit words used on the pages ----------
+  S(['பஞ்சாங்கம்|पंचांग', 'திதி|तिथि', 'நட்சத்திரம்|नक्षत्र', 'யோகம்|योग', 'கரணம்|करण', 'வாரம்|वार', 'பட்சம்|पक्ष'.replace('க்', '्क'), 'அயனம்|अयन', 'ருது|ऋतु', 'ராசி|राशि',
+    'லக்னம்|लग्न', 'லக்|लग्न', 'வக்ரம்|वक्री', 'சங்கல்பம்|संकल्प', 'சங்கல்ப மந்திரம்|संकल्प मंत्र', 'கோத்திரம்|गोत्र', 'ராகு|राहु', 'கேது|केतु',
+    'ராகு காலம்|राहु काल', 'எமகண்டம்|यमगण्ड', 'குளிகை|गुलिक', 'முகூர்த்தம்|मुहूर्त', 'அபிஜித் முகூர்த்தம்|अभिजित मुहूर्त', 'ஓரை|होरा', 'கௌரி|गौरी',
+    'கௌரி பஞ்சாங்கம்|गौरी पंचांग', 'சூரிய உதயம்|सूर्योदय', 'சூரிய அஸ்தமனம்|सूर्यास्त', 'சந்திர ராசி|चंद्र राशि', 'திருக்கணிதம்|तिरुकणित', 'அயனாம்சம்|अयनांश',
+    'சூரியன்|सूर्य', 'சந்திரன்|चंद्र', 'சூரி|सू', 'சந்|चं', 'செவ்|मं', 'புத|बु', 'சுக்|शु', 'ருதௌ|ऋतौ', 'மாஸே|मासे', 'தமிழ் மாதம்|तमिल महीना',
+    'வசந்த|वसंत', 'கிரீஷ்ம|ग्रीष्म', 'வர்ஷ|वर्षा', 'சரத்|शरद', 'ஹேமந்த|हेमंत', 'சிசிர|शिशिर', 'சுக்ல பட்சம்|शुक्ल पक्ष', 'கிருஷ்ண பட்சம்|कृष्ण पक्ष',
+    'உத்தராயணம்|उत्तरायण', 'தட்சிணாயனம்|दक्षिणायन', 'ஆசியா|एशिया', 'ஐரோப்பா|यूरोप', 'ஆப்பிரிக்கா|अफ्रीका', 'வட அமெரிக்கா|उत्तरी अमेरिका', 'தென் அமெரிக்கா|दक्षिण अमेरिका',
+    'அண்டார்ட்டிகா|अंटार्कटिका', 'ஸம்வத்ஸரம்|संवत्सर', 'மாஸம்|मास', 'சாந்திரமானம்|चांद्रमान', 'பக்ஷம்|पक्ष', 'வாஸரம்|वासर', 'நக்ஷத்ரம்|नक्षत्र', 'த்வீபம்|द्वीप', 'வர்ஷம்|वर्ष',
+    // gotras
+    'பாரத்வாஜ|भारद्वाज', 'காஶ்யப|काश्यप', 'வஸிஷ்ட|वसिष्ठ', 'விஶ்வாமித்ர|विश्वामित्र', 'அத்ரி|अत्रि', 'கௌதம|गौतम', 'ஜமதக்னி|जमदग्नि', 'அகஸ்த்ய|अगस्त्य', 'கௌண்டின்ய|कौण्डिन्य', 'ஹாரீத|हारीत',
+    'ஸ்ரீவத்ஸ|श्रीवत्स', 'கௌஶிக|कौशिक', 'ஶாண்டில்ய|शाण्डिल्य', 'வாதூல|वाधूल', 'ஆங்கிரஸ|आंगिरस', 'பராஶர|पराशर', 'முத்கல|मुद्गल', 'குத்ஸ|कुत्स', 'மௌத்கல்ய|मौद्गल्य', 'உபமன்யு|उपमन्यु']);
+
+  // ---------- everyday words: each language written out ----------
+  U(['தமிழ்|हिन्दी|తెలుగు|ಕನ್ನಡ|മലയാളം',
+    'மொழி|भाषा|భాష|ಭಾಷೆ|ഭാഷ', 'கிழமை|दिन|వారం|ವಾರ|ദിവസം', 'மணி வாரியாக|घंटेवार|గంటల వారీగా|ಗಂಟೆವಾರು|മണിക്കൂർ തിരിച്ച്',
+    'தின பஞ்சாங்கம்|दैनिक पंचांग|దైనిక పంచాంగం|ದೈನಿಕ ಪಂಚಾಂಗ|ദിന പഞ്ചാംഗം',
+    'ஜாதகம்|जन्म कुंडली|జాతకం|ಜಾತಕ|ജാതകം',
+    'ஊர்|शहर|ఊరు|ಊರು|സ്ഥലം', 'நகரம்|नगर|నగరం|ನಗರ|നഗരം', 'தேதி|तारीख|తేదీ|ದಿನಾಂಕ|തീയതി', 'இன்று|आज|ఈ రోజు|ಇಂದು|ഇന്ന്',
+    'பஞ்ச அங்கம்|पाँच अंग|ఐదు అంగాలు|ಐದು ಅಂಗಗಳು|അഞ്ച് അംഗങ്ങൾ',
+    'தவிர்க்க வேண்டிய நேரம்|त्याज्य समय|విడిచిపెట్టవలసిన సమయం|ವರ್ಜ್ಯ ಸಮಯ|ഒഴിവാക്കേണ്ട സമയം',
+    'நல்ல நேரம்|शुभ समय|మంచి సమయం|ಶುಭ ಸಮಯ|നല്ല സമയം', 'கௌரி நல்ல நேரம்|गौरी शुभ समय|గౌరీ మంచి సమయం|ಗೌರಿ ಶುಭ ಸಮಯ|ഗൗരി നല്ല സമയം',
+    'வருடம்|वर्ष|సంవత్సరం|ವರ್ಷ|വർഷം', 'வருடங்கள்|वर्ष|సంవత్సరాలు|ವರ್ಷಗಳು|വർഷങ്ങൾ', 'மாதம்|महीना|నెల|ತಿಂಗಳು|മാസം',
+    'பகல்|दिन|పగలు|ಹಗಲು|പകൽ', 'இரவு|रात्रि|రాత్రి|ರಾತ್ರಿ|രാത്രി', 'பகல்|दिन|పగలు|ಹಗಲು|പകൽ',
+    'ராசி கட்டம்|राशि चक्र|రాశి చక్రం|ರಾಶಿ ಚಕ್ರ|രാശി ചക്രം', 'பிறந்த நேரம்|जन्म समय|పుట్టిన సమయం|ಜನ್ಮ ಸಮಯ|ജനന സമയം',
+    'தென்னிந்திய|दक्षिण भारतीय|దక్షిణ భారత|ದಕ್ಷಿಣ ಭಾರತೀಯ|ദക്ഷിണേന്ത്യൻ', 'வட இந்திய|उत्तर भारतीय|ఉత్తర భారత|ಉತ್ತರ ಭಾರತೀಯ|ഉത്തരേന്ത്യൻ',
+    'கிரக நிலை|ग्रह स्थिति|గ్రహ స్థితి|ಗ್ರಹ ಸ್ಥಿತಿ|ഗ്രഹനില', 'கிரகம்|ग्रह|గ్రహం|ಗ್ರಹ|ഗ്രഹം',
+    'அமைப்பு|सेटिंग|అమరికలు|ಹೊಂದಾಣಿಕೆ|ക്രമീകരണം', 'மாறிகள்|मान|విలువలు|ಮೌಲ್ಯಗಳು|മൂല്യങ്ങൾ',
+    'இடம்|स्थान|ప్రదేశం|ಸ್ಥಳ|സ്ഥലം', 'மாநிலம்|राज्य|రాష్ట్రం|ರಾಜ್ಯ|സംസ്ഥാനം', 'மாகாணம்|प्रांत|ప్రాంతం|ಪ್ರಾಂತ್ಯ|പ്രവിശ്യ', 'நாடு|देश|దేశం|ದೇಶ|രാജ്യം',
+    'மகாகண்டம்|महाद्वीप|ఖండం|ಖಂಡ|ഭൂഖണ്ഡം', 'நேரம்|समय|సమయం|ಸಮಯ|സമയം',
+    'குடும்ப விவரம்|परिवार का विवरण|కుటుంబ వివరాలు|ಕುಟುಂಬ ವಿವರ|കുടുംബ വിവരങ്ങൾ', 'பெயர்|नाम|పేరు|ಹೆಸರು|പേര്',
+    'மேலே|ऊपर|పైకి|ಮೇಲೆ|മുകളിൽ', 'மறுநாள் உதயம்|अगला सूर्योदय|మరుసటి సూర్యోదయం|ಮರುದಿನ ಸೂರ್ಯೋದಯ|അടുത്ത സൂര്യോദയം',
+    'சூரிய உதயத்துக்கு முன்|सूर्योदय से पहले|సూర్యోదయానికి ముందు|ಸೂರ್ಯೋದಯಕ್ಕೆ ಮೊದಲು|സൂര്യോദയത്തിനു മുമ്പ്',
+    'முந்தைய நாள் பஞ்சாங்கம்|पिछले दिन का पंचांग|ముందు రోజు పంచాంగం|ಹಿಂದಿನ ದಿನದ ಪಂಚಾಂಗ|മുൻദിവസത്തെ പഞ്ചാംഗം',
+    'சங்கல்ப மாறிகள்|संकल्प के मान|సంకల్ప విలువలు|ಸಂಕಲ್ಪ ಮೌಲ್ಯಗಳು|സങ്കൽപ മൂല്യങ്ങൾ', 'சங்கல்பத்தில்|संकल्प में|సంకల్పంలో|ಸಂಕಲ್ಪದಲ್ಲಿ|സങ്കൽപത്തിൽ',
+    'நீல நிற சொற்கள்|नीले शब्द|నీలి పదాలు|ನೀಲಿ ಪದಗಳು|നീല വാക്കുകൾ',
+    'அமைப்பு தாவலிலிருந்து நிரப்பப்பட்ட மதிப்புகள்|सेटिंग टैब से भरे गए मान|సెట్టింగ్‌ల ట్యాబ్ నుండి నింపిన విలువలు|ಹೊಂದಾಣಿಕೆ ಟ್ಯಾಬ್‌ನಿಂದ ತುಂಬಿದ ಮೌಲ್ಯಗಳು|ക്രമീകരണ ടാബിൽ നിന്ന് നിറച്ച മൂല്യങ്ങൾ',
+    'தமிழ் எழுத்தில்|देवनागरी लिपि में|తెలుగు లిపిలో|ಕನ್ನಡ ಲಿಪಿಯಲ್ಲಿ|മലയാളം ലിപിയിൽ', 'பொருள்|अर्थ|అర్థం|ಅರ್ಥ|അർത്ഥം',
+    'தமிழ் மொழிபெயர்ப்பு|हिन्दी अनुवाद|తెలుగు అనువాదం|ಕನ್ನಡ ಅನುವಾದ|മലയാളം പരിഭാഷ',
+    'மணி வாரியான பலன்|घंटे के अनुसार फल|గంటల వారీ ఫలితం|ಗಂಟೆಯ ಪ್ರಕಾರ ಫಲ|മണിക്കൂർ തിരിച്ചുള്ള ഫലം',
+    'உள்ளிடவில்லை|दर्ज नहीं|నమోదు చేయలేదు|ನಮೂದಿಸಿಲ್ಲ|നൽകിയിട്ടില്ല', 'உங்கள் கோத்ரம்|आपका गोत्र|మీ గోత్రం|ನಿಮ್ಮ ಗೋತ್ರ|നിങ്ങളുടെ ഗോത്രം', 'உங்கள் பெயர்|आपका नाम|మీ పేరు|ನಿಮ್ಮ ಹೆಸರು|നിങ്ങളുടെ പേര്',
+    'மேருவிலிருந்து திசை|मेरु से दिशा|మేరు నుండి దిశ|ಮೇರುವಿನಿಂದ ದಿಕ್ಕು|മേരുവിൽ നിന്നുള്ള ദിശ', 'தெற்கே|दक्षिण में|దక్షిణంగా|ದಕ್ಷಿಣಕ್ಕೆ|തെക്കുഭാഗത്ത്',
+    'ஆஸ்திரேலியா|ऑस्ट्रेलिया|ఆస్ట్రేలియా|ಆಸ್ಟ್ರೇಲಿಯಾ|ഓസ്ട്രേലിയ', 'ஓசியானியா|ओशिनिया|ఓషియానియా|ಓಷಿಯಾನಿಯಾ|ഓഷ്യാനിയ',
+    'வளர்பிறை|बढ़ता|పెరుగుతున్న|ಬೆಳೆಯುತ್ತಿರುವ|വളരുന്ന', 'தேய்பிறை|घटता|తరుగుతున్న|ಕ್ಷೀಣಿಸುತ್ತಿರುವ|തേയുന്ന',
+    'ஜனவரி|जनवरी|జనవరి|ಜನವರಿ|ജനുവരി', 'பிப்ரவரி|फरवरी|ఫిబ్రవరి|ಫೆಬ್ರವರಿ|ഫെബ്രുവരി', 'மார்ச்|मार्च|మార్చి|ಮಾರ್ಚ್|മാർച്ച്', 'ஏப்ரல்|अप्रैल|ఏప్రిల్|ಏಪ್ರಿಲ್|ഏപ്രിൽ',
+    'மே|मई|మే|ಮೇ|മേയ്', 'ஜூன்|जून|జూన్|ಜೂನ್|ജൂൺ', 'ஜூலை|जुलाई|జూలై|ಜುಲೈ|ജൂലൈ', 'ஆகஸ்ட்|अगस्त|ఆగస్టు|ಆಗಸ್ಟ್|ഓഗസ്റ്റ്',
+    'செப்டம்பர்|सितंबर|సెప్టెంబర్|ಸೆಪ್ಟೆಂಬರ್|സെപ്റ്റംബർ', 'அக்டோபர்|अक्तूबर|అక్టోబర్|ಅಕ್ಟೋಬರ್|ഒക്ടോബർ', 'நவம்பர்|नवंबर|నవంబర్|ನವೆಂಬರ್|നവംബർ', 'டிசம்பர்|दिसंबर|డిసెంబర్|ಡಿಸೆಂಬರ್|ഡിസംബർ'].filter(Boolean));
+
+  // ---------- the lookup ----------
+  const RUN = /[​]?[஀-௿]+(?: [​]?[஀-௿]+)*/g;
+  function tx(s, lang, over) {
+    if (!lang || lang === 'ta' || s == null) return s;
+    s = String(s);
+    return s.replace(RUN, run => {
+      const w = run.split(' '), out = [];
+      for (let i = 0; i < w.length;) {
+        let hit = null, k = Math.min(MAXW, w.length - i);
+        for (; k > 0; k--) {
+          const key = w.slice(i, i + k).join(' ');
+          const e = (over && over[key]) || MAP[key];
+          if (e) { hit = e[lang]; break; }
+        }
+        if (hit == null) { out.push(w[i]); i++; } else { out.push(hit); i += k; }
+      }
+      return out.join(' ');
+    });
+  }
+  // Tamil words on this page that have no entry yet (used by the tests)
+  function missing(s) {
+    const m = [];
+    String(s).replace(RUN, run => { const w = run.split(' '); for (let i = 0; i < w.length;) { let k = Math.min(MAXW, w.length - i); for (; k > 0; k--) if (MAP[w.slice(i, i + k).join(' ')]) break; if (k) i += k; else { m.push(w[i]); i++; } } return run; });
+    return m;
+  }
+
+  root.I18N = { LANGS, tx, indic, missing, MAP, DUP };
 })(typeof window !== 'undefined' ? window : globalThis);
 
 </script>
@@ -1301,6 +1581,53 @@ const LISTS = {
   const $ = id => document.getElementById(id);
   const P = window.Panchang, DAY = 86400e3;
   const state = { city: null, y: 0, m: 0, d: 0, source: '' };
+
+  // ---------- language: every label is written in Tamil in the code and turned into the chosen language here ----------
+  const I = window.I18N;
+  const lsGet = (k, d) => { try { const v = localStorage.getItem(k); return v == null ? d : v; } catch (e) { return d; } };
+  const lsSet = (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} };
+  const LANG = { code: lsGet('lang', 'ta') };
+  if (!I.LANGS.some(l => l.code === LANG.code)) LANG.code = 'ta';
+  const langInfo = () => I.LANGS.find(l => l.code === LANG.code);
+  const tl = s => I.tx(s, LANG.code);
+  const ATTRS = ['placeholder', 'aria-label', 'title', 'label'];
+  function locNode(n) { // one text node: keep the Tamil original, show the chosen language
+    const p = n.parentNode;
+    if (!p || p.nodeName === 'SCRIPT' || p.nodeName === 'STYLE' || (p.closest && p.closest('[data-keep]'))) return;
+    if (n.__o === undefined) { if (!/[\u0B80-\u0BFF]/.test(n.nodeValue)) return; n.__o = n.nodeValue; }
+    const v = tl(n.__o); if (n.nodeValue !== v) n.nodeValue = v;
+  }
+  function locEl(el) {
+    if (el.closest && el.closest('[data-keep]')) return;
+    for (const a of ATTRS) {
+      if (!el.hasAttribute || !el.hasAttribute(a)) continue;
+      el.__oa = el.__oa || {};
+      if (el.__oa[a] === undefined) { const v = el.getAttribute(a); if (!/[\u0B80-\u0BFF]/.test(v)) continue; el.__oa[a] = v; }
+      el.setAttribute(a, tl(el.__oa[a]));
+    }
+  }
+  function loc(root) {
+    if (root.nodeType === 3) { locNode(root); return; }
+    if (root.nodeType !== 1) return;
+    locEl(root);
+    const w = document.createTreeWalker(root, NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT);
+    for (let n = w.nextNode(); n; n = w.nextNode()) { if (n.nodeType === 3) locNode(n); else locEl(n); }
+  }
+  new MutationObserver(ms => { if (LANG.code === 'ta') return; for (const m of ms) for (const n of m.addedNodes) loc(n); })
+    .observe(document.body, { childList: true, subtree: true });
+
+  // header shared by the three pages: logo, title and language menu
+  const LOGO = '<svg class="logo" viewBox="0 0 48 48" aria-hidden="true"><circle class="disc" cx="24" cy="24" r="21"/><path class="ray" d="M24 6.5v4M24 37.5v4M6.5 24h4M37.5 24h4M11.6 11.6l2.8 2.8M33.6 33.6l2.8 2.8M36.4 11.6l-2.8 2.8M14.4 33.6l-2.8 2.8"/><circle class="core" cx="24" cy="24" r="7.5"/></svg>';
+  const GLOBE = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3.4 3.2 3.4 14.8 0 18M12 3c-3.4 3.2-3.4 14.8 0 18"/></svg>';
+  const HDR = { today: ['Daily Panchangam', 'தின பஞ்சாங்கம்', ''], horoscope: ['Horoscope', 'ஜாதகம்', 'hsBack'], sankalpa: ['Sankalpa Mantra', 'சங்கல்ப மந்திரம்', 'skBack'] };
+  document.querySelectorAll('[data-hdr]').forEach(el => {
+    const h = HDR[el.dataset.hdr];
+    if (h[2]) el.className = 'pagehead';
+    el.innerHTML = (h[2] ? `<button type="button" id="${h[2]}">◀ Back to Panchangam</button>` : '') +
+      `<header class="top"><div class="brand">${LOGO}<h1>${h[0]} <small>${h[1]}</small></h1></div>` +
+      `<label class="langbox">${GLOBE}<select class="langsel" data-keep aria-label="Language · மொழி">${I.LANGS.map(l => `<option value="${l.code}">${l.name} · ${l.en}</option>`).join('')}</select></label></header>`;
+  });
+  document.querySelectorAll('.langsel').forEach(sel => sel.addEventListener('change', e => applyLang(e.target.value)));
 
   const TOP = '<button type="button" class="totop" data-top aria-label="Back to top">↑ Top · மேலே</button>';
   const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -1468,7 +1795,7 @@ const LISTS = {
 
   function update() {
     const app = $('app'); app.classList.add('busy');
-    try { render(); renderJathagam(); } catch (e) { showMsg('Could not calculate for this date. Please try another date.'); console.error(e); }
+    try { render(); } catch (e) { showMsg('Could not calculate for this date. Please try another date.'); console.error(e); }
     finally { app.classList.remove('busy'); }
   }
 
@@ -1650,29 +1977,8 @@ const LISTS = {
     if (el) el.scrollIntoView({ block: 'start', behavior: 'smooth' });
   });
 
-  // ---------- Jathagam (Rasi chart) ----------
+  // ---------- Horoscope (Rasi chart): its own page, with its own place, date and time ----------
   const GR_ABBR = { surya: 'Su', chandra: 'Mo', sevvai: 'Ma', budhan: 'Me', guru: 'Ju', sukra: 'Ve', sani: 'Sa', rahu: 'Ra', ketu: 'Ke', lagna: 'Lag' };
-  const jstate = { style: 'south', active: false, saved: null, birth: { city: null, y: new Date().getFullYear(), m: new Date().getMonth() + 1, d: new Date().getDate() } };
-  { const n = new Date(), p2 = v => String(v).padStart(2, '0'); $('jTime').value = p2(n.getHours()) + ':' + p2(n.getMinutes()); }
-  // The tab keeps its own city and date (default: today, the current time and the local city); the other tabs get theirs back on leaving.
-  function enterJathagam() {
-    jstate.active = true;
-    jstate.saved = { city: state.city, source: state.source, y: state.y, m: state.m, d: state.d };
-    const b = jstate.birth;
-    if (!b.city) b.city = state.city;
-    Object.assign(state, { city: b.city, source: '', y: b.y, m: b.m, d: b.d });
-    $('cityInput').value = b.city.name;
-    update();
-  }
-  function leaveJathagam() {
-    if (!jstate.active) return;
-    jstate.active = false;
-    const { city, y, m, d } = state;
-    jstate.birth = { city, y, m, d };
-    Object.assign(state, jstate.saved);
-    $('cityInput').value = state.city.name;
-    update();
-  }
   const SOUTH_POS = { 11: [0, 0], 0: [1, 0], 1: [2, 0], 2: [3, 0], 10: [0, 1], 3: [3, 1], 9: [0, 2], 4: [3, 2], 8: [0, 3], 7: [1, 3], 6: [2, 3], 5: [3, 3] };
   const NORTH_HOUSE = [ // polygon points and label centre for houses 1..12
     ['200,0 300,100 200,200 100,100', 200, 85], ['0,0 200,0 100,100', 100, 38], ['0,0 100,100 0,200', 30, 100], ['0,200 100,100 200,200 100,300', 90, 200],
@@ -1709,42 +2015,92 @@ const LISTS = {
     });
     return `<svg viewBox="-1 -1 402 402" role="img" aria-label="North Indian Rasi chart">${parts.join('')}</svg>`;
   }
-  function renderJathagam() {
-    if ($('pane-jathagam').hidden || !state.city) return;
-    if (!jstate.active) { enterJathagam(); return; }
-    const [h, mi] = ($('jTime').value || '06:00').split(':').map(Number), c0 = state.city;
-    const c = P.chart({ y: state.y, m: state.m, d: state.d, h, mi, lat: c0.lat, lon: c0.lon, tz: c0.tz });
-    const dateLabel = `${state.d} ${MONTHS_EN[state.m - 1]} ${state.y}, ${$('jTime').value}`;
-    $('jChart').innerHTML = jstate.style === 'south' ? southSVG(c, dateLabel) : northSVG(c, dateLabel);
-    $('jRows').innerHTML = [c.lagna].concat(c.grahas).map(g => {
+  const H = { city: null, src: '', y: 0, m: 0, d: 0, h: 0, mi: 0, style: 'south', userTime: false };
+  const p2 = v => String(v).padStart(2, '0');
+  function hsFields() {
+    $('hsDate').value = `${H.y}-${p2(H.m)}-${p2(H.d)}`; $('hsTime').value = `${p2(H.h)}:${p2(H.mi)}`;
+    const c = H.city; $('hsCity').value = c.name;
+    $('hsWhere').innerHTML = `<b>${esc(c.name)}</b>${c.region ? ', ' + esc(c.region) : ''} · ${Math.abs(c.lat).toFixed(2)}°${c.lat >= 0 ? 'N' : 'S'} ${Math.abs(c.lon).toFixed(2)}°${c.lon >= 0 ? 'E' : 'W'} · ${esc(c.tz)}${H.src ? ' · ' + esc(H.src) : ''}`;
+  }
+  function hsNow() {
+    const q = P.tzParts(Date.now(), H.city.tz);
+    Object.assign(H, { y: q.y, m: q.m, d: q.d, h: q.h, mi: q.mi, userTime: false });
+    hsFields();
+  }
+  function hsSetCity(c, src) { H.city = c; H.src = src || ''; if (!H.userTime) hsNow(); else hsFields(); }
+  function renderHoroscope() {
+    if ($('hspage').hidden || !H.city) return;
+    const c0 = H.city;
+    const c = P.chart({ y: H.y, m: H.m, d: H.d, h: H.h, mi: H.mi, lat: c0.lat, lon: c0.lon, tz: c0.tz });
+    const dateLabel = `${H.d} ${MONTHS_EN[H.m - 1]} ${H.y}, ${p2(H.h)}:${p2(H.mi)}`;
+    $('hsChart').innerHTML = H.style === 'south' ? southSVG(c, dateLabel) : northSVG(c, dateLabel);
+    $('hsRows').innerHTML = [c.lagna].concat(c.grahas).map(g => {
       const nm = g.id === 'lagna' ? ['Lagna', 'லக்னம்'] : P.N.planet[g.id] || ({ rahu: ['Rahu', 'ராகு'], ketu: ['Ketu', 'கேது'] })[g.id];
       const dg = Math.floor(g.deg), mn = Math.floor((g.deg - dg) * 60);
       return `<tr><td>${bi(nm)}${g.retro && g.id !== 'rahu' && g.id !== 'ketu' ? ' <b>R</b>' : ''}</td><td>${bi(P.N.rasi[g.rasi])}</td><td class="num">${dg}° ${String(mn).padStart(2, '0')}′</td><td>${bi(P.N.nakshatra[g.nak])}</td><td class="num">${g.pada}</td></tr>`;
     }).join('');
   }
-  function setStyle(s) {
-    jstate.style = s;
-    $('jSouth').setAttribute('aria-pressed', s === 'south'); $('jNorth').setAttribute('aria-pressed', s === 'north');
-    renderJathagam();
+  function hsStyle(st) {
+    H.style = st;
+    $('hsSouth').setAttribute('aria-pressed', st === 'south'); $('hsNorth').setAttribute('aria-pressed', st === 'north');
+    renderHoroscope();
   }
-  $('jSouth').addEventListener('click', () => setStyle('south'));
-  $('jNorth').addEventListener('click', () => setStyle('north'));
-  $('jTime').addEventListener('input', renderJathagam);
+  $('hsSouth').addEventListener('click', () => hsStyle('south'));
+  $('hsNorth').addEventListener('click', () => hsStyle('north'));
+  $('hsDate').addEventListener('change', e => { const v = e.target.value; if (!v) return; const [y, m, d] = v.split('-').map(Number); if (y < 1600 || y > 2400) return; Object.assign(H, { y, m, d, userTime: true }); renderHoroscope(); });
+  $('hsTime').addEventListener('change', e => { const v = e.target.value; if (!v) return; const [h, mi] = v.split(':').map(Number); Object.assign(H, { h, mi, userTime: true }); renderHoroscope(); });
+  $('hsTime').addEventListener('input', e => { const v = e.target.value; if (!v) return; const [h, mi] = v.split(':').map(Number); Object.assign(H, { h, mi, userTime: true }); renderHoroscope(); });
+  $('hsNow').addEventListener('click', () => { hsNow(); renderHoroscope(); });
+  $('hsForm').addEventListener('submit', e => e.preventDefault());
+  $('hsBack').addEventListener('click', () => { location.hash = ''; });
+  $('tab-horoscope').addEventListener('click', () => { location.hash = 'horoscope'; });
+
+  // city search with suggestions, shared by the Horoscope page
+  function citySearch(inputId, boxId, current, onPick) {
+    const inp = $(inputId), box = $(boxId); let opts = [], act = 0, sq = 0;
+    const show = list => {
+      opts = list; act = 0;
+      if (!list.length) { box.hidden = true; inp.setAttribute('aria-expanded', 'false'); return; }
+      box.innerHTML = list.map((c, i) => `<button type="button" role="option" aria-selected="${i === 0}" data-i="${i}">${esc(c.name)} <span>${esc(c.region)}</span></button>`).join('');
+      box.hidden = false; inp.setAttribute('aria-expanded', 'true');
+    };
+    const pick = c => { show([]); onPick(c); };
+    inp.addEventListener('input', async e => {
+      const q = e.target.value, my = ++sq, local = localMatches(q);
+      show(local);
+      if (q.trim().length >= 3 && local.length < 3) {
+        const more = await onlineMatches(q);
+        if (my === sq && more.length) show(local.concat(more.filter(m => !local.some(l => l.name === m.name && l.region === m.region))).slice(0, 8));
+      }
+    });
+    inp.addEventListener('keydown', e => {
+      if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+        if (!opts.length) return; e.preventDefault();
+        act = (act + (e.key === 'ArrowDown' ? 1 : -1) + opts.length) % opts.length;
+        [...box.children].forEach((b, i) => b.setAttribute('aria-selected', i === act));
+      } else if (e.key === 'Enter') { e.preventDefault(); if (opts.length) pick(opts[act]); }
+      else if (e.key === 'Escape') show([]);
+    });
+    box.addEventListener('mousedown', e => e.preventDefault());
+    box.addEventListener('click', e => { const b = e.target.closest('button'); if (b) pick(opts[+b.dataset.i]); });
+    inp.addEventListener('blur', () => setTimeout(() => { show([]); const c = current(); if (c) inp.value = c.name; }, 150));
+  }
+  citySearch('hsCity', 'hsSuggest', () => H.city, c => { hsSetCity(c, ''); renderHoroscope(); });
 
   // ---------- Sankalpa Mantra: its own page with four tabs ----------
   const SK = Sankalpa, TA_MONTHS = ['ஜனவரி','பிப்ரவரி','மார்ச்','ஏப்ரல்','மே','ஜூன்','ஜூலை','ஆகஸ்ட்','செப்டம்பர்','அக்டோபர்','நவம்பர்','டிசம்பர்'];
   const S = { city: null, region: '', cc: '', ct: 'AS', y: 0, m: 0, d: 0, h: 0, mi: 0, solar: false, userLoc: false, userTime: false };
   const SK_IDS = ['skName', 'skNameTa', 'skGotra', 'skGotraTa'];
   const GOTRAS = [['Bharadwaja', 'பாரத்வாஜ'], ['Kashyapa', 'காஶ்யப'], ['Vasishtha', 'வஸிஷ்ட'], ['Vishvamitra', 'விஶ்வாமித்ர'], ['Atri', 'அத்ரி'], ['Gautama', 'கௌதம'], ['Jamadagni', 'ஜமதக்னி'], ['Agastya', 'அகஸ்த்ய'], ['Kaundinya', 'கௌண்டின்ய'], ['Harita', 'ஹாரீத'], ['Srivatsa', 'ஸ்ரீவத்ஸ'], ['Koushika', 'கௌஶிக'], ['Sandilya', 'ஶாண்டில்ய'], ['Vadhula', 'வாதூல'], ['Angirasa', 'ஆங்கிரஸ'], ['Parashara', 'பராஶர'], ['Mudgala', 'முத்கல'], ['Kutsa', 'குத்ஸ'], ['Maudgalya', 'மௌத்கல்ய'], ['Upamanyu', 'உபமன்யு']];
-  const lsGet = (k, d) => { try { const v = localStorage.getItem(k); return v == null ? d : v; } catch (e) { return d; } };
-  const lsSet = (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} };
   let savedGotras = []; try { savedGotras = JSON.parse(lsGet('skGotras', '[]')) || []; } catch (e) {}
-  for (const id of SK_IDS) $(id).value = lsGet(id, '');
+  const skKey = id => (LANG.code === 'ta' || !/Ta$/.test(id)) ? id : id + '_' + LANG.code;
+  function skLoadFields() { for (const id of SK_IDS) $(id).value = lsGet(skKey(id), ''); }
+  skLoadFields();
 
   function gotraLists() {
     const all = savedGotras.concat(GOTRAS.filter(g => !savedGotras.some(s => s[0].toLowerCase() === g[0].toLowerCase())));
-    $('skGotraList').innerHTML = all.map(g => `<option value="${esc(g[0])}" label="${esc(g[1] || '')}">`).join('');
-    $('skGotraTaList').innerHTML = all.filter(g => g[1]).map(g => `<option value="${esc(g[1])}" label="${esc(g[0])}">`).join('');
+    $('skGotraList').innerHTML = all.map(g => `<option value="${esc(g[0])}" label="${esc(g[1] ? tl(g[1]) : '')}">`).join('');
+    $('skGotraTaList').innerHTML = all.filter(g => g[1]).map(g => `<option value="${esc(tl(g[1]))}" label="${esc(g[0])}">`).join('');
   }
   function saveGotra() {
     const en = $('skGotra').value.trim(), ta = $('skGotraTa').value.trim();
@@ -1755,10 +2111,15 @@ const LISTS = {
     savedGotras = savedGotras.slice(0, 20);
     lsSet('skGotras', JSON.stringify(savedGotras)); gotraLists();
   }
-  function knownTamil(en) { const k = en.toLowerCase(), g = savedGotras.concat(GOTRAS).find(x => x[0].toLowerCase() === k); return g ? g[1] : ''; }
+  function knownTamil(en) { const k = en.toLowerCase(), g = savedGotras.concat(GOTRAS).find(x => x[0].toLowerCase() === k); return g ? tl(g[1]) : ''; }
 
   // countries and continents
-  $('skCountry').innerHTML = '<option value="">— choose —</option>' + SK.COUNTRIES().map(c => `<option value="${c.code}">${esc(c.en)}${c.ta && c.ta !== c.en && c.ta !== c.code ? ' · ' + esc(c.ta) : ''}</option>`).join('');
+  function skCountries() {
+    const keep = $('skCountry').value;
+    $('skCountry').innerHTML = '<option value="">— choose —</option>' + SK.COUNTRIES(LANG.code).map(c => `<option value="${c.code}">${esc(c.en)}${c.ta && c.ta !== c.en && c.ta !== c.code ? ' · ' + esc(c.ta) : ''}</option>`).join('');
+    $('skCountry').value = keep;
+  }
+  skCountries();
   $('skContinent').innerHTML = Object.entries(SK.CONT).map(([k, v]) => `<option value="${k}">${esc(v[0])} · ${esc(v[1])}</option>`).join('');
 
   function skNow() {
@@ -1817,8 +2178,8 @@ const LISTS = {
   $('skTime').addEventListener('change', e => { const v = e.target.value; if (!v) return; const [h, mi] = v.split(':').map(Number); Object.assign(S, { h, mi, userTime: true }); skRender(); });
   $('skNow').addEventListener('click', () => { skNow(); skRender(); });
   for (const id of SK_IDS) $(id).addEventListener('input', () => {
-    lsSet(id, $(id).value);
-    if (id === 'skGotra' && !$('skGotraTa').value.trim()) { const ta = knownTamil($('skGotra').value.trim()); if (ta) { $('skGotraTa').value = ta; lsSet('skGotraTa', ta); } }
+    lsSet(skKey(id), $(id).value);
+    if (id === 'skGotra' && !$('skGotraTa').value.trim()) { const ta = knownTamil($('skGotra').value.trim()); if (ta) { $('skGotraTa').value = ta; lsSet(skKey('skGotraTa'), ta); } }
     skRender();
   });
   for (const id of ['skGotra', 'skGotraTa']) $(id).addEventListener('change', saveGotra);
@@ -1846,7 +2207,7 @@ const LISTS = {
           const clock = x => new Date(x).toLocaleTimeString('en-US', { timeZone: c.tz, hour: 'numeric', minute: '2-digit' });
           const note = before ? [' (before sunrise: previous day\'s Panchangam)', ' (சூரிய உதயத்துக்கு முன்: முந்தைய நாள் பஞ்சாங்கம்)'] : ['', ''];
           const o = {
-            t, solar: S.solar, city: c.name, region: S.region.trim(), countryCode: S.cc, continentCode: S.ct,
+            lang: LANG.code, tx: x => I.tx(x, LANG.code, SK.OVER), t, solar: S.solar, city: c.name, region: S.region.trim(), countryCode: S.cc, continentCode: S.ct,
             name: [$('skName').value.trim(), $('skNameTa').value.trim()], gotra: [$('skGotra').value.trim(), $('skGotraTa').value.trim()],
             dateLabel: [`${r.vara[0]}, ${pd} ${MONTHS_EN[pm - 1]} ${py}`, `${r.vara[1]}, ${pd} ${TA_MONTHS[pm - 1]} ${py}`],
             timeLabel: [`${clock(ms)}${note[0]}`, `${clock(ms)}${note[1]}`]
@@ -1859,10 +2220,10 @@ const LISTS = {
           const body = (i, lang) => {
             const en = i === 0;
             return `<div class="sk-sec" lang="${lang}"><p class="hint">${en ? '<span class="sv">Blue words</span> are the values filled in from the Settings tab.' : '<span class="sv">நீல நிற சொற்கள்</span> அமைப்பு தாவலிலிருந்து நிரப்பப்பட்ட மதிப்புகள்.'}</p>
-              <section class="panel"><h2>${en ? 'Sankalpa Mantra' : 'சங்கல்ப மந்திரம்'} <span>${en ? 'in English letters' : 'தமிழ் எழுத்தில்'}</span></h2><div class="mantra">${s.mantra[lang].map(l => `<p>${l}</p>`).join('')}</div></section>
-              <section class="panel"><h2>${en ? 'Meaning' : 'பொருள்'} <span>${en ? 'English translation' : 'தமிழ் மொழிபெயர்ப்பு'}</span></h2><div class="sk-mean">${s.meaning[lang].map(l => `<p>${l}</p>`).join('')}</div></section></div>`;
+              <section class="panel"><h2>${en ? 'Sankalpa Mantra' : 'சங்கல்ப மந்திரம்'} <span>${en ? 'in English letters' : 'தமிழ் எழுத்தில்'}</span></h2><div class="mantra">${s.mantra[en ? 'en' : 'x'].map(l => `<p>${l}</p>`).join('')}</div></section>
+              <section class="panel"><h2>${en ? 'Meaning' : 'பொருள்'} <span>${en ? 'English translation' : 'தமிழ் மொழிபெயர்ப்பு'}</span></h2><div class="sk-mean">${s.meaning[en ? 'en' : 'x'].map(l => `<p>${l}</p>`).join('')}</div></section></div>`;
           };
-          $('skEnBody').innerHTML = body(0, 'en'); $('skTaBody').innerHTML = body(1, 'ta');
+          $('skEnBody').innerHTML = body(0, 'en'); $('skTaBody').innerHTML = body(1, LANG.code);
         }
       }
     } catch (e) { msg = 'Could not calculate for this date. Please try another date.'; console.error(e); }
@@ -1878,24 +2239,46 @@ const LISTS = {
   $('skBack').addEventListener('click', () => { location.hash = ''; });
   $('tab-sankalpa').addEventListener('click', () => { location.hash = 'sankalpa'; });
   function route() {
-    const on = location.hash === '#sankalpa';
-    $('app').hidden = on; $('skpage').hidden = !on;
-    if (on) { if (!S.userLoc && !S.city && state.city) skSetCity(state.city, state.source); else if (!S.userTime && S.city) skNow(); skRender(); skShow('ta'); }
+    if (location.hash === '#jathagam') { location.hash = 'horoscope'; return; }
+    const page = location.hash === '#sankalpa' ? 'sk' : location.hash === '#horoscope' ? 'hs' : '';
+    $('app').hidden = !!page; $('skpage').hidden = page !== 'sk'; $('hspage').hidden = page !== 'hs';
+    if (page === 'sk') { if (!S.userLoc && !S.city && state.city) skSetCity(state.city, state.source); else if (!S.userTime && S.city) skNow(); skRender(); skShow('ta'); }
+    if (page === 'hs') { if (!H.city && state.city) hsSetCity(state.city, state.source); else if (!H.userTime && H.city) hsNow(); renderHoroscope(); window.scrollTo(0, 0); }
   }
   window.addEventListener('hashchange', route);
 
-  const TABS = ['today', 'hourly', 'jathagam', 'meanings'];
+  const TABS = ['today', 'hourly', 'meanings'];
   function showTab(name) {
     for (const t of TABS) { $('pane-' + t).hidden = t !== name; $('tab-' + t).setAttribute('aria-selected', t === name); }
     $('ctrls').hidden = name === 'meanings';
     if (name === 'meanings') buildLists();
-    if (name === 'jathagam') renderJathagam(); else leaveJathagam();
     document.querySelectorAll('.gloss .item.hl').forEach(x => x.classList.remove('hl'));
     window.scrollTo(0, 0);
   }
   for (const t of TABS) $('tab-' + t).addEventListener('click', () => showTab(t));
   if (TABS.includes(location.hash.slice(1))) showTab(location.hash.slice(1));
 
+  // ---------- change the language ----------
+  const loaded = {};
+  function applyLang(code) {
+    if (!I.LANGS.some(l => l.code === code)) code = 'ta';
+    LANG.code = code; lsSet('lang', code);
+    const li = langInfo();
+    if (li.font && !loaded[code]) { // fonts for the other scripts are fetched only when chosen
+      loaded[code] = 1;
+      const ln = document.createElement('link'); ln.rel = 'stylesheet'; ln.href = `https://fonts.googleapis.com/css2?family=${li.gf}:wght@400;500;600&display=swap`; document.head.appendChild(ln);
+    }
+    document.documentElement.style.setProperty('--ix', li.font ? `"${li.font}"` : 'system-ui');
+    document.querySelectorAll('.langsel').forEach(x => { x.value = code; });
+    document.querySelectorAll('.lname').forEach(x => { x.textContent = li.en; });
+    skCountries(); skLoadFields(); gotraLists();
+    if (state.city) update();
+    if (!$('pane-meanings').hidden) buildLists();
+    skRender(); renderHoroscope();
+    loc(document.body);
+  }
+
+  applyLang(LANG.code);
   start();
   route();
 })();
