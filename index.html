@@ -1,4 +1,5 @@
 <title>Dina Panchangam</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Arima:wght@500;700&family=Hind+Madurai:wght@400;500;600&display=swap">
@@ -109,6 +110,20 @@ footer { font-size: .82rem; color: var(--muted); max-width: 70ch; }
 .jtbl td, .jtbl th { padding: 6px 8px; }
 .tblwrap { overflow-x: auto; }
 
+/* Phones: four tabs in two rows, full-width fields, bigger touch targets */
+@media (max-width: 600px) {
+  .tabs { flex-wrap: wrap; overflow: visible; gap: 0; }
+  .tabs button { box-sizing: border-box; flex: 1 1 45%; padding: 11px 8px; font-size: .95rem; white-space: normal; border-bottom: 3px solid transparent; }
+  .controls { flex-direction: column; align-items: stretch; }
+  .controls .city, .controls .field { flex: none; }
+  .controls .btns { display: flex; gap: 8px; }
+  .controls .btns button { flex: 1; }
+  .controls input, .controls button, .pill { min-height: 44px; }
+  .hfilter { flex-wrap: wrap; }
+  .jtbl th, .jtbl td { padding: 6px 5px; font-size: .84rem; }
+  .panel { padding-inline: 14px; }
+}
+@media (min-width: 601px) and (max-width: 900px) { .wrap { padding-inline: 20px; } }
 [hidden] { display: none !important; }
 /* Tabs */
 .tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--line); }
