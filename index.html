@@ -7,18 +7,18 @@
 :root {
   --bg: #f3f6f1; --surface: #ffffff; --line: #dbe3d9; --ink: #16231b; --muted: #58685d;
   --accent: #8f5f00; --accent-soft: #fbefd6;
-  --bad: #a8261c; --bad-soft: #fbe6e3; --good: #1d7148; --good-soft: #e0f2e7;
+  --bad: #a8261c; --bad-soft: #fbe6e3; --good: #1d7148; --good-soft: #e0f2e7; --neutral-soft: #eceff0;
   --display: "Arima", "Noto Serif Tamil", Georgia, serif;
   --body: "Hind Madurai", "Noto Sans Tamil", system-ui, sans-serif;
 }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
   --bg: #0f1612; --surface: #16201a; --line: #2a3a30; --ink: #e5ece6; --muted: #98aa9d;
   --accent: #e3ab45; --accent-soft: #33280f;
-  --bad: #f08a7e; --bad-soft: #3a1a17; --good: #6fd09b; --good-soft: #143223; color-scheme: dark } }
+  --bad: #f08a7e; --bad-soft: #3a1a17; --good: #6fd09b; --good-soft: #143223; --neutral-soft: #222c26; color-scheme: dark } }
 :root[data-theme="dark"] {
   --bg: #0f1612; --surface: #16201a; --line: #2a3a30; --ink: #e5ece6; --muted: #98aa9d;
   --accent: #e3ab45; --accent-soft: #33280f;
-  --bad: #f08a7e; --bad-soft: #3a1a17; --good: #6fd09b; --good-soft: #143223; color-scheme: dark }
+  --bad: #f08a7e; --bad-soft: #3a1a17; --good: #6fd09b; --good-soft: #143223; --neutral-soft: #222c26; color-scheme: dark }
 
 body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.5; }
 .wrap { max-width: 1040px; margin: 0 auto; padding-block: 20px 40px;
@@ -92,6 +92,23 @@ footer { font-size: .82rem; color: var(--muted); max-width: 70ch; }
 @media (prefers-reduced-motion: no-preference) { .day, .panel { transition: opacity .2s; } }
 .busy .day, .busy .panel { opacity: .55; }
 
+/* Jathagam tab */
+.tabs { overflow-x: auto; scrollbar-width: none; }
+.tabs button { white-space: nowrap; }
+.jctrl { align-items: end; }
+.jpanel { align-items: center; }
+#jChart { width: 100%; max-width: 520px; margin: 0 auto; }
+#jChart svg { width: 100%; height: auto; display: block; }
+#jChart .ln { stroke: var(--ink); stroke-width: 1.4; fill: none; }
+#jChart .cellbg { fill: var(--surface); }
+#jChart .lagbg { fill: var(--accent-soft); }
+#jChart text { fill: var(--ink); font-family: inherit; }
+#jChart .pl { font-size: 11px; font-weight: 600; }
+#jChart .rn { font-size: 8.5px; fill: var(--muted); }
+#jChart .ctr { font-size: 12px; fill: var(--muted); }
+.jtbl td, .jtbl th { padding: 6px 8px; }
+.tblwrap { overflow-x: auto; }
+
 [hidden] { display: none !important; }
 /* Tabs */
 .tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--line); }
@@ -126,6 +143,53 @@ dialog::backdrop { background: rgb(10 20 14 / .45); }
 .gloss dt .ta { font-weight: 400; font-size: .9rem; margin-left: 6px; }
 .gloss dd { margin: 0; display: flex; flex-direction: column; gap: 6px; max-width: 65ch; }
 .gloss dd .lead { font-weight: 500; }
+/* Hora cells */
+.g.neutral { background: var(--neutral-soft); color: var(--muted); }
+.gowri.hora { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+
+/* Hour by hour */
+.hourtop { grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); }
+.hourtop .list { display: flex; flex-direction: column; gap: 4px; }
+.hfilter { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.pill { border-radius: 99px; padding: 6px 14px; font-size: .9rem; }
+.pill[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.hours { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+.hsec { padding: 8px 18px; background: var(--bg); border-top: 1px solid var(--line); font-size: .72rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+.hsec:first-child { border-top: 0; }
+.hrow { display: grid; grid-template-columns: 150px minmax(0, 1fr); gap: 14px; padding: 12px 18px; border-top: 1px solid var(--line); }
+.hrow.now { background: var(--accent-soft); }
+.hrow .ht { display: flex; flex-direction: column; gap: 2px; }
+.hrow .ht .when { font-weight: 600; }
+.hrow .ht .pl { font-size: .85rem; color: var(--muted); }
+.hrow .nowtag { font-size: .72rem; font-weight: 700; color: var(--accent); letter-spacing: .06em; text-transform: uppercase; }
+.segs { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.seg { display: flex; flex-direction: column; gap: 5px; }
+.seg + .seg { border-top: 1px dashed var(--line); padding-top: 10px; }
+.seg .head { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.verdict { font-size: .78rem; font-weight: 700; padding: 2px 10px; border-radius: 99px; letter-spacing: .03em; }
+.verdict.best { background: var(--good); color: var(--surface); }
+.verdict.good { background: var(--good-soft); color: var(--good); }
+.verdict.mixed { background: var(--accent-soft); color: var(--accent); }
+.verdict.avoid { background: var(--bad-soft); color: var(--bad); }
+.seg .span { font-size: .85rem; color: var(--muted); }
+.tags { display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: .85rem; }
+.tags .p { color: var(--good); } .tags .n { color: var(--bad); } .tags .z { color: var(--muted); }
+.seg .use { font-size: .9rem; }
+.seg .use b { font-weight: 600; }
+@media (max-width: 560px) { .hrow { grid-template-columns: 1fr; gap: 6px; } .hrow .ht { flex-direction: row; gap: 10px; align-items: baseline; flex-wrap: wrap; } }
+
+/* Meanings lists */
+.jump { display: flex; flex-wrap: wrap; gap: 6px; }
+.jump button { font-size: .85rem; padding: 5px 12px; border-radius: 99px; font-weight: 500; }
+.lists { display: flex; flex-direction: column; gap: 18px; }
+.tscroll { overflow-x: auto; }
+.lt { width: 100%; border-collapse: collapse; font-size: .92rem; }
+.lt th, .lt td { padding: 7px 10px 7px 0; border-top: 1px solid var(--line); width: auto; vertical-align: top; }
+.lt thead th { border-top: 0; font-size: .72rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+.lt td.n { color: var(--muted); font-variant-numeric: tabular-nums; width: 2.5em; }
+.lt .ta { display: inline; font-size: .9rem; }
+.lt tr.cur td { background: var(--accent-soft); }
+.lt .bad { color: var(--bad); font-weight: 600; } .lt .good { color: var(--good); font-weight: 600; }
 .gloss .item.hl { background: var(--accent-soft); border-radius: 8px; padding-inline: 10px; }
 </style>
 
@@ -136,10 +200,12 @@ dialog::backdrop { background: rgb(10 20 14 / .45); }
 
   <div class="tabs" role="tablist" aria-label="Sections">
     <button type="button" role="tab" id="tab-today" aria-controls="pane-today" aria-selected="true">Today's Panchangam</button>
+    <button type="button" role="tab" id="tab-hourly" aria-controls="pane-hourly" aria-selected="false">Hour by hour</button>
+    <button type="button" role="tab" id="tab-jathagam" aria-controls="pane-jathagam" aria-selected="false">Jathagam · ஜாதகம்</button>
     <button type="button" role="tab" id="tab-meanings" aria-controls="pane-meanings" aria-selected="false">Meanings</button>
   </div>
 
-  <div class="tabpane" id="pane-today" role="tabpanel" aria-labelledby="tab-today">
+  <div class="tabpane" id="ctrls">
   <div class="hint">Tap any word with a <b>?</b> to learn what it means.</div>
   <form class="controls" id="form" autocomplete="off">
     <div class="field city">
@@ -159,9 +225,11 @@ dialog::backdrop { background: rgb(10 20 14 / .45); }
   </form>
   <div class="msg" id="msg" role="status" hidden></div>
   <div class="where" id="where"></div>
-
-  <section class="day" id="summary" aria-live="polite"></section>
   <div id="nosun" class="nosun" hidden></div>
+  </div>
+
+  <div class="tabpane" id="pane-today" role="tabpanel" aria-labelledby="tab-today">
+  <section class="day" id="summary" aria-live="polite"></section>
 
   <div class="grid" id="panels">
     <section class="panel">
@@ -191,14 +259,57 @@ dialog::backdrop { background: rgb(10 20 14 / .45); }
       <div class="gowri" id="gnight"></div>
       <div class="note">Green periods (Amirdha, Uthi, Laabam, Dhanam, Sugam) are Nalla Neram. Red periods (Soram, Visham, Rogam) are avoided.</div>
     </section>
+    <section class="panel" style="grid-column: 1 / -1">
+      <h2><button type="button" class="term" data-term="hora">Hora</button> <span>ஓரை · planetary hours</span></h2>
+      <div class="subh">Day · பகல்</div>
+      <div class="gowri hora" id="hday"></div>
+      <div class="subh">Night · இரவு</div>
+      <div class="gowri hora" id="hnight"></div>
+      <div class="note">Green: Guru, Sukra, Budhan, Chandra. Grey: Surya (neutral). Red: Sevvai, Sani. Each hora is 1/12 of the local daytime or night.</div>
+    </section>
   </div>
 
   <footer id="foot"></footer>
   </div>
 
+  <div class="tabpane" id="pane-hourly" role="tabpanel" aria-labelledby="tab-hourly" hidden>
+    <section class="day hourtop" id="hourTop"></section>
+    <div class="hfilter" role="group" aria-label="Show">
+      <span class="subh">Show</span>
+      <button type="button" class="pill" id="fAll" aria-pressed="true">All hours</button>
+      <button type="button" class="pill" id="fGood" aria-pressed="false">Only good times</button>
+    </div>
+    <div class="hours" id="hours"></div>
+    <p class="note">Each row is one <button type="button" class="term" data-term="hora">hora</button>, about an hour. When a factor starts or ends inside the hour, the row is split. <button type="button" class="term" data-term="planner">How verdicts are decided</button></p>
+  </div>
+
+  <div class="tabpane" id="pane-jathagam" role="tabpanel" aria-labelledby="tab-jathagam" hidden>
+    <p class="hint">Rasi chart (ராசி கட்டம்) for a birth date, time and place. Choose the city and date above, then the birth time here.</p>
+    <div class="controls jctrl">
+      <div class="field">
+        <label for="jTime">Birth time · பிறந்த நேரம்</label>
+        <input id="jTime" type="time" value="06:00">
+      </div>
+      <div class="hfilter" role="group" aria-label="Chart style">
+        <button type="button" class="pill" id="jSouth" aria-pressed="true">South Indian · தென்னிந்திய</button>
+        <button type="button" class="pill" id="jNorth" aria-pressed="false">North Indian · வட இந்திய</button>
+      </div>
+    </div>
+    <section class="panel jpanel">
+      <div id="jChart"></div>
+    </section>
+    <section class="panel">
+      <h3>Planet positions · கிரக நிலை</h3>
+      <div class="tblwrap"><table class="jtbl"><thead><tr><th>Planet · கிரகம்</th><th>Rasi · ராசி</th><th>Degree</th><th>Star · நட்சத்திரம்</th><th>Pada</th></tr></thead><tbody id="jRows"></tbody></table></div>
+      <p class="note">Sidereal (Lahiri) positions. Rahu and Ketu are the mean nodes. <b>R</b> means retrograde (வக்ரம்). The Lagna (லக்னம்) depends on the exact birth time, so please enter it carefully.</p>
+    </section>
+  </div>
+
   <div class="tabpane" id="pane-meanings" role="tabpanel" aria-labelledby="tab-meanings" hidden>
-    <p class="hint">What each Panchangam word means and why people use it, in plain English.</p>
+    <p class="hint">What each Panchangam word means and why people use it, with the full list of names.</p>
+    <nav class="jump" id="jump" aria-label="Jump to"></nav>
     <div class="gloss" id="gloss"></div>
+    <div class="lists" id="lists"></div>
   </div>
 </div>
 
@@ -238,12 +349,18 @@ dialog::backdrop { background: rgb(10 20 14 / .45); }
     paksha: [['Shukla Paksha (Valarpirai)','சுக்ல பட்சம் (வளர்பிறை)'],['Krishna Paksha (Theipirai)','கிருஷ்ண பட்சம் (தேய்பிறை)']],
     ayana: [['Uttarayanam','உத்தராயணம்'],['Dakshinayanam','தட்சிணாயனம்']],
     ritu: [['Vasantha Ritu','வசந்த ருது'],['Grishma Ritu','கிரீஷ்ம ருது'],['Varsha Ritu','வர்ஷ ருது'],['Sharad Ritu','சரத் ருது'],['Hemantha Ritu','ஹேமந்த ருது'],['Shishira Ritu','சிசிர ருது']],
+    planet: { surya:['Surya (Sun)','சூரியன்'], chandra:['Chandra (Moon)','சந்திரன்'], sevvai:['Sevvai (Mars)','செவ்வாய்'], budhan:['Budhan (Mercury)','புதன்'], guru:['Guru (Jupiter)','குரு'], sukra:['Sukra (Venus)','சுக்கிரன்'], sani:['Sani (Saturn)','சனி'] },
     gowri: { A:['Amirdha','அமிர்தம்',1], U:['Uthi','உத்தி',1], L:['Laabam','லாபம்',1], D:['Dhanam','தனம்',1], S:['Sugam','சுகம்',1], O:['Soram','சோரம்',0], V:['Visham','விஷம்',0], R:['Rogam','ரோகம்',0] }
   };
 
   // Gowri Panchangam sequences (Sun..Sat), as published by Tamil Gowri Panchangam tables.
   const GOWRI_DAY = ['UARLDSOV','AVRLDSOU','RLDSOUVA','LDSOVUAR','DSOUAVRL','SOUAVRLD','OUVARLDS'];
   const GOWRI_NIGHT = ['DSOVUARL','SOUAVRLD','OUVARLDS','UARLDSOV','AVRLDSOU','RLDSOUVA','LDSOUVAO'];
+
+  // Hora order (slowest to fastest planet) and the first hora of each weekday (Sun..Sat) as an index into it.
+  const HORA_ORDER = ['sani', 'guru', 'sevvai', 'surya', 'sukra', 'budhan', 'chandra'];
+  const HORA_START = [3, 6, 2, 5, 1, 4, 0];
+  const PLANET_NATURE = { guru: 'good', sukra: 'good', budhan: 'good', chandra: 'good', surya: 'neutral', sevvai: 'bad', sani: 'bad' };
 
   // Day split into 8 parts; 1-based part number for each weekday (Sun..Sat).
   const RAHU = [8,2,7,5,6,4,3], YAMA = [5,4,3,2,1,7,6], GULIKA = [7,6,5,4,3,2,1];
@@ -368,10 +485,143 @@ dialog::backdrop { background: rgb(10 20 14 / .45); }
     const g = (seq, from, len) => seq.split('').map((c, i) => ({ code: c, name: N.gowri[c], good: !!N.gowri[c][2], start: from + i * len / 8, end: from + (i + 1) * len / 8 }));
     res.gowriDay = g(GOWRI_DAY[weekday], sunrise, day);
     res.gowriNight = g(GOWRI_NIGHT[weekday], sunset, night);
+
+    // Hora: 12 equal parts of daytime and 12 of night; first hora belongs to the weekday's planet,
+    // then the planets follow the order Sani, Guru, Sevvai, Surya, Sukra, Budhan, Chandra.
+    const first = HORA_START[weekday];
+    res.hora = [];
+    for (let k = 0; k < 24; k++) {
+      const isDay = k < 12, base = isDay ? sunrise : sunset, len = (isDay ? day : night) / 12, j = isDay ? k : k - 12;
+      const p = HORA_ORDER[(first + k) % 7];
+      res.hora.push({ planet: p, name: N.planet[p], nature: PLANET_NATURE[p], day: isDay, start: base + j * len, end: base + (j + 1) * len });
+    }
+    res.planner = planner(res);
     return res;
   }
 
-  root.Panchang = { calculate, tzParts, localToUTC, localDateKey, N };
+  // ---------- Hour-by-hour planner ----------
+  const BAD_YOGA = new Set([0, 5, 8, 9, 12, 14, 16, 18, 26]);
+  const F_INFO = {
+    rahu:   { sign: -3, label: 'Rahu Kalam', why: 'Work begun in Rahu Kalam is believed not to go well.' },
+    yama:   { sign: -3, label: 'Yamagandam', why: 'Linked with Yama; avoided for journeys and new ventures.' },
+    gulika: { sign: -1, label: 'Gulika Kalam', why: 'Whatever is done is believed to repeat. Avoid loans and sad events; fine for buying gold or repaying debts.' },
+    abhijit:{ sign: +1, label: 'Abhijit Muhurtham', why: 'Midday muhurtham believed to overcome many bad factors.' },
+    vishti: { sign: -1, label: 'Vishti (Bhadra) Karana', why: 'Considered unfavourable for starting new work.' },
+    badYoga:{ sign: -1, label: 'Unfavourable Yoga', why: 'This Yoga is avoided when fixing a muhurtham.' },
+    ashtami:{ sign: -1, label: 'Ashtami / Navami Tithi', why: 'Tamil practice avoids these Tithis for new beginnings.' },
+    amavasai:{ sign: -1, label: 'Amavasai', why: 'New moon day: good for ancestors\' rites, avoided for new beginnings.' }
+  };
+  const GOWRI_USE = {
+    A: { why: 'Amirdha (nectar) is the best Gowri period.', uses: ['any auspicious beginning', 'ceremonies'] },
+    U: { why: 'Uthi stands for progress.', uses: ['starting new work', 'job and career matters'] },
+    L: { why: 'Laabam stands for gain.', uses: ['business deals', 'sales', 'investments'] },
+    D: { why: 'Dhanam stands for wealth.', uses: ['money matters', 'purchases', 'deposits'] },
+    S: { why: 'Sugam stands for comfort.', uses: ['travel', 'house-warming', 'family matters'] },
+    O: { why: 'Soram stands for loss; things begun may not last.' },
+    V: { why: 'Visham means poison; results are believed to be harmful.' },
+    R: { why: 'Rogam means illness; avoided especially for health matters and travel.' }
+  };
+  const HORA_USE = {
+    guru:    ['weddings', 'education', 'religious work', 'important beginnings'],
+    sukra:   ['buying jewellery, clothes or vehicles', 'marriage talks', 'arts'],
+    budhan:  ['studies', 'writing', 'business', 'signing papers'],
+    chandra: ['travel', 'meeting people', 'household matters'],
+    surya:   ['meeting officials', 'government work']
+  };
+  const HORA_WHY = { sevvai: 'Mars hora is linked with quarrels and haste; avoided for new beginnings.', sani: 'Saturn hora is linked with delays; avoided for new beginnings.' };
+
+  function factorsAt(res, t) {
+    const f = [];
+    const inR = r => t >= r.start && t < r.end;
+    const span = list => list.find(s => s.end === null || t < s.end) || list[list.length - 1];
+    if (inR(res.rahu)) f.push({ k: 'rahu', ...F_INFO.rahu });
+    if (inR(res.yama)) f.push({ k: 'yama', ...F_INFO.yama });
+    if (inR(res.gulika)) f.push({ k: 'gulika', ...F_INFO.gulika });
+    if (inR(res.abhijit) && !res.abhijit.wednesday) f.push({ k: 'abhijit', ...F_INFO.abhijit });
+    const g = res.gowriDay.concat(res.gowriNight).find(inR);
+    if (g) f.push({ k: 'gowri', sign: g.good ? 1 : -1, label: g.name[0] + ' (Gowri)', why: GOWRI_USE[g.code].why, uses: GOWRI_USE[g.code].uses });
+    const h = res.hora.find(inR);
+    if (h) {
+      const sign = h.nature === 'good' ? 1 : h.nature === 'bad' ? -1 : 0;
+      f.push({ k: 'hora', sign, label: h.name[0] + ' hora', why: sign < 0 ? HORA_WHY[h.planet] : (sign > 0 ? h.name[0] + ' hora is considered favourable.' : 'Sun hora is neutral; suited to dealing with authorities.'), uses: HORA_USE[h.planet] });
+    }
+    const ti = span(res.tithi).i;
+    if (ti % 15 === 7 || ti % 15 === 8) f.push({ k: 'ashtami', ...F_INFO.ashtami });
+    if (ti === 29) f.push({ k: 'amavasai', ...F_INFO.amavasai });
+    if (span(res.karana).name[0].startsWith('Vishti')) f.push({ k: 'vishti', ...F_INFO.vishti });
+    const yo = span(res.yoga);
+    if (BAD_YOGA.has(yo.i)) f.push({ k: 'badYoga', ...F_INFO.badYoga, label: yo.name[0] + ' Yoga' });
+    return f;
+  }
+  function verdictOf(f) {
+    if (f.some(x => x.sign <= -3)) return 'avoid';
+    const pos = f.filter(x => x.sign > 0).length, neg = f.filter(x => x.sign < 0).length;
+    if (neg === 0) return pos >= 2 ? 'best' : 'good';
+    return pos >= neg ? 'mixed' : 'avoid';
+  }
+  function planner(res) {
+    const cuts = new Set();
+    const add = t => { if (t != null && t > res.sunrise && t < res.nextSunrise) cuts.add(Math.round(t)); };
+    for (const r of [res.rahu, res.yama, res.gulika, res.abhijit]) { add(r.start); add(r.end); }
+    for (const g of res.gowriDay.concat(res.gowriNight)) add(g.start);
+    for (const k of ['tithi', 'karana', 'yoga']) res[k].forEach(s => add(s.end));
+    return res.hora.map(h => {
+      // cut points inside this hora, ignoring any that would leave a sliver shorter than 4 minutes
+      const inner = [...cuts].filter(t => t > h.start + 240e3 && t < h.end - 240e3).sort((a, b) => a - b)
+        .filter((t, i, a) => i === 0 || t - a[i - 1] >= 240e3);
+      const pts = [h.start, ...inner, h.end];
+      const segs = [];
+      for (let i = 0; i < pts.length - 1; i++) {
+        const f = factorsAt(res, (pts[i] + pts[i + 1]) / 2), v = verdictOf(f), sig = v + '|' + f.map(x => x.label).join(',');
+        const last = segs[segs.length - 1];
+        if (last && last.sig === sig) last.end = pts[i + 1];
+        else segs.push({ start: pts[i], end: pts[i + 1], factors: f, verdict: v, sig });
+      }
+      const order = ['avoid', 'mixed', 'good', 'best'];
+      const vs = segs.map(s => order.indexOf(s.verdict));
+      return { hora: h, segs, best: order[Math.max(...vs)], worst: order[Math.min(...vs)] };
+    });
+  }
+
+  // ---------- Jathagam (Rasi chart) ----------
+  const GRAHAS = [
+    ['surya', ['Sun', 'சூரி']], ['chandra', ['Moon', 'சந்']], ['sevvai', ['Mars', 'செவ்']], ['budhan', ['Mercury', 'புத']],
+    ['guru', ['Jupiter', 'குரு']], ['sukra', ['Venus', 'சுக்']], ['sani', ['Saturn', 'சனி']], ['rahu', ['Rahu', 'ராகு']], ['ketu', ['Ketu', 'கேது']]
+  ];
+  const BODY = { sevvai: 'Mars', budhan: 'Mercury', guru: 'Jupiter', sukra: 'Venus', sani: 'Saturn' };
+  function meanNode(ms) { // mean ascending node, tropical, degrees
+    const T = (ms - Date.UTC(2000, 0, 1, 12)) / (DAY * 36525);
+    return norm(125.04452 - 1934.136261 * T);
+  }
+  // Sidereal longitude of a graha. Planets come as J2000 ecliptic longitude, so the Lahiri value at J2000 is subtracted.
+  function grahaLon(k, ms) {
+    if (k === 'surya') return sunSid(ms);
+    if (k === 'chandra') return moonSid(ms);
+    if (k === 'rahu') return norm(meanNode(ms) - ayanamsa(ms));
+    if (k === 'ketu') return norm(meanNode(ms) + 180 - ayanamsa(ms));
+    return norm(A.Ecliptic(A.GeoVector(A.Body[BODY[k]], new Date(ms), true)).elon - ayanamsa(Date.UTC(2000, 0, 1, 12)));
+  }
+  function lagnaLon(ms, lat, lon) { // sidereal ascendant
+    const rad = Math.PI / 180, T = (ms - Date.UTC(2000, 0, 1, 12)) / (DAY * 36525);
+    const eps = (23.439291 - 0.0130042 * T) * rad;
+    const ramc = norm(A.SiderealTime(new Date(ms)) * 15 + lon) * rad, phi = lat * rad;
+    const asc = Math.atan2(Math.cos(ramc), -(Math.sin(ramc) * Math.cos(eps) + Math.tan(phi) * Math.sin(eps))) / rad;
+    return norm(asc - ayanamsa(ms));
+  }
+  // Rasi chart for a local birth date and time (hour, minute) at a place.
+  function chart(o) {
+    const ms = localToUTC(o.y, o.m, o.d, (o.h || 0) + (o.mi || 0) / 60, o.tz);
+    const mk = (id, name, lonDeg, retro) => ({ id, name, lon: lonDeg, rasi: Math.floor(lonDeg / 30), deg: lonDeg % 30, nak: Math.floor(lonDeg / (360 / 27)), pada: Math.floor((lonDeg % (360 / 27)) / (360 / 108)) + 1, retro });
+    const grahas = GRAHAS.map(([k, name]) => {
+      const l = grahaLon(k, ms);
+      const retro = k === 'rahu' || k === 'ketu' ? true : (k === 'surya' || k === 'chandra') ? false : norm(grahaLon(k, ms + 6 * HOUR) - grahaLon(k, ms - 6 * HOUR) + 180) - 180 < 0;
+      return mk(k, name, l, retro);
+    });
+    const lagna = mk('lagna', ['Lagna', 'லக்'], lagnaLon(ms, o.lat, o.lon), false);
+    return { ms, grahas, lagna, ayanamsa: ayanamsa(ms), nakshatraNames: N.nakshatra, rasiNames: N.rasi };
+  }
+
+  root.Panchang = { calculate, chart, tzParts, localToUTC, localDateKey, N };
 })(typeof globalThis !== 'undefined' ? globalThis : this);
 
 </script>
@@ -679,6 +929,14 @@ const GLOSSARY = [
 { id:'nallaneram', group:'Timings', term:'Nalla Neram', ta:'நல்ல நேரம்',
   short:'"Good time" in Tamil: periods considered favourable for beginning things.',
   more:['Printed calendars give Nalla Neram in different ways. This page shows Abhijit Muhurtham and the good Gowri periods, which are worked out from your own sunrise and sunset.'] },
+{ id:'hora', group:'Timings', term:'Hora', ta:'ஓரை',
+  short:'The planetary hour. The day and night are each split into 12 horas, and each hora is ruled by a planet.',
+  more:['The first hora after sunrise belongs to the planet of the weekday (Guru on Thursday, Sukra on Friday). The planets then follow the order Sani, Guru, Sevvai, Surya, Sukra, Budhan, Chandra, repeating. This page uses horas based on local sunrise and sunset, so daytime horas are a little longer in summer. Many printed Tamil calendars instead use equal 60-minute horas from sunrise.',
+        'Guru, Sukra, Budhan and Chandra horas are considered good; Surya is neutral; Sevvai and Sani horas are avoided for new beginnings. The seven-day week itself comes from this cycle: 24 horas later, the next sunrise falls on the next weekday\'s planet.'] },
+{ id:'planner', group:'Timings', term:'Hour-by-hour verdict', ta:'மணி வாரியான பலன்',
+  short:'How the Hour by hour tab decides Best, Good, Mixed or Avoid.',
+  more:['Each hora is checked against Rahu Kalam, Yamagandam, Gulika, the Gowri period, the hora planet, Abhijit Muhurtham, and day-level factors (Vishti Karana, an unfavourable Yoga, Ashtami or Navami Tithi, Amavasai).',
+        'Avoid: Rahu Kalam or Yamagandam, or more bad factors than good. Mixed: good and bad factors equal or good slightly more. Good: no bad factor. Best: no bad factor and at least two good ones. This is a simple guide built from common Tamil practice; for weddings and major ceremonies, families usually consult their own priest or astrologer.'] },
 { id:'samvatsara', group:'Year and month', term:'Samvatsara', ta:'வருடம்',
   short:'The name of the year, from a cycle of 60 year names.',
   more:['The 60 names, from Prabhava to Akshaya, repeat every 60 years. The Tamil year begins on Chithirai 1, usually 14 April. The year from April 2026 to April 2027 is Parabhava. A 60th birthday (Shashtiabdapoorthi) celebrates the return of one\'s birth year name.'] },
@@ -700,6 +958,63 @@ const GLOSSARY = [
   more:['Thirukanitha (Drik Ganita) calculates the true positions of the Sun and Moon. The older Vakya method uses traditional verses and tables, so its times can differ by minutes or even hours.',
         'Indian astronomy measures positions against the fixed stars. Because the Earth\'s axis slowly wobbles, this differs from the Western zodiac by about 24° today. That difference is the Ayanamsa; this page uses Lahiri, the Indian Government standard.'] }
 ];
+
+// ---------- Full name lists for the Meanings tab ----------
+const LISTS = {
+  tithiNotes: [
+    'First day after the new or full moon.',
+    'Waxing Dvitiyai: Chandra Darshan, first sight of the new crescent.',
+    'Akshaya Tritiya (Chithirai/Vaikasi) is popular for buying gold.',
+    'Ganesha: Vinayaka Chaturthi (waxing) and Sankatahara Chaturthi (waning).',
+    'Naga Panchami; waning Panchami is used for Varahi worship.',
+    'Murugan: Shashti fasting, Skanda Shashti in Aippasi.',
+    'Surya: Ratha Saptami in Thai.',
+    'Durga and Kala Bhairava; Krishna Jayanthi. Avoided for new beginnings.',
+    'Rama Navami; Saraswati Puja in Navarathri. Avoided for new beginnings.',
+    'Vijaya Dasami is a favourite day to begin learning.',
+    'Vishnu: fasting day; Vaikunta Ekadasi in Margazhi.',
+    'Paranai: the Ekadasi fast is broken in the morning.',
+    'Pradosham: Shiva worship at dusk.',
+    'Maha Shivaratri (waning, Maasi); Naraka Chaturdasi is Deepavali.',
+  ],
+  pournami: 'Full moon: Girivalam, Satyanarayana puja, Chitra Pournami.',
+  amavasai: 'New moon: tarpanam for ancestors; Aadi, Purattasi (Mahalaya) and Thai Amavasai are the main ones.',
+  nakLords: ['Ketu','Sukra','Surya','Chandra','Sevvai','Rahu','Guru','Sani','Budhan'],
+  yogaMeaning: ['support','affection','long life','good fortune','splendour','great danger','good deeds','steadiness','spear','danger','growth','steady','blow','joy','thunderbolt','success','calamity','comfort','obstacle','auspicious','accomplished','achievable','good','bright','creator','king of gods','separation'],
+  badYoga: [0,5,8,9,12,14,16,18,26],
+  karana: [
+    ['Bava','பவம்','Movable','Good for steady, lasting work.'],
+    ['Balava','பாலவம்','Movable','Good for religious and charitable work.'],
+    ['Kaulava','கௌலவம்','Movable','Good for friendship and partnerships.'],
+    ['Taitila','தைதுலம்','Movable','Good for home and property matters.'],
+    ['Garaja','கரசை','Movable','Good for farming and building work.'],
+    ['Vanija','வணிசை','Movable','Good for trade and buying or selling.'],
+    ['Vishti (Bhadra)','பத்திரை','Movable','Unfavourable; avoided for new work.'],
+    ['Shakuni','சகுனி','Fixed','Second half of waning Chaturdasi.'],
+    ['Chatushpada','சதுஷ்பாதம்','Fixed','First half of Amavasai.'],
+    ['Nagava','நாகவம்','Fixed','Second half of Amavasai.'],
+    ['Kimstughna','கிம்ஸ்துக்னம்','Fixed','First half of waxing Prathamai.']
+  ],
+  rasi: [['Aries','Sevvai'],['Taurus','Sukra'],['Gemini','Budhan'],['Cancer','Chandra'],['Leo','Surya'],['Virgo','Budhan'],['Libra','Sukra'],['Scorpio','Sevvai'],['Sagittarius','Guru'],['Capricorn','Sani'],['Aquarius','Sani'],['Pisces','Guru']],
+  months: [
+    ['about 14 Apr – 14 May','Tamil New Year, Chitra Pournami, Meenakshi Thirukalyanam'],
+    ['about 15 May – 14 Jun','Vaikasi Visakam'],
+    ['about 15 Jun – 16 Jul','Aani Thirumanjanam'],
+    ['about 17 Jul – 16 Aug','Aadi Perukku, Aadi Pooram, Aadi Amavasai'],
+    ['about 17 Aug – 16 Sep','Avani Avittam, Krishna Jayanthi, Vinayaka Chaturthi'],
+    ['about 17 Sep – 16 Oct','Navarathri, Purattasi Saturdays, Mahalaya Amavasai'],
+    ['about 17 Oct – 15 Nov','Deepavali, Skanda Shashti, Annabhishekam'],
+    ['about 16 Nov – 15 Dec','Karthigai Deepam, Sabarimala season'],
+    ['about 16 Dec – 13 Jan','Vaikunta Ekadasi, Arudra Darisanam, Thiruppavai'],
+    ['about 14 Jan – 12 Feb','Pongal, Thaipoosam, Ratha Saptami'],
+    ['about 13 Feb – 13 Mar','Maha Shivaratri, Maasi Magam'],
+    ['about 14 Mar – 13 Apr','Panguni Uthiram']
+  ],
+  vara: [['Surya','Surya, Shiva'],['Chandra','Shiva'],['Sevvai','Murugan, Durga'],['Budhan','Vishnu'],['Guru','Dakshinamurthy, Guru'],['Sukra','Lakshmi, Amman'],['Sani','Perumal, Sani, Anjaneyar']],
+  gowri: [['A','nectar','Best period; any auspicious beginning'],['U','progress','Starting new work, job matters'],['L','gain','Business, sales, investments'],['D','wealth','Money matters, purchases'],['S','comfort','Travel, house-warming, family matters'],['O','loss','Avoided; things begun may not last'],['V','poison','Avoided; harmful results'],['R','illness','Avoided, especially for health and travel']],
+  hora: [['guru','Good','Weddings, education, religious work, important beginnings'],['sukra','Good','Jewellery, clothes, vehicles, marriage talks, arts'],['budhan','Good','Studies, writing, business, signing papers'],['chandra','Good','Travel, meeting people, household matters'],['surya','Neutral','Meeting officials, government work'],['sevvai','Avoid','Linked with quarrels and haste'],['sani','Avoid','Linked with delays']],
+  ritu: ['Spring','Summer','Rains','Autumn','Early winter','Late winter']
+};
 
 </script>
 <script>
@@ -755,6 +1070,7 @@ const GLOSSARY = [
     if (r.noSun) {
       $('summary').innerHTML = `<div class="date"><div class="big">${esc(dateEn)}</div><div class="ta">${esc(r.vara[1])}</div></div>`;
       $('nosun').hidden = false; $('panels').hidden = true;
+      $('hourTop').innerHTML = ''; $('hours').innerHTML = '';
       $('nosun').textContent = `The Sun does not rise or does not set in ${c.name} on this day, so a sunrise-based Panchangam cannot be worked out here. Please choose a city closer to the equator.`;
       return;
     }
@@ -802,14 +1118,78 @@ const GLOSSARY = [
     const cells = list => list.map(g => `<div class="g ${g.good ? 'good' : 'bad'}${now >= g.start && now < g.end ? ' now' : ''}"><b>${esc(g.name[0])}</b><span class="ta">${esc(g.name[1])}</span><span class="t">${fmt(g.start)} – ${fmt(g.end)}</span></div>`).join('');
     $('gday').innerHTML = cells(r.gowriDay);
     $('gnight').innerHTML = cells(r.gowriNight);
+    const hcells = list => list.map(h => `<div class="g ${h.nature}${now >= h.start && now < h.end ? ' now' : ''}"><b>${esc(h.name[0])}</b><span class="ta">${esc(h.name[1])}</span><span class="t">${fmt(h.start)} – ${fmt(h.end)}</span></div>`).join('');
+    $('hday').innerHTML = hcells(r.hora.filter(h => h.day));
+    $('hnight').innerHTML = hcells(r.hora.filter(h => !h.day));
+    renderHourly(r, dateEn);
 
     const ay = r.ayanamsa, deg = Math.floor(ay), min = Math.round((ay - deg) * 60);
     $('foot').innerHTML = `Calculated in your browser by the ${term('method', 'Thirukanitha (Drik)')} method with Lahiri ayanamsa (${deg}°${String(min).padStart(2, '0')}′). Tithi, Nakshatra, Yoga and Karana are those prevailing at local sunrise. All times are local time in ${esc(c.name)}. Rahu Kalam, Yamagandam and Gulika divide sunrise-to-sunset into eight parts.`;
   }
 
+  // ---------- Hour by hour ----------
+  const VERDICT = { best: 'Best', good: 'Good', mixed: 'Mixed', avoid: 'Avoid' };
+  let goodOnly = false;
+  function segUses(seg) {
+    const uses = [];
+    for (const f of seg.factors) if (f.sign > 0 && f.uses) for (const u of f.uses) if (!uses.includes(u)) uses.push(u);
+    return uses.slice(0, 6);
+  }
+  function segHTML(seg, showSpan) {
+    const tags = seg.factors.map(f => `<span class="${f.sign > 0 ? 'p' : f.sign < 0 ? 'n' : 'z'}">${f.sign > 0 ? '✓' : f.sign < 0 ? '✗' : '•'} ${esc(f.label)}</span>`).join('');
+    let detail = '';
+    if (seg.verdict === 'best' || seg.verdict === 'good') {
+      const u = segUses(seg);
+      detail = `<div class="use"><b>Good for:</b> ${u.length ? esc(u.join(', ')) : 'routine work'}.</div>`;
+    } else {
+      const bad = seg.factors.filter(f => f.sign < 0);
+      detail = `<div class="use"><b>${seg.verdict === 'avoid' ? 'Why avoid' : 'Caution'}:</b> ${esc(bad.map(f => f.why).join(' '))}</div>`;
+      if (seg.verdict === 'mixed') { const u = segUses(seg); if (u.length) detail += `<div class="use"><b>Still usable for:</b> ${esc(u.slice(0, 4).join(', '))}.</div>`; }
+    }
+    return `<div class="seg ${seg.verdict}"><div class="head"><span class="verdict ${seg.verdict}">${VERDICT[seg.verdict]}</span>${showSpan ? `<span class="span">${fmt(seg.start)} – ${fmt(seg.end)}</span>` : ''}</div><div class="tags">${tags}</div>${detail}</div>`;
+  }
+  function renderHourly(r, dateEn) {
+    const now = Date.now();
+    // merged good stretches during daytime for the summary
+    const merged = [];
+    for (const row of r.planner) for (const sg of row.segs) {
+      if (!(sg.verdict === 'best' || sg.verdict === 'good')) continue;
+      const last = merged[merged.length - 1];
+      if (last && last.end === sg.start) { last.end = sg.end; if (sg.verdict === 'best') last.best = true; }
+      else merged.push({ start: sg.start, end: sg.end, best: sg.verdict === 'best' });
+    }
+    const dayGood = merged.filter(m => m.start < r.sunset), nightGood = merged.filter(m => m.start >= r.sunset);
+    const li = list => list.length ? list.map(m => `<div>${fmt(m.start)} – ${fmt(m.end)}${m.best ? ' <span class="chip good">Best</span>' : ''}</div>`).join('') : '<div class="ta">No fully good period</div>';
+    $('hourTop').innerHTML = `
+      <div class="date"><div class="big">${esc(dateEn)}</div><div class="tamil">${esc(state.city.name)}</div></div>
+      <div class="kv"><span class="k">Good times by day</span><div class="list">${li(dayGood)}</div></div>
+      <div class="kv"><span class="k">Good times at night</span><div class="list">${li(nightGood)}</div></div>
+      <div class="kv"><span class="k">Avoid</span><div class="list">
+        <div>${fmt(r.rahu.start)} – ${fmt(r.rahu.end)} <span class="ta">Rahu Kalam</span></div>
+        <div>${fmt(r.yama.start)} – ${fmt(r.yama.end)} <span class="ta">Yamagandam</span></div>
+        <div>${fmt(r.gulika.start)} – ${fmt(r.gulika.end)} <span class="ta">Gulika</span></div></div></div>`;
+    let html = '<div class="hsec">Day · sunrise ' + fmt(r.sunrise) + '</div>', rows = 0;
+    r.planner.forEach((row, i) => {
+      if (i === 12) html += '<div class="hsec">Night · sunset ' + fmt(r.sunset) + '</div>';
+      const segs = goodOnly ? row.segs.filter(sg => sg.verdict === 'best' || sg.verdict === 'good') : row.segs;
+      if (!segs.length) return;
+      rows++;
+      const h = row.hora, isNow = now >= h.start && now < h.end;
+      html += `<div class="hrow${isNow ? ' now' : ''}"><div class="ht">${isNow ? '<span class="nowtag">Now</span>' : ''}<span class="when">${fmt(h.start)} – ${fmt(h.end)}</span><span class="pl">${esc(h.name[0])} hora · ${esc(h.name[1])}</span></div>
+        <div class="segs">${segs.map(sg => segHTML(sg, row.segs.length > 1)).join('')}</div></div>`;
+    });
+    if (!rows) html += '<div class="hrow"><div></div><div>No fully good period on this day. Switch to "All hours" to see the mixed ones.</div></div>';
+    $('hours').innerHTML = html;
+  }
+  function setFilter(g) {
+    goodOnly = g; $('fAll').setAttribute('aria-pressed', !g); $('fGood').setAttribute('aria-pressed', g); update();
+  }
+  $('fAll').addEventListener('click', () => setFilter(false));
+  $('fGood').addEventListener('click', () => setFilter(true));
+
   function update() {
     const app = $('app'); app.classList.add('busy');
-    try { render(); } catch (e) { showMsg('Could not calculate for this date. Please try another date.'); console.error(e); }
+    try { render(); renderJathagam(); } catch (e) { showMsg('Could not calculate for this date. Please try another date.'); console.error(e); }
     finally { app.classList.remove('busy'); }
   }
 
@@ -945,16 +1325,127 @@ const GLOSSARY = [
     GLOSSARY.filter(g => g.group === gr).map(g => `<div class="item" id="m-${g.id}"><dt>${esc(g.term)}<span class="ta">${esc(g.ta)}</span></dt><dd><span class="lead">${esc(g.short)}</span>${g.more.map(t => `<span>${esc(t)}</span>`).join('')}</dd></div>`).join('') +
     '</dl></section>').join('');
 
+  // ---------- full name lists ----------
+  const N = P.N, L = LISTS;
+  const tbl = (head, rows) => `<div class="tscroll"><table class="lt"><thead><tr>${head.map(h => `<th>${esc(h)}</th>`).join('')}</tr></thead><tbody>${rows.join('')}</tbody></table></div>`;
+  const nm = n => `${esc(n[0])} <span class="ta">${esc(n[1])}</span>`;
+  const sect = (id, title, intro, body) => `<section class="panel" id="L-${id}"><h2>${esc(title)}</h2>${intro ? `<p class="note">${intro}</p>` : ''}${body}</section>`;
+  function buildLists() {
+    const curYear = (() => { const c = state.city; if (!c) return -1; try { const r = P.calculate({ y: state.y, m: state.m, d: state.d, lat: c.lat, lon: c.lon, tz: c.tz }); return N.samvatsara.indexOf(r.samvatsara); } catch (e) { return -1; } })();
+    const out = [];
+    out.push(sect('tithi', '30 Tithis · திதி', 'The same 14 names appear in both halves of the month; the 15th is Pournami (full moon) in the waxing half and Amavasai (new moon) in the waning half. Tap Tithi for details: ' + term('tithi', 'Tithi'),
+      tbl(['#', 'Name', 'Waxing (Shukla)', 'Waning (Krishna)', 'Known for'], N.tithi.slice(0, 14).map((t, i) => `<tr><td class="n">${i + 1}</td><td>${nm(t)}</td><td>Shukla ${i + 1}</td><td>Krishna ${i + 1}</td><td>${esc(L.tithiNotes[i])}${i === 7 || i === 8 ? ' <span class="bad">Caution</span>' : ''}</td></tr>`).concat([
+        `<tr><td class="n">15</td><td>${nm(N.tithi[14])}</td><td>Shukla 15</td><td>—</td><td>${esc(L.pournami)}</td></tr>`,
+        `<tr><td class="n">30</td><td>${nm(N.tithi[15])}</td><td>—</td><td>Krishna 15</td><td>${esc(L.amavasai)}</td></tr>`]))));
+    out.push(sect('nakshatra', '27 Nakshatras · நட்சத்திரம்', 'Each star covers 13°20′ of the sky. The ruling planets repeat in the order Ketu, Sukra, Surya, Chandra, Sevvai, Rahu, Guru, Sani, Budhan (used in the Dasa system of horoscopes).',
+      tbl(['#', 'Star', 'Ruling planet', 'Rasi'], N.nakshatra.map((n, i) => {
+        const a = Math.floor(i * 40 / 90), b = Math.floor(((i + 1) * 40 - 0.001) / 90);
+        const rs = a === b ? N.rasi[a][0] : `${N.rasi[a][0]} – ${N.rasi[b][0]}`;
+        return `<tr><td class="n">${i + 1}</td><td>${nm(n)}</td><td>${L.nakLords[i % 9]}</td><td>${esc(rs)}</td></tr>`; }))));
+    out.push(sect('yoga', '27 Yogas · யோகம்', 'Nine Yogas, marked below, are avoided when choosing a muhurtham.',
+      tbl(['#', 'Yoga', 'Meaning', 'Nature'], N.yoga.map((y, i) => `<tr><td class="n">${i + 1}</td><td>${nm(y)}</td><td>${esc(L.yogaMeaning[i])}</td><td>${L.badYoga.includes(i) ? '<span class="bad">Avoid</span>' : '<span class="good">Good</span>'}</td></tr>`))));
+    out.push(sect('karana', '11 Karanas · கரணம்', 'Seven movable Karanas repeat eight times a month; four fixed ones occur once, around the new moon.',
+      tbl(['#', 'Karana', 'Type', 'Use'], L.karana.map((k, i) => `<tr><td class="n">${i + 1}</td><td>${esc(k[0])} <span class="ta">${esc(k[1])}</span></td><td>${k[2]}</td><td>${k[0].startsWith('Vishti') ? '<span class="bad">' + esc(k[3]) + '</span>' : esc(k[3])}</td></tr>`))));
+    out.push(sect('vara', '7 Varas (weekdays) · வாரம்', '',
+      tbl(['Day', 'Tamil', 'Planet', 'Commonly worshipped'], N.vara.map((v, i) => `<tr><td>${esc(v[0])}</td><td><span class="ta">${esc(v[1])}</span></td><td>${L.vara[i][0]}</td><td>${esc(L.vara[i][1])}</td></tr>`))));
+    out.push(sect('hora', '7 Horas · ஓரை', 'The seven planets that rule the horas, and what each hora is used for. ' + term('hora', 'About Hora'),
+      tbl(['Planet', 'Nature', 'Used for'], L.hora.map(h => `<tr><td>${nm(N.planet[h[0]])}</td><td><span class="${h[1] === 'Good' ? 'good' : h[1] === 'Avoid' ? 'bad' : ''}">${h[1]}</span></td><td>${esc(h[2])}</td></tr>`))));
+    out.push(sect('gowri', '8 Gowri periods · கௌரி', '',
+      tbl(['Period', 'Meaning', 'Nature', 'Used for'], L.gowri.map(g => { const n = N.gowri[g[0]]; return `<tr><td>${nm(n)}</td><td>${g[1]}</td><td>${n[2] ? '<span class="good">Good</span>' : '<span class="bad">Bad</span>'}</td><td>${esc(g[2])}</td></tr>`; }))));
+    out.push(sect('rasi', '12 Rasis · ராசி', 'The 12 zodiac signs of 30° each, with the planet that rules each sign.',
+      tbl(['#', 'Rasi', 'Western name', 'Ruled by'], N.rasi.map((r, i) => `<tr><td class="n">${i + 1}</td><td>${nm(r)}</td><td>${L.rasi[i][0]}</td><td>${L.rasi[i][1]}</td></tr>`))));
+    out.push(sect('months', '12 Tamil months · தமிழ் மாதம்', 'Each month begins when the Sun enters the rasi shown. Dates move by a day between years.',
+      tbl(['#', 'Month', 'Sun in', 'Roughly', 'Main festivals'], N.month.map((m, i) => `<tr><td class="n">${i + 1}</td><td>${nm(m)}</td><td>${esc(N.rasi[i][0])}</td><td>${L.months[i][0]}</td><td>${esc(L.months[i][1])}</td></tr>`))));
+    out.push(sect('ritu', '6 Ritus (seasons) · ருது', '',
+      tbl(['Ritu', 'Season', 'Tamil months'], N.ritu.map((r, i) => `<tr><td>${nm(r)}</td><td>${L.ritu[i]}</td><td>${esc(N.month[2 * i][0])}, ${esc(N.month[2 * i + 1][0])}</td></tr>`))));
+    out.push(sect('years', '60 Tamil year names · வருடங்கள்', 'Each Tamil year begins on Chithirai 1 (about 14 April) and the cycle repeats every 60 years. The current year is highlighted.',
+      tbl(['#', 'Year name', 'Tamil years (April to April)'], N.samvatsara.map((y, i) => `<tr${i === curYear ? ' class="cur"' : ''}><td class="n">${i + 1}</td><td>${nm(y)}</td><td class="num">${[1927, 1987, 2047].map(b => `${b + i}–${String((b + i + 1) % 100).padStart(2, '0')}`).join(', ')}</td></tr>`))));
+    $('lists').innerHTML = out.join('');
+    const jumps = [['terms', 'All terms'], ['tithi', 'Tithis'], ['nakshatra', 'Stars'], ['yoga', 'Yogas'], ['karana', 'Karanas'], ['vara', 'Weekdays'], ['hora', 'Horas'], ['gowri', 'Gowri'], ['rasi', 'Rasis'], ['months', 'Tamil months'], ['ritu', 'Seasons'], ['years', '60 years']];
+    $('jump').innerHTML = jumps.map(j => `<button type="button" data-jump="${j[0]}">${j[1]}</button>`).join('');
+  }
+  $('jump').addEventListener('click', e => {
+    const b = e.target.closest('button'); if (!b) return;
+    const el = b.dataset.jump === 'terms' ? $('gloss') : $('L-' + b.dataset.jump);
+    if (el) el.scrollIntoView({ block: 'start', behavior: 'smooth' });
+  });
+
+  // ---------- Jathagam (Rasi chart) ----------
+  const GR_ABBR = { surya: 'Su', chandra: 'Mo', sevvai: 'Ma', budhan: 'Me', guru: 'Ju', sukra: 'Ve', sani: 'Sa', rahu: 'Ra', ketu: 'Ke', lagna: 'Lag' };
+  const jstate = { style: 'south', timeSet: false };
+  const SOUTH_POS = { 11: [0, 0], 0: [1, 0], 1: [2, 0], 2: [3, 0], 10: [0, 1], 3: [3, 1], 9: [0, 2], 4: [3, 2], 8: [0, 3], 7: [1, 3], 6: [2, 3], 5: [3, 3] };
+  const NORTH_HOUSE = [ // polygon points and label centre for houses 1..12
+    ['200,0 300,100 200,200 100,100', 200, 85], ['0,0 200,0 100,100', 100, 38], ['0,0 100,100 0,200', 30, 100], ['0,200 100,100 200,200 100,300', 90, 200],
+    ['0,200 100,300 0,400', 30, 300], ['0,400 100,300 200,400', 100, 372], ['200,400 100,300 200,200 300,300', 200, 295], ['200,400 300,300 400,400', 300, 372],
+    ['400,400 300,300 400,200', 370, 300], ['400,200 300,300 200,200 300,100', 310, 200], ['400,200 300,100 400,0', 370, 100], ['400,0 300,100 200,0', 300, 38]
+  ];
+  const plLabel = g => `${g.name[1]} ${GR_ABBR[g.id]}${g.retro && g.id !== 'rahu' && g.id !== 'ketu' ? ' R' : ''}`;
+  function planetsIn(c, rasi) {
+    const out = c.grahas.filter(g => g.rasi === rasi);
+    if (c.lagna.rasi === rasi) out.unshift(c.lagna);
+    return out;
+  }
+  function southSVG(c, dateLabel) {
+    const W = 100, parts = [];
+    for (let r = 0; r < 12; r++) {
+      const [cx, cy] = SOUTH_POS[r], x = cx * W, y = cy * W, isLag = c.lagna.rasi === r;
+      parts.push(`<rect class="${isLag ? 'lagbg' : 'cellbg'} ln" x="${x}" y="${y}" width="${W}" height="${W}"/>`);
+      if (isLag) parts.push(`<line class="ln" x1="${x}" y1="${y}" x2="${x + 14}" y2="${y + 14}"/>`);
+      planetsIn(c, r).forEach((g, i) => parts.push(`<text class="pl" x="${x + 8}" y="${y + 28 + i * 13}">${esc(g.id === 'lagna' ? 'லக் Lag' : plLabel(g))}</text>`));
+      parts.push(`<text class="rn" x="${x + 5}" y="${y + W - 14}">${esc(P.N.rasi[r][1])}</text><text class="rn" x="${x + 5}" y="${y + W - 5}">${esc(P.N.rasi[r][0])}</text>`);
+    }
+    parts.push(`<text class="ctr" x="200" y="190" text-anchor="middle">ராசி · Rasi</text><text class="ctr" x="200" y="210" text-anchor="middle">${esc(dateLabel)}</text>`);
+    return `<svg viewBox="-1 -1 402 402" role="img" aria-label="South Indian Rasi chart">${parts.join('')}</svg>`;
+  }
+  function northSVG(c, dateLabel) {
+    const parts = [];
+    NORTH_HOUSE.forEach(([pts, cx, cy], h) => {
+      const rasi = (c.lagna.rasi + h) % 12;
+      parts.push(`<polygon class="${h === 0 ? 'lagbg' : 'cellbg'} ln" points="${pts}"/>`);
+      const list = planetsIn(c, rasi).filter(g => g.id !== 'lagna');
+      const rows = (h === 0 ? ['லக் Lag'] : []).concat(list.map(plLabel));
+      parts.push(`<text class="rn" x="${cx}" y="${cy - 6 - Math.max(0, rows.length - 1) * 6.5}" text-anchor="middle">${rasi + 1}</text>`);
+      rows.forEach((t, i) => parts.push(`<text class="pl" x="${cx}" y="${cy + 8 + i * 13 - Math.max(0, rows.length - 1) * 6.5}" text-anchor="middle">${esc(t)}</text>`));
+    });
+    return `<svg viewBox="-1 -1 402 402" role="img" aria-label="North Indian Rasi chart">${parts.join('')}</svg>`;
+  }
+  function renderJathagam() {
+    if ($('pane-jathagam').hidden || !state.city) return;
+    if (!jstate.timeSet) {
+      const p = P.tzParts(Date.now(), state.city.tz);
+      $('jTime').value = `${String(p.h).padStart(2, '0')}:${String(p.mi).padStart(2, '0')}`;
+      jstate.timeSet = true;
+    }
+    const [h, mi] = ($('jTime').value || '06:00').split(':').map(Number), c0 = state.city;
+    const c = P.chart({ y: state.y, m: state.m, d: state.d, h, mi, lat: c0.lat, lon: c0.lon, tz: c0.tz });
+    const dateLabel = `${state.d} ${MONTHS_EN[state.m - 1]} ${state.y}, ${$('jTime').value}`;
+    $('jChart').innerHTML = jstate.style === 'south' ? southSVG(c, dateLabel) : northSVG(c, dateLabel);
+    $('jRows').innerHTML = [c.lagna].concat(c.grahas).map(g => {
+      const nm = g.id === 'lagna' ? ['Lagna', 'லக்னம்'] : P.N.planet[g.id] || ({ rahu: ['Rahu', 'ராகு'], ketu: ['Ketu', 'கேது'] })[g.id];
+      const dg = Math.floor(g.deg), mn = Math.floor((g.deg - dg) * 60);
+      return `<tr><td>${bi(nm)}${g.retro && g.id !== 'rahu' && g.id !== 'ketu' ? ' <b>R</b>' : ''}</td><td>${bi(P.N.rasi[g.rasi])}</td><td class="num">${dg}° ${String(mn).padStart(2, '0')}′</td><td>${bi(P.N.nakshatra[g.nak])}</td><td class="num">${g.pada}</td></tr>`;
+    }).join('');
+  }
+  function setStyle(s) {
+    jstate.style = s;
+    $('jSouth').setAttribute('aria-pressed', s === 'south'); $('jNorth').setAttribute('aria-pressed', s === 'north');
+    renderJathagam();
+  }
+  $('jSouth').addEventListener('click', () => setStyle('south'));
+  $('jNorth').addEventListener('click', () => setStyle('north'));
+  $('jTime').addEventListener('input', renderJathagam);
+
+  const TABS = ['today', 'hourly', 'jathagam', 'meanings'];
   function showTab(name) {
-    const m = name === 'meanings';
-    $('pane-today').hidden = m; $('pane-meanings').hidden = !m;
-    $('tab-today').setAttribute('aria-selected', !m); $('tab-meanings').setAttribute('aria-selected', m);
+    for (const t of TABS) { $('pane-' + t).hidden = t !== name; $('tab-' + t).setAttribute('aria-selected', t === name); }
+    $('ctrls').hidden = name === 'meanings';
+    if (name === 'meanings') buildLists();
+    if (name === 'jathagam') renderJathagam();
     document.querySelectorAll('.gloss .item.hl').forEach(x => x.classList.remove('hl'));
     window.scrollTo(0, 0);
   }
-  $('tab-today').addEventListener('click', () => showTab('today'));
-  $('tab-meanings').addEventListener('click', () => showTab('meanings'));
-  if (location.hash === '#meanings') showTab('meanings');
+  for (const t of TABS) $('tab-' + t).addEventListener('click', () => showTab(t));
+  if (TABS.includes(location.hash.slice(1))) showTab(location.hash.slice(1));
 
   start();
 })();
