@@ -205,6 +205,7 @@ dialog::backdrop { background: rgb(10 20 14 / .45); }
 .lt .ta { display: inline; font-size: .9rem; }
 .lt tr.cur td { background: var(--accent-soft); }
 .lt .bad { color: var(--bad); font-weight: 600; } .lt .good { color: var(--good); font-weight: 600; }
+.totop { align-self: flex-end; font-size: .85rem; padding: 5px 12px; border-radius: 99px; }
 .gloss .item.hl { background: var(--accent-soft); border-radius: 8px; padding-inline: 10px; }
 
 /* Sankalpa tab */
@@ -1301,6 +1302,7 @@ const LISTS = {
   const P = window.Panchang, DAY = 86400e3;
   const state = { city: null, y: 0, m: 0, d: 0, source: '' };
 
+  const TOP = '<button type="button" class="totop" data-top aria-label="Back to top">↑ Top · மேலே</button>';
   const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   const bi = (n, cls) => `<span class="${cls || ''}">${esc(n[0])}</span> <span class="ta">${esc(n[1])}</span>`;
   const MONTHS_EN = ['January','February','March','April','May','June','July','August','September','October','November','December'];
@@ -1600,13 +1602,13 @@ const LISTS = {
   const groups = [...new Set(GLOSSARY.map(g => g.group))];
   $('gloss').innerHTML = groups.map(gr => `<section class="panel"><h3>${esc(gr)}</h3><dl>` +
     GLOSSARY.filter(g => g.group === gr).map(g => `<div class="item" id="m-${g.id}"><dt>${esc(g.term)}<span class="ta">${esc(g.ta)}</span></dt><dd><span class="lead">${esc(g.short)}</span>${g.more.map(t => `<span>${esc(t)}</span>`).join('')}</dd></div>`).join('') +
-    '</dl></section>').join('');
+    '</dl>' + TOP + '</section>').join('');
 
   // ---------- full name lists ----------
   const N = P.N, L = LISTS;
   const tbl = (head, rows) => `<div class="tscroll"><table class="lt"><thead><tr>${head.map(h => `<th>${esc(h)}</th>`).join('')}</tr></thead><tbody>${rows.join('')}</tbody></table></div>`;
   const nm = n => `${esc(n[0])} <span class="ta">${esc(n[1])}</span>`;
-  const sect = (id, title, intro, body) => `<section class="panel" id="L-${id}"><h2>${esc(title)}</h2>${intro ? `<p class="note">${intro}</p>` : ''}${body}</section>`;
+  const sect = (id, title, intro, body) => `<section class="panel" id="L-${id}"><h2>${esc(title)}</h2>${intro ? `<p class="note">${intro}</p>` : ''}${body}${TOP}</section>`;
   function buildLists() {
     const curYear = (() => { const c = state.city; if (!c) return -1; try { const r = P.calculate({ y: state.y, m: state.m, d: state.d, lat: c.lat, lon: c.lon, tz: c.tz }); return N.samvatsara.indexOf(r.samvatsara); } catch (e) { return -1; } })();
     const out = [];
@@ -1641,6 +1643,7 @@ const LISTS = {
     const jumps = [['terms', 'All terms'], ['tithi', 'Tithis'], ['nakshatra', 'Stars'], ['yoga', 'Yogas'], ['karana', 'Karanas'], ['vara', 'Weekdays'], ['hora', 'Horas'], ['gowri', 'Gowri'], ['rasi', 'Rasis'], ['months', 'Tamil months'], ['ritu', 'Seasons'], ['years', '60 years']];
     $('jump').innerHTML = jumps.map(j => `<button type="button" data-jump="${j[0]}">${j[1]}</button>`).join('');
   }
+  document.addEventListener('click', e => { if (e.target.closest('[data-top]')) window.scrollTo({ top: 0, behavior: 'smooth' }); });
   $('jump').addEventListener('click', e => {
     const b = e.target.closest('button'); if (!b) return;
     const el = b.dataset.jump === 'terms' ? $('gloss') : $('L-' + b.dataset.jump);
