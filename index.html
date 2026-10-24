@@ -389,7 +389,7 @@ dialog::backdrop { background: rgb(10 20 14 / .45); }
     <div id="hsChart"></div>
   </section>
   <section class="panel">
-    <h3>Rasi · Vasi · Lagna <span class="ta">ராசி · வாசி · லக்னம்</span></h3>
+    <h3>Birth star · Rasi · Vasi · Lagna <span class="ta">நட்சத்திரம் · ராசி · வாசி · லக்னம்</span></h3>
     <div class="tblwrap"><table class="jtbl"><tbody id="hsKey"></tbody></table></div>
   </section>
   <section class="panel">
@@ -2103,7 +2103,8 @@ const LISTS = {
     const dateLabel = `${H.d} ${MONTHS_EN[H.m - 1]} ${H.y}, ${p2(H.h)}:${p2(H.mi)}`;
     $('hsChart').innerHTML = H.style === 'south' ? southSVG(c, dateLabel) : northSVG(c, dateLabel);
     const moon = c.grahas.find(g => g.id === 'chandra'), sun = c.grahas.find(g => g.id === 'surya');
-    $('hsKey').innerHTML = [['Rasi (Moon sign)', 'ராசி (சந்திரன் இருக்கும் ராசி)', moon], ['Vasi (Sun sign)', 'வாசி (சூரியன் இருக்கும் ராசி)', sun], ['Lagna (Ascendant)', 'லக்னம்', c.lagna]].map(([e, t, g]) =>
+    $('hsKey').innerHTML = [['Birth star (Janma Nakshatra)', 'பிறந்த நட்சத்திரம்', moon, 1], ['Rasi (Moon sign)', 'ராசி (சந்திரன் இருக்கும் ராசி)', moon], ['Vasi (Sun sign)', 'வாசி (சூரியன் இருக்கும் ராசி)', sun], ['Lagna (Ascendant)', 'லக்னம்', c.lagna]].map(([e, t, g, star]) => star ?
+      `<tr><th>${esc(e)}<span class="ta">${esc(t)}</span></th><td><b>${esc(P.N.nakshatra[g.nak][0])}</b> <span class="ta">${esc(P.N.nakshatra[g.nak][1])}</span></td><td>Pada ${g.pada}</td></tr>` :
       `<tr><th>${esc(e)}<span class="ta">${esc(t)}</span></th><td><b>${esc(P.N.rasi[g.rasi][0])}</b> <span class="ta">${esc(P.N.rasi[g.rasi][1])}</span></td>${g.id === 'lagna' ? '<td></td>' : `<td>${bi(P.N.nakshatra[g.nak])} · pada ${g.pada}</td>`}</tr>`).join('');
     const nq = P.tzParts(Date.now(), c0.tz);
     const now = P.chart({ y: nq.y, m: nq.m, d: nq.d, h: nq.h, mi: nq.mi, lat: c0.lat, lon: c0.lon, tz: c0.tz });
