@@ -142,6 +142,9 @@ footer { font-size: .82rem; color: var(--muted); max-width: 70ch; }
 #hsChart .pl { font-size: 11px; font-weight: 600; }
 #hsChart .rn { font-size: 8.5px; fill: var(--muted); }
 #hsChart .ctr { font-size: 12px; fill: var(--muted); }
+.trn { display: flex; flex-direction: column; gap: 2px; padding: 10px 12px; border-radius: 8px; margin-bottom: 8px; background: var(--neutral-soft); }
+.trn.bad { background: var(--bad-soft); color: var(--bad); } .trn.good { background: var(--good-soft); color: var(--good); }
+.trn b { font-size: 1rem; }
 .jtbl td, .jtbl th { padding: 6px 8px; }
 .tblwrap { overflow-x: auto; }
 
@@ -384,6 +387,16 @@ dialog::backdrop { background: rgb(10 20 14 / .45); }
   </div>
   <section class="panel jpanel">
     <div id="hsChart"></div>
+  </section>
+  <section class="panel">
+    <h3>Rasi · Vasi · Lagna <span class="ta">ராசி · வாசி · லக்னம்</span></h3>
+    <div class="tblwrap"><table class="jtbl"><tbody id="hsKey"></tbody></table></div>
+  </section>
+  <section class="panel">
+    <h3>Planet transits today <span class="ta">இன்றைய கோசார நிலை</span></h3>
+    <p class="note" id="hsTrWhen" style="margin-top:0"></p>
+    <div id="hsTransit"></div>
+    <p class="note">Counted from the birth Moon sign (Rasi), by the usual Gochara rules. <b>Red</b> = difficult, <b>green</b> = favourable, grey = mixed. This is a general guide only; please ask an astrologer for a full reading.</p>
   </section>
   <section class="panel">
     <h3>Planet positions · கிரக நிலை</h3>
@@ -2089,11 +2102,34 @@ const LISTS = {
     const c = P.chart({ y: H.y, m: H.m, d: H.d, h: H.h, mi: H.mi, lat: c0.lat, lon: c0.lon, tz: c0.tz });
     const dateLabel = `${H.d} ${MONTHS_EN[H.m - 1]} ${H.y}, ${p2(H.h)}:${p2(H.mi)}`;
     $('hsChart').innerHTML = H.style === 'south' ? southSVG(c, dateLabel) : northSVG(c, dateLabel);
+    const moon = c.grahas.find(g => g.id === 'chandra'), sun = c.grahas.find(g => g.id === 'surya');
+    $('hsKey').innerHTML = [['Rasi (Moon sign)', 'ராசி (சந்திரன் இருக்கும் ராசி)', moon], ['Vasi (Sun sign)', 'வாசி (சூரியன் இருக்கும் ராசி)', sun], ['Lagna (Ascendant)', 'லக்னம்', c.lagna]].map(([e, t, g]) =>
+      `<tr><th>${esc(e)}<span class="ta">${esc(t)}</span></th><td><b>${esc(P.N.rasi[g.rasi][0])}</b> <span class="ta">${esc(P.N.rasi[g.rasi][1])}</span></td>${g.id === 'lagna' ? '<td></td>' : `<td>${bi(P.N.nakshatra[g.nak])} · pada ${g.pada}</td>`}</tr>`).join('');
+    const nq = P.tzParts(Date.now(), c0.tz);
+    const now = P.chart({ y: nq.y, m: nq.m, d: nq.d, h: nq.h, mi: nq.mi, lat: c0.lat, lon: c0.lon, tz: c0.tz });
+    $('hsTrWhen').textContent = `Transit on ${nq.d} ${MONTHS_EN[nq.m - 1]} ${nq.y}`;
+    $('hsTransit').innerHTML = transitCards(moon.rasi, now);
     $('hsRows').innerHTML = [c.lagna].concat(c.grahas).map(g => {
       const nm = g.id === 'lagna' ? ['Lagna', 'லக்னம்'] : P.N.planet[g.id] || ({ rahu: ['Rahu', 'ராகு'], ketu: ['Ketu', 'கேது'] })[g.id];
       const dg = Math.floor(g.deg), mn = Math.floor((g.deg - dg) * 60);
       return `<tr><td>${bi(nm)}${g.retro && g.id !== 'rahu' && g.id !== 'ketu' ? ' <b>R</b>' : ''}</td><td>${bi(P.N.rasi[g.rasi])}</td><td class="num">${dg}° ${String(mn).padStart(2, '0')}′</td><td>${bi(P.N.nakshatra[g.nak])}</td><td class="num">${g.pada}</td></tr>`;
     }).join('');
+  }
+  // Gochara (transit) from the birth Moon sign: Saturn and Jupiter today
+  function transitCards(moonRasi, now) {
+    const sat = now.grahas.find(g => g.id === 'sani'), gu = now.grahas.find(g => g.id === 'guru');
+    const hs = g => (g.rasi - moonRasi + 12) % 12 + 1;
+    const ord = n => n + (n === 1 ? 'st' : n === 2 ? 'nd' : n === 3 ? 'rd' : 'th'), out = [];
+    const hs1 = hs(sat), hg = hs(gu);
+    const SAT = { 12: ['bad', 'Sade Sati – first phase (Saturn in the 12th)', 'ஏழரைச் சனி – முதல் கட்டம் (விரயச் சனி)'], 1: ['bad', 'Sade Sati – middle phase (Saturn over the Moon)', 'ஏழரைச் சனி – நடு கட்டம் (ஜென்மச் சனி)'],
+      2: ['bad', 'Sade Sati – last phase (Saturn in the 2nd)', 'ஏழரைச் சனி – இறுதி கட்டம் (பாதச் சனி)'], 8: ['bad', 'Ashtama Sani – Saturn in the 8th', 'அஷ்டமச் சனி'], 4: ['bad', 'Ardhashtama Sani – Saturn in the 4th', 'அர்த்தாஷ்டமச் சனி'],
+      3: ['good', 'Saturn in the 3rd – favourable', 'சனி 3-ல் – நன்மை'], 6: ['good', 'Saturn in the 6th – favourable', 'சனி 6-ல் – நன்மை'], 11: ['good', 'Saturn in the 11th – favourable', 'சனி 11-ல் – நன்மை'] };
+    const sa = SAT[hs1] || ['', 'Saturn in the ' + ord(hs1) + ' – mixed result', 'சனி ' + hs1 + '-ல் – கலப்பு பலன்'];
+    out.push([sa, sat, hs1]);
+    const GU = { 8: ['bad', 'Guru in the 8th – difficult', 'அஷ்டமத்தில் குரு – சிரமம்'], 12: ['bad', 'Guru in the 12th – difficult', 'குரு 12-ல் – சிரமம்'], 6: ['bad', 'Guru in the 6th – difficult', 'குரு 6-ல் – சிரமம்'], 3: ['bad', 'Guru in the 3rd – difficult', 'குரு 3-ல் – சிரமம்'] };
+    const gd = GU[hg] || ([2, 5, 7, 9, 11].includes(hg) ? ['good', 'Guru in the ' + ord(hg) + ' – favourable (Guru Balam)', 'குரு ' + hg + '-ல் – குரு பலம்'] : ['', 'Guru in the ' + ord(hg) + ' – mixed result', 'குரு ' + hg + '-ல் – கலப்பு பலன்']);
+    out.push([gd, gu, hg]);
+    return out.map(([d, g, h]) => `<div class="trn ${d[0]}"><b>${esc(d[1])}</b><span class="ta">${esc(d[2])}</span><span>${bi(P.N.planet[g.id])} is in ${bi(P.N.rasi[g.rasi])}, house ${h} from your Moon sign.</span></div>`).join('');
   }
   function hsStyle(st) {
     H.style = st;
@@ -2281,7 +2317,7 @@ const LISTS = {
               <section class="panel"><h2>${en ? 'Meaning' : 'பொருள்'} <span>${en ? 'English translation' : 'தமிழ் மொழிபெயர்ப்பு'}</span></h2><div class="sk-mean">${s.meaning[en ? 'en' : 'x'].map(l => `<p>${l}</p>`).join('')}</div></section></div>`;
           };
           $('skEnBody').innerHTML = body(0, 'en'); $('skTaBody').innerHTML = body(1, LANG.code);
-          // Devanagari tab: always Hindi script, whatever language is chosen; the meaning is in simple Sanskrit
+          // Devanagari tab: always Hindi script, whatever language is chosen; no meaning (Sanskrit readers know it)
           const isDv = x => /[\u0900-\u097F]/.test(x), dvf = id => $(id).value.trim();
           const pickDv = (id, second, en) => dvf(id) || (isDv(second) ? second : '') || en;
           const od = Object.assign({}, o, { lang: 'hi', tx: x => I.tx(x, 'hi', SK.OVER), city: dvf('skCityDv') || S.city.name, region: dvf('skRegionDv') || S.region.trim(),
@@ -2289,7 +2325,7 @@ const LISTS = {
           const sd = SK.build(r, od);
           $('skDevBody').innerHTML = `<div class="sk-sec" lang="sa"><p class="hint"><span class="sv">नीलवर्णानि पदानि</span> व्यवस्थापटलात् पूरितानि मानानि।</p>
             <section class="panel"><h2>संकल्प मन्त्रः <span>देवनागर्याम्</span></h2><div class="mantra">${sd.mantra.x.map(l => `<p>${l}</p>`).join('')}</div></section>
-            <section class="panel"><h2>अर्थः <span>संस्कृतभाषायाम् (सरलवाक्यैः)</span></h2><div class="sk-mean">${sd.sanskrit.map(l => `<p>${l}</p>`).join('')}</div></section></div>`;
+</div>`;
         }
       }
     } catch (e) { msg = 'Could not calculate for this date. Please try another date.'; console.error(e); }
