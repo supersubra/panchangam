@@ -2,7 +2,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Arima:wght@500;700&family=Hind+Madurai:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Arima:wght@500;700&family=Hind+Madurai:wght@400;500;600;700&display=swap">
 <style>
 /* Layout: one column almanac; a control bar, a summary band for the day, then a two-column grid of panels. */
 :root {
@@ -260,6 +260,9 @@ dialog::backdrop { background: rgb(10 20 14 / .45); }
 .sk-vars th .ta { display: block; font-weight: 400; font-size: .85rem; }
 .mantra { display: flex; flex-direction: column; gap: 8px; font-size: 1.04rem; line-height: 1.75; }
 .mantra p { margin: 0; }
+.mantra b { font-weight: 700; }
+[lang="sa"] { font-family: "Noto Sans Devanagari", var(--body); }
+.mantra .sv { font-weight: 500; }
 .sk-mean p { margin: 0 0 8px; }
 .sk-sec h3 { margin: 0; font-family: var(--display); font-size: 1.1rem; }
 </style>
@@ -396,6 +399,7 @@ dialog::backdrop { background: rgb(10 20 14 / .45); }
     <button type="button" role="tab" id="sktab-var" aria-selected="false">2 · Values · மாறிகள்</button>
     <button type="button" role="tab" id="sktab-en" aria-selected="false">3 · English</button>
     <button type="button" role="tab" id="sktab-ta" aria-selected="false">4 · தமிழ்</button>
+    <button type="button" role="tab" id="sktab-dev" aria-selected="false">5 · Devanagari · देवनागरी</button>
   </div>
 
   <div class="tabpane" id="skpane-set" role="tabpanel">
@@ -439,12 +443,24 @@ dialog::backdrop { background: rgb(10 20 14 / .45); }
         <button type="button" class="pill" id="skSolar" aria-pressed="false">Tamil solar (Chithirai…)</button>
       </div>
     </section>
+    <section class="panel">
+      <h2>Devanagari tab <span>देवनागरी · optional</span></h2>
+      <div class="sk-in">
+        <div class="field"><label for="skNameDv">नाम (name)</label><input id="skNameDv" type="text" autocomplete="off" lang="sa"></div>
+        <div class="field"><label for="skGotraDv">गोत्र (gotra)</label><input id="skGotraDv" type="text" list="skGotraDvList" autocomplete="off" lang="sa"></div>
+        <div class="field"><label for="skCityDv">नगर (city)</label><input id="skCityDv" type="text" autocomplete="off" lang="sa"></div>
+        <div class="field"><label for="skRegionDv">प्रदेश (state)</label><input id="skRegionDv" type="text" autocomplete="off" lang="sa"></div>
+      </div>
+      <datalist id="skGotraDvList"></datalist>
+      <div class="note">The 5th tab shows everything in Devanagari. Type your name, gotra, city and state here in Devanagari. Anything left empty is shown as typed in the other boxes.</div>
+    </section>
     <div class="btns"><button type="button" class="primary" id="skNext">Next: see the values ▶</button></div>
   </div>
 
   <div class="tabpane" id="skpane-var" role="tabpanel" hidden><div id="skVars"></div></div>
   <div class="tabpane" id="skpane-en" role="tabpanel" hidden><div id="skEnBody"></div></div>
   <div class="tabpane" id="skpane-ta" role="tabpanel" hidden><div id="skTaBody"></div></div>
+  <div class="tabpane" id="skpane-dev" role="tabpanel" hidden><div id="skDevBody"></div></div>
 </div>
 
 <dialog id="dlg" aria-labelledby="dlgTitle">
@@ -1250,7 +1266,7 @@ const LISTS = {
       'अस्मिन् वर्तमाने व्यावहारिके प्रभवादि षष्टि संवत्सराणां मध्ये, {samv} नाम संवत्सरे, {ayana}, {ritu}, {masa}, {paksha}, {tithi} तिथौ, {vasara}, {nak} नक्षत्रे, {yoga} योगे, {karana} करणे,',
       'एवं गुण विशेषण विशिष्टायाम् अस्यां शुभ तिथौ,',
       '{gotra} गोत्रोत्पन्नः, {name} नामाहम्,',
-      'मम सकुटुम्बस्य क्षेम स्थैर्य आयुः आरोग्य ऐश्वर्य अभिवृद्ध्यर्थम्, धर्म अर्थ काम मोक्ष चतुर्विध पुरुषार्थ सिद्ध्यर्थम्, श्री परमेश्वर प्रीत्यर्थम् / श्री नारायण प्रीत्यर्थम्, यथाशक्ति श्री परमेश्वर पूजां करिष्ये।'
+      'मम स कुटुम्बस्य क्षेम स्थैर्य आयुः आरोग्य ऐश्वर्य अभिवृद्ध्यर्थम्, धर्म अर्थ काम मोक्ष चतुर्विध पुरुषार्थ सिद्ध्यर्थम्, श्री परमेश्वर प्रीत्यर्थम् / श्री नारायण प्रीत्यर्थम्, यथाशक्ति श्री परमेश्वर पूजां करिष्ये।'
     ]
   };
   const MEANING = {
@@ -1309,6 +1325,16 @@ const LISTS = {
       'എനിക്കും എന്റെ കുടുംബത്തിനും ക്ഷേമം, സ്ഥിരത, ദീർഘായുസ്സ്, ആരോഗ്യം, ഐശ്വര്യം എന്നിവ വർധിക്കാനും, ധർമ്മം, അർത്ഥം, കാമം, മോക്ഷം എന്നീ നാല് പുരുഷാർത്ഥങ്ങളുടെ സിദ്ധിക്കായും, പരമേശ്വരന്റെ പ്രീതിക്കായും, എന്റെ കഴിവിനൊത്ത് ശ്രീ പരമേശ്വര പൂജ ചെയ്യുന്നു.'
     ]
   };
+  // Meaning in simple Sanskrit (for the Devanagari tab): the same facts in plain sentences, using the recited forms.
+  const MEANING_SA = [
+    'मम सञ्चितानां सर्वेषां पापानां क्षयद्वारा श्रीपरमेश्वरस्य / श्रीनारायणस्य प्रीत्यर्थम्।',
+    'अस्मिन् शुभे शोभने च मुहूर्ते श्रीमहाविष्णोः आज्ञया प्रवर्तमाने काले, अद्य ब्रह्मणः आयुषः द्वितीये परार्धे, श्वेतवराहकल्पे, वैवस्वतमन्वन्तरे, अष्टाविंशे कलियुगे प्रथमे चरणे,',
+    '@place',
+    'प्रचलिते व्यवहारे प्रभवादिषु षष्टिसंवत्सरेषु मध्ये {samv} नामके संवत्सरे, {ayana}, {ritu}, {masa}, {paksha}, {tithi} तिथौ, {vasara}, {nak} नक्षत्रे, {yoga} योगे, {karana} करणे च,',
+    'एवं विशेषगुणयुक्तायाम् अस्यां शुभतिथौ,',
+    '{gotra} गोत्रे उत्पन्नः {name} नामधेयः अहम्,',
+    'आत्मनः कुटुम्बस्य च क्षेमस्थैर्यायुरारोग्यैश्वर्याणां वृद्ध्यर्थं, धर्मार्थकाममोक्षाख्यचतुर्विधपुरुषार्थानां सिद्ध्यर्थं, श्रीपरमेश्वरस्य / श्रीनारायणस्य प्रीत्यर्थं, यथाशक्ति श्रीपरमेश्वरपूजां करिष्यामि।'
+  ];
   // "(year N of 60)" in each language
   const SAMV_OF = { ta: n => `60 வருடங்களில் ${n}-வது`, hi: n => `60 में से ${n}वाँ`, te: n => `60లో ${n}వ`, kn: n => `60ರಲ್ಲಿ ${n}ನೇ`, ml: n => `60-ൽ ${n}-ാമത്തെ` };
 
@@ -1317,7 +1343,7 @@ const LISTS = {
   const PLACE_SAY = {
     en: ['{dvipa}-dvipe,', '{varsha}-varshe,', '{khanda}-khande,', 'Meroh {dir}-dig-bhage,', '{continent} mahakhande, {country} deshe,', '{region} pradeshe,', '{city} nagare, mama svagrihe,'],
     ta: ['{dvipa} த்வீபே,', '{varsha} வர்ஷே,', '{khanda} கண்டே,', 'மேரோ: {dir} திக்பாகே,', '{continent} மஹா கண்டே, {country} தேஶே,', '{region} ப்ரதேஶே,', '{city} நகரே, மம ஸ்வக்ருஹே,'],
-    hi: ['{dvipa} द्वीपे,', '{varsha} वर्षे,', '{khanda} खण्डे,', 'मेरोः {dir} दिग्भागे,', '{continent} महाखण्डे, {country} देशे,', '{region} प्रदेशे,', '{city} नगरे, मम स्वगृहे,']
+    hi: ['{dvipa} द्वीपे,', '{varsha} वर्षे,', '{khanda} खण्डे,', 'मेरोः {dir} दिग्भागे,', '{continent} महा खण्डे, {country} देशे,', '{region} प्रदेशे,', '{city} नगरे, मम स्वगृहे,']
   };
   const PLACE_MEAN = {
     en: ['in the {dvipa} dvipa (island-continent),', 'in {varsha} varsha,', 'in {khanda} khanda,', 'to the {dir} of Mount Meru,', 'on the continent of {continent}, in the country of {country},', 'in {region},', 'in the city of {city}, in my own home,'],
@@ -1326,6 +1352,32 @@ const LISTS = {
     te: ['{dvipa} ద్వీపంలో,', '{varsha} వర్షంలో,', '{khanda} ఖండంలో,', 'మేరు పర్వతానికి {dir},', '{continent} ఖండంలో, {country} దేశంలో,', '{region} ప్రాంతంలో,', '{city} నగరంలో, నా స్వగృహంలో,'],
     kn: ['{dvipa} ದ್ವೀಪದಲ್ಲಿ,', '{varsha} ವರ್ಷದಲ್ಲಿ,', '{khanda} ಖಂಡದಲ್ಲಿ,', 'ಮೇರು ಪರ್ವತದ {dir},', '{continent} ಖಂಡದಲ್ಲಿ, {country} ದೇಶದಲ್ಲಿ,', '{region} ಪ್ರದೇಶದಲ್ಲಿ,', '{city} ನಗರದಲ್ಲಿ, ನನ್ನ ಸ್ವಂತ ಮನೆಯಲ್ಲಿ,'],
     ml: ['{dvipa} ദ്വീപിൽ,', '{varsha} വർഷത്തിൽ,', '{khanda} ഖണ്ഡത്തിൽ,', 'മേരു പർവതത്തിന്റെ {dir},', '{continent} ഭൂഖണ്ഡത്തിൽ, {country} രാജ്യത്ത്,', '{region} പ്രദേശത്ത്,', '{city} നഗരത്തിൽ, എന്റെ സ്വന്തം വീട്ടിൽ,']
+  };
+
+  // Tamil letters cannot tell ga from ka or da from ta, so in the Tamil mantra the 3rd and 4th letters of each group
+  // (ga gha, ja jha, da dha, da dha, ba bha) are shown in bold, taken from the Devanagari spelling of the same word.
+  const VOICED = 'गघजझडढदधबभ';
+  function boldWord(ta, dev) {
+    const tc = [], dc = [];
+    [...ta].forEach((c, i) => { if (c >= '\u0B95' && c <= '\u0BB9') tc.push(i); });
+    for (const c of dev) { if (c >= '\u0915' && c <= '\u0939') dc.push(VOICED.includes(c)); else if ('ंँृऋ'.includes(c)) dc.push(false); }
+    if (tc.length !== dc.length || !dc.some(Boolean)) return null;
+    const bold = new Set(tc.filter((_, k) => dc[k])), ch = [...ta]; let out = '';
+    for (let i = 0; i < ch.length; i++) {
+      if (!bold.has(i)) { out += ch[i]; continue; }
+      let seg = ch[i]; while (i + 1 < ch.length && /[\u0BBE-\u0BCD\u0BD7]/.test(ch[i + 1])) seg += ch[++i];
+      out += `<b>${seg}</b>`;
+    }
+    return out;
+  }
+  const boldLine = (ta, dev) => { // same words in the same order in both lines
+    const a = ta.split(' '), d = dev.split(' ');
+    return a.length !== d.length ? ta : a.map((w, i) => w.includes('{') ? w : boldWord(w, d[i]) || w).join(' ');
+  };
+  const boldValue = (ta, over) => { // a word from the tables: look its Devanagari up
+    const map = (root.I18N && root.I18N.MAP) || {}, get = k => ((over && over[k]) || map[k] || {}).hi;
+    const whole = get(ta); if (whole) { const b = boldLine(ta, whole); return b; }
+    return ta.split(' ').map(w => { const h = get(w); return h ? (boldWord(w, h) || w) : w; }).join(' ');
   };
 
   const pick = (list, t) => list.find(s => s.end == null || s.end > t) || list[0];
@@ -1385,27 +1437,30 @@ const LISTS = {
       V.samv.mean = [V.samv.mean[0], `${V.samv.say[1]} (${SAMV_OF[lang](sI + 1)})`];
     }
     const cond = [true, !!pp.varsha, !!pp.khanda, !!pp.dir, true, !!region, true];
-    const placeLines = (field, code) => {
+    const placeLines = (field, code, bold) => {
       let list;
-      if (field === 'say') list = code === 'en' ? PLACE_SAY.en : code === 'ta' ? PLACE_SAY.ta : PLACE_SAY.hi.map(l => ix(l, code));
+      if (field === 'say') list = code === 'en' ? PLACE_SAY.en : code === 'ta' ? (bold ? PLACE_SAY.ta.map((l, i) => boldLine(l, PLACE_SAY.hi[i])) : PLACE_SAY.ta) : PLACE_SAY.hi.map(l => ix(l, code));
       else list = PLACE_MEAN[code];
       return list.filter((_, i) => cond[i]).join(' ');
     };
     const code = lang;
+    const bt = lang === 'ta';
     const line = (tpl, field, which) => {
-      return esc(tpl).replace(/\{(\w+)\}/g, (_, k) => {
+      return tpl.replace(/\{(\w+)\}/g, (_, k) => {
         const v = V[k]; const s = v[field][which === 'en' ? 0 : 1];
-        return `<span class="sv${v.ph ? ' ph' : ''}">${esc(s)}</span>`;
+        return `<span class="sv${v.ph ? ' ph' : ''}">${which !== 'en' && bt && field === 'say' ? boldValue(esc(s)) : esc(s)}</span>`;
       });
     };
     const tpls = (T, code2) => T[code2] || T.hi.map(l => ix(l, code2));
     const render = (T, field, which) => {
-      const c2 = which === 'en' ? 'en' : code;
-      return tpls(T, c2).flatMap(l => l === '@place' ? [placeLines(field, c2)] : [l]).map(l => line(l, field, which));
+      const c2 = which === 'en' ? 'en' : code, b = bt && which !== 'en' && field === 'say' && T === MANTRA;
+      const hiT = MANTRA.hi;
+      return tpls(T, c2).flatMap((l, i) => l === '@place' ? [placeLines(field, c2, b)] : [b ? boldLine(esc(l), hiT[i]) : esc(l)]).map(l => line(l, field, which));
     };
     const order = ['samv', 'ayana', 'ritu', 'masa', 'paksha', 'tithi', 'vasara', 'nak', 'yoga', 'karana', 'date', 'time', 'dvipa', 'varsha', 'khanda', 'dir', 'continent', 'country', 'region', 'city', 'gotra', 'name'].filter(k => !(k === 'varsha' && !pp.varsha || k === 'khanda' && !pp.khanda || k === 'dir' && !pp.dir));
     const rows = order.map(k => ({ k, label: V[k].label, panch: V[k].panch, say: V[k].say, ph: !!V[k].ph }));
-    return { rows, mantra: { en: render(MANTRA, 'say', 'en'), x: render(MANTRA, 'say', 'x') }, meaning: { en: render(MEANING, 'mean', 'en'), x: render(MEANING, 'mean', 'x') } };
+    const sanskrit = MEANING_SA.flatMap(l => l === '@place' ? [placeLines('say', 'hi')] : [esc(l)]).map(l => line(l, 'say', 'x'));
+    return { rows, sanskrit, mantra: { en: render(MANTRA, 'say', 'en'), x: render(MANTRA, 'say', 'x') }, meaning: { en: render(MEANING, 'mean', 'en'), x: render(MEANING, 'mean', 'x') } };
   }
 
   const T = { ayana: AYANA, ritu: RITU, lunar: LUNAR, lunarM: LUNAR_M, solar: SOLAR, paksha: PAKSHA, tithi: TITHI, vasara: VASARA, varaLong: VASARA_TA, nak: NAK, yoga: YOGA, karana: KARANA, cont: CONT };
@@ -2090,7 +2145,7 @@ const LISTS = {
   // ---------- Sankalpa Mantra: its own page with four tabs ----------
   const SK = Sankalpa, TA_MONTHS = ['ஜனவரி','பிப்ரவரி','மார்ச்','ஏப்ரல்','மே','ஜூன்','ஜூலை','ஆகஸ்ட்','செப்டம்பர்','அக்டோபர்','நவம்பர்','டிசம்பர்'];
   const S = { city: null, region: '', cc: '', ct: 'AS', y: 0, m: 0, d: 0, h: 0, mi: 0, solar: false, userLoc: false, userTime: false };
-  const SK_IDS = ['skName', 'skNameTa', 'skGotra', 'skGotraTa'];
+  const SK_IDS = ['skName', 'skNameTa', 'skGotra', 'skGotraTa', 'skNameDv', 'skGotraDv', 'skCityDv', 'skRegionDv'];
   const GOTRAS = [['Bharadwaja', 'பாரத்வாஜ'], ['Kashyapa', 'காஶ்யப'], ['Vasishtha', 'வஸிஷ்ட'], ['Vishvamitra', 'விஶ்வாமித்ர'], ['Atri', 'அத்ரி'], ['Gautama', 'கௌதம'], ['Jamadagni', 'ஜமதக்னி'], ['Agastya', 'அகஸ்த்ய'], ['Kaundinya', 'கௌண்டின்ய'], ['Harita', 'ஹாரீத'], ['Srivatsa', 'ஸ்ரீவத்ஸ'], ['Koushika', 'கௌஶிக'], ['Sandilya', 'ஶாண்டில்ய'], ['Vadhula', 'வாதூல'], ['Angirasa', 'ஆங்கிரஸ'], ['Parashara', 'பராஶர'], ['Mudgala', 'முத்கல'], ['Kutsa', 'குத்ஸ'], ['Maudgalya', 'மௌத்கல்ய'], ['Upamanyu', 'உபமன்யு']];
   let savedGotras = []; try { savedGotras = JSON.parse(lsGet('skGotras', '[]')) || []; } catch (e) {}
   const skKey = id => (LANG.code === 'ta' || !/Ta$/.test(id)) ? id : id + '_' + LANG.code;
@@ -2100,6 +2155,7 @@ const LISTS = {
   function gotraLists() {
     const all = savedGotras.concat(GOTRAS.filter(g => !savedGotras.some(s => s[0].toLowerCase() === g[0].toLowerCase())));
     $('skGotraList').innerHTML = all.map(g => `<option value="${esc(g[0])}" label="${esc(g[1] ? tl(g[1]) : '')}">`).join('');
+    $('skGotraDvList').innerHTML = all.filter(g => g[1] && I.MAP[g[1]]).map(g => `<option value="${esc(I.MAP[g[1]].hi)}" label="${esc(g[0])}">`).join('');
     $('skGotraTaList').innerHTML = all.filter(g => g[1]).map(g => `<option value="${esc(tl(g[1]))}" label="${esc(g[0])}">`).join('');
   }
   function saveGotra() {
@@ -2179,6 +2235,7 @@ const LISTS = {
   $('skNow').addEventListener('click', () => { skNow(); skRender(); });
   for (const id of SK_IDS) $(id).addEventListener('input', () => {
     lsSet(skKey(id), $(id).value);
+    if (id === 'skGotra' && !$('skGotraDv').value.trim()) { const g = savedGotras.concat(GOTRAS).find(x => x[0].toLowerCase() === $('skGotra').value.trim().toLowerCase()); const dv = g && I.MAP[g[1]] ? I.MAP[g[1]].hi : ''; if (dv) { $('skGotraDv').value = dv; lsSet('skGotraDv', dv); } }
     if (id === 'skGotra' && !$('skGotraTa').value.trim()) { const ta = knownTamil($('skGotra').value.trim()); if (ta) { $('skGotraTa').value = ta; lsSet(skKey('skGotraTa'), ta); } }
     skRender();
   });
@@ -2224,14 +2281,24 @@ const LISTS = {
               <section class="panel"><h2>${en ? 'Meaning' : 'பொருள்'} <span>${en ? 'English translation' : 'தமிழ் மொழிபெயர்ப்பு'}</span></h2><div class="sk-mean">${s.meaning[en ? 'en' : 'x'].map(l => `<p>${l}</p>`).join('')}</div></section></div>`;
           };
           $('skEnBody').innerHTML = body(0, 'en'); $('skTaBody').innerHTML = body(1, LANG.code);
+          // Devanagari tab: always Hindi script, whatever language is chosen; the meaning is in simple Sanskrit
+          const isDv = x => /[\u0900-\u097F]/.test(x), dvf = id => $(id).value.trim();
+          const pickDv = (id, second, en) => dvf(id) || (isDv(second) ? second : '') || en;
+          const od = Object.assign({}, o, { lang: 'hi', tx: x => I.tx(x, 'hi', SK.OVER), city: dvf('skCityDv') || S.city.name, region: dvf('skRegionDv') || S.region.trim(),
+            name: [o.name[0], pickDv('skNameDv', $('skNameTa').value.trim(), o.name[0])], gotra: [o.gotra[0], pickDv('skGotraDv', $('skGotraTa').value.trim(), o.gotra[0])] });
+          const sd = SK.build(r, od);
+          $('skDevBody').innerHTML = `<div class="sk-sec" lang="sa"><p class="hint"><span class="sv">नीलवर्णानि पदानि</span> व्यवस्थापटलात् पूरितानि मानानि।</p>
+            <section class="panel"><h2>संकल्प मन्त्रः <span>देवनागर्याम्</span></h2><div class="mantra">${sd.mantra.x.map(l => `<p>${l}</p>`).join('')}</div></section>
+            <section class="panel"><h2>अर्थः <span>संस्कृतभाषायाम् (सरलवाक्यैः)</span></h2><div class="sk-mean">${sd.sanskrit.map(l => `<p>${l}</p>`).join('')}</div></section></div>`;
         }
       }
     } catch (e) { msg = 'Could not calculate for this date. Please try another date.'; console.error(e); }
-    if (msg) for (const id of ['skVars', 'skEnBody', 'skTaBody']) $(id).innerHTML = `<div class="nosun">${esc(msg)}</div>`;
+    if (msg) for (const id of ['skVars', 'skEnBody', 'skTaBody', 'skDevBody']) $(id).innerHTML = `<div class="nosun">${esc(msg)}</div>`;
   }
-  const SKT = ['set', 'var', 'en', 'ta'];
+  const SKT = ['set', 'var', 'en', 'ta', 'dev'];
   function skShow(name) {
     for (const k of SKT) { $('skpane-' + k).hidden = k !== name; $('sktab-' + k).setAttribute('aria-selected', k === name); }
+    if (name === 'dev') ensureFont('hi');
     window.scrollTo(0, 0);
   }
   for (const k of SKT) $('sktab-' + k).addEventListener('click', () => skShow(k));
@@ -2260,14 +2327,17 @@ const LISTS = {
 
   // ---------- change the language ----------
   const loaded = {};
+  function ensureFont(code) { // fonts for the other scripts are fetched only when needed
+    const li = I.LANGS.find(l => l.code === code);
+    if (!li || !li.font || loaded[code]) return;
+    loaded[code] = 1;
+    const ln = document.createElement('link'); ln.rel = 'stylesheet'; ln.href = `https://fonts.googleapis.com/css2?family=${li.gf}:wght@400;500;600;700&display=swap`; document.head.appendChild(ln);
+  }
   function applyLang(code) {
     if (!I.LANGS.some(l => l.code === code)) code = 'ta';
     LANG.code = code; lsSet('lang', code);
     const li = langInfo();
-    if (li.font && !loaded[code]) { // fonts for the other scripts are fetched only when chosen
-      loaded[code] = 1;
-      const ln = document.createElement('link'); ln.rel = 'stylesheet'; ln.href = `https://fonts.googleapis.com/css2?family=${li.gf}:wght@400;500;600&display=swap`; document.head.appendChild(ln);
-    }
+    ensureFont(code);
     document.documentElement.style.setProperty('--ix', li.font ? `"${li.font}"` : 'system-ui');
     document.querySelectorAll('.langsel').forEach(x => { x.value = code; });
     document.querySelectorAll('.lname').forEach(x => { x.textContent = li.en; });
