@@ -168,6 +168,16 @@ footer { font-size: .82rem; color: var(--muted); max-width: 70ch; }
 .tabs button { border: 0; border-bottom: 3px solid transparent; border-radius: 0; background: none; padding: 8px 14px; color: var(--muted); margin-bottom: -1px; }
 .tabs button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--accent); }
 .tabpane { display: flex; flex-direction: column; gap: 18px; }
+.prediction-year { border-top: 1px solid var(--line); padding: 12px 0; }
+.prediction-year summary { cursor: pointer; padding: 8px 0; line-height: 1.6; }
+.prediction-year summary small { display: block; color: var(--muted); }
+.prediction-year[open] summary { color: var(--accent); }
+.prediction-period { border-left: 3px solid var(--line); padding: 4px 0 4px 14px; margin: 16px 0; }
+.prediction-period p { margin: 7px 0; }
+.prediction-year.current { border-left: 3px solid var(--accent); padding-left: 12px; }
+#hsPredictionResult { display: flex; flex-direction: column; gap: 18px; overflow-wrap: anywhere; }
+#hsPredictionResult h4 { margin-bottom: 6px; }
+#hsPredictionStatus { color: var(--muted); }
 
 /* Tappable terms */
 button.term { all: unset; cursor: pointer; font-weight: inherit; border-bottom: 1px dotted var(--muted); }
@@ -376,11 +386,18 @@ dialog::backdrop { background: rgb(10 20 14 / .45); }
       <input id="hsCity" type="text" placeholder="Type a city, e.g. Madurai" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="hsSuggest">
       <div class="suggest" id="hsSuggest" role="listbox" hidden></div>
     </div>
-    <div class="field"><label for="hsDate">Birth date · தேதி</label><input id="hsDate" type="date"></div>
+    <div class="field"><label for="hsDate">Birth date · தேதி</label><input id="hsDate" type="date" min="1600-01-01" max="2400-12-31" required></div>
     <div class="field"><label for="hsTime">Birth time · பிறந்த நேரம்</label><input id="hsTime" type="time"></div>
     <div class="btns"><button type="button" id="hsNow">Use current date &amp; time</button></div>
   </form>
   <div class="where" id="hsWhere"></div>
+  <p id="hsError" role="alert" hidden></p>
+  <p id="hsTimeNote" class="note" hidden>This clock time occurs twice when daylight saving ends. The earlier occurrence is used. Please check which occurrence applies to the birth.</p>
+  <div class="tabs" role="tablist" aria-label="Horoscope sections">
+    <button type="button" role="tab" id="hstab-chart" aria-controls="hspane-chart" aria-selected="true">Birth chart · பிறப்பு ஜாதகம்</button>
+    <button type="button" role="tab" id="hstab-predictions" aria-controls="hspane-predictions" aria-selected="false" tabindex="-1">100-year predictions · 100 ஆண்டு பலன்கள்</button>
+  </div>
+  <div id="hspane-chart" class="tabpane" role="tabpanel" aria-labelledby="hstab-chart">
   <div class="hfilter" role="group" aria-label="Chart style">
     <button type="button" class="pill" id="hsSouth" aria-pressed="true">South Indian · தென்னிந்திய</button>
     <button type="button" class="pill" id="hsNorth" aria-pressed="false">North Indian · வட இந்திய</button>
@@ -403,6 +420,17 @@ dialog::backdrop { background: rgb(10 20 14 / .45); }
     <div class="tblwrap"><table class="jtbl"><thead><tr><th>Planet · கிரகம்</th><th>Rasi · ராசி</th><th>Degree</th><th>Star · நட்சத்திரம்</th><th>Pada</th></tr></thead><tbody id="hsRows"></tbody></table></div>
     <p class="note">Sidereal (Lahiri) positions. Rahu and Ketu are the mean nodes. <b>R</b> means retrograde (வக்ரம்). The Lagna (லக்னம்) depends on the exact birth time, so please enter it carefully.</p>
   </section>
+  </div>
+  <div id="hspane-predictions" class="tabpane" role="tabpanel" aria-labelledby="hstab-predictions" hidden>
+    <section class="panel">
+      <h3>About these readings</h3>
+      <p>These readings follow traditional Indian astrology and are offered for personal reflection. They are not scientifically validated predictions or guarantees. The 100-year range does not predict lifespan. Do not base medical, financial or other major decisions on these readings.</p>
+      <p class="note">An automatic reading using the birth chart and Vimshottari Dasa/Bhukti. It cannot replace a full assessment by an experienced astrologer. Readings are currently in English. An accurate birth time and place matter.</p>
+      <button type="button" id="hsShowPredictions" class="primary" aria-controls="hsPredictionResult" aria-expanded="false">Show predictions · பலன்களைக் காட்டு</button>
+      <p id="hsPredictionStatus" role="status" aria-live="polite"></p>
+    </section>
+    <div id="hsPredictionResult" hidden></div>
+  </div>
 </div>
 
 <div class="wrap" id="skpage" hidden>
@@ -538,7 +566,7 @@ dialog::backdrop { background: rgb(10 20 14 / .45); }
   }
   function tzOffset(ms, tz) { const p = tzParts(ms, tz); return Date.UTC(p.y, p.m - 1, p.d, p.h, p.mi, p.s) - Math.floor(ms / 1000) * 1000; }
   function localToUTC(y, m, d, h, tz) { // local wall time -> UTC ms
-    const guess = Date.UTC(y, m - 1, d, h || 0);
+    const guess = Date.UTC(y, m - 1, d) + Math.round((h || 0) * HOUR);
     let t = guess - tzOffset(guess, tz);
     t = guess - tzOffset(t, tz);
     return t;
@@ -760,13 +788,13 @@ dialog::backdrop { background: rgb(10 20 14 / .45); }
     const T = (ms - Date.UTC(2000, 0, 1, 12)) / (DAY * 36525);
     return norm(125.04452 - 1934.136261 * T);
   }
-  // Sidereal longitude of a graha. Planets come as J2000 ecliptic longitude, so the Lahiri value at J2000 is subtracted.
+  // Ecliptic converts the J2000 vector to true ecliptic OF DATE.
   function grahaLon(k, ms) {
     if (k === 'surya') return sunSid(ms);
     if (k === 'chandra') return moonSid(ms);
     if (k === 'rahu') return norm(meanNode(ms) - ayanamsa(ms));
     if (k === 'ketu') return norm(meanNode(ms) + 180 - ayanamsa(ms));
-    return norm(A.Ecliptic(A.GeoVector(A.Body[BODY[k]], new Date(ms), true)).elon - ayanamsa(Date.UTC(2000, 0, 1, 12)));
+    return norm(A.Ecliptic(A.GeoVector(A.Body[BODY[k]], new Date(ms), true)).elon - ayanamsa(ms));
   }
   function lagnaLon(ms, lat, lon) { // sidereal ascendant
     const rad = Math.PI / 180, T = (ms - Date.UTC(2000, 0, 1, 12)) / (DAY * 36525);
@@ -777,7 +805,21 @@ dialog::backdrop { background: rgb(10 20 14 / .45); }
   }
   // Rasi chart for a local birth date and time (hour, minute) at a place.
   function chart(o) {
-    const ms = localToUTC(o.y, o.m, o.d, (o.h || 0) + (o.mi || 0) / 60, o.tz);
+    const h = o.h ?? 0, mi = o.mi ?? 0;
+    if (![o.y, o.m, o.d, h, mi].every(Number.isInteger) || o.y < 1600 || o.y > 2400 ||
+        o.m < 1 || o.m > 12 || o.d < 1 || o.d > 31 || h < 0 || h > 23 || mi < 0 || mi > 59 ||
+        !Number.isFinite(o.lat) || Math.abs(o.lat) >= 90 || !Number.isFinite(o.lon) || Math.abs(o.lon) > 180)
+      throw new RangeError('Invalid birth details');
+    const wall = Date.UTC(o.y, o.m - 1, o.d, h, mi);
+    const guess = localToUTC(o.y, o.m, o.d, h + mi / 60, o.tz);
+    // Try offsets around the date: a repeated clock time has two valid instants.
+    const offsets = [...new Set([-2, -1, 0, 1, 2].map(n => tzOffset(guess + n * DAY, o.tz)))];
+    const candidates = offsets.map(off => wall - off).filter(t => {
+      const p = tzParts(t, o.tz);
+      return p.y === o.y && p.m === o.m && p.d === o.d && p.h === h && p.mi === mi;
+    }).sort((a, b) => a - b);
+    if (!candidates.length) throw new RangeError('Invalid or nonexistent local birth time');
+    const ms = candidates[0]; // earlier occurrence; expose the ambiguity to the user
     const mk = (id, name, lonDeg, retro) => ({ id, name, lon: lonDeg, rasi: Math.floor(lonDeg / 30), deg: lonDeg % 30, nak: Math.floor(lonDeg / (360 / 27)), pada: Math.floor((lonDeg % (360 / 27)) / (360 / 108)) + 1, retro });
     const grahas = GRAHAS.map(([k, name]) => {
       const l = grahaLon(k, ms);
@@ -785,10 +827,122 @@ dialog::backdrop { background: rgb(10 20 14 / .45); }
       return mk(k, name, l, retro);
     });
     const lagna = mk('lagna', ['Lagna', 'லக்'], lagnaLon(ms, o.lat, o.lon), false);
-    return { ms, grahas, lagna, ayanamsa: ayanamsa(ms), nakshatraNames: N.nakshatra, rasiNames: N.rasi };
+    return { ms, grahas, lagna, timeAmbiguous: candidates.length > 1, ayanamsa: ayanamsa(ms), nakshatraNames: N.nakshatra, rasiNames: N.rasi };
   }
 
   root.Panchang = { calculate, chart, tzParts, localToUTC, localDateKey, N };
+})(typeof globalThis !== 'undefined' ? globalThis : this);
+
+</script>
+<script>
+// Traditional, deterministic interpretations. No predictive accuracy is implied.
+(function (root) {
+  'use strict';
+  const DAY = 86400e3, YEAR = 365.25 * DAY, WIDTH = 360 / 27;
+  const ORDER = ['ketu', 'sukra', 'surya', 'chandra', 'sevvai', 'rahu', 'guru', 'sani', 'budhan'];
+  const YEARS = [7, 20, 6, 10, 7, 18, 16, 19, 17];
+  const LORDS = ['sevvai', 'sukra', 'budhan', 'chandra', 'surya', 'budhan', 'sukra', 'sevvai', 'guru', 'sani', 'sani', 'guru'];
+  const EXALT = { surya: 0, chandra: 1, sevvai: 9, budhan: 5, guru: 3, sukra: 11, sani: 6 };
+  const ASPECTS = { sevvai: [4, 7, 8], guru: [5, 7, 9], sani: [3, 7, 10] };
+  const NAMES = { surya: 'Sun', chandra: 'Moon', sevvai: 'Mars', budhan: 'Mercury', guru: 'Jupiter', sukra: 'Venus', sani: 'Saturn', rahu: 'Rahu', ketu: 'Ketu' };
+  const THEMES = {
+    surya: 'Confidence, responsibility and recognition may come into focus. Taking ownership can be constructive; leave room for other people’s views.',
+    chandra: 'Home, belonging and emotional needs may receive more attention. Nurturing familiar connections can help; allow time before reacting to changing moods.',
+    sevvai: 'Initiative, courage and practical effort may stand out. Give energy a useful outlet and handle disagreements patiently.',
+    budhan: 'Learning, communication and problem-solving may become useful avenues for growth. Ask questions, practise skills and check details before making commitments.',
+    guru: 'Study, guidance, generosity and a search for meaning may be prominent. Seek good teachers and balance optimism with realistic expectations.',
+    sukra: 'Relationships, creativity, enjoyment and personal values may receive attention. Make room for beauty and cooperation while keeping expectations balanced.',
+    sani: 'Patience, structure and sustained effort may become central themes. Progress may feel gradual; manageable responsibilities and steady routines can be constructive.',
+    rahu: 'Unfamiliar experiences, ambition and experimentation may attract attention. Explore thoughtfully, check appearances against facts and avoid chasing novelty alone.',
+    ketu: 'Reflection, simplification and a wish for independence may become prominent. Make space for quiet learning without withdrawing from supportive relationships.'
+  };
+  const HOUSES = [
+    'identity, confidence and personal direction', 'family values, speech and material resources',
+    'communication, skills, initiative and siblings', 'home, emotional foundations and belonging',
+    'learning, creativity, play and mentoring', 'daily duties, service and handling obstacles',
+    'cooperation, close relationships and agreements', 'change, shared responsibilities and deeper study',
+    'higher learning, teachers, beliefs and wider horizons', 'purpose, responsibilities and contribution',
+    'friendships, groups and long-term hopes', 'rest, solitude, letting go and life away from familiar surroundings'
+  ];
+  const STAGES = {
+    child: 'Childhood lens: read these themes through play, learning, family support and growing confidence. Adult topics describe the surrounding family context, not events a child is expected to experience.',
+    student: 'Growing-years lens: apply these themes to education, friendships, interests and gradually taking responsibility. They do not prescribe a study or career choice.',
+    adult: 'Early-adult lens: consider these themes alongside your own choices about learning, work, relationships and independent living. No particular milestone is assumed.',
+    mature: 'Midlife lens: these themes can be considered through ongoing responsibilities, relationships, renewed learning and contribution to others. Circumstances and priorities differ.',
+    elder: 'Later-life lens: consider these themes through companionship, interests, mentoring, reflection and meaningful routines. This age range is a display convention, not a claim about longevity.'
+  };
+  const house = (sign, asc) => (sign - asc + 12) % 12 + 1;
+
+  function facts(chart, id) {
+    const g = chart.grahas.find(p => p.id === id);
+    if (!g) throw new RangeError('Unknown graha');
+    const owns = LORDS.flatMap((lord, sign) => lord === id ? [house(sign, chart.lagna.rasi)] : []).sort((a, b) => a - b);
+    const dignity = EXALT[id] === g.rasi ? 'exalted' : EXALT[id] !== undefined && (EXALT[id] + 6) % 12 === g.rasi ? 'debilitated' : LORDS[g.rasi] === id ? 'own' : 'ordinary';
+    // Classical graha drishti counted by whole signs. Node aspects vary by school, so omitted.
+    const aspects = chart.grahas.filter(p => p.id !== id && !['rahu', 'ketu'].includes(p.id) &&
+      (ASPECTS[p.id] || [7]).includes(house(g.rasi, p.rasi))).map(p => p.id);
+    const dispositor = LORDS[g.rasi];
+    return { id, house: house(g.rasi, chart.lagna.rasi), owns, dignity, retro: g.retro && !['rahu', 'ketu'].includes(id), aspects, dispositor };
+  }
+
+  function timeline(chart, end) {
+    const moon = chart.grahas.find(g => g.id === 'chandra');
+    if (!moon || !Number.isFinite(moon.lon) || moon.lon < 0 || moon.lon >= 360 || !Number.isFinite(chart.ms) || !Number.isFinite(end) || end <= chart.ms || end - chart.ms > 121 * YEAR)
+      throw new RangeError('Invalid timeline input');
+    const pos = moon.lon / WIDTH, first = Math.floor(pos) % 9;
+    let index = first, start = chart.ms - (pos - Math.floor(pos)) * YEARS[first] * YEAR;
+    const periods = [];
+    while (start < end) {
+      const duration = YEARS[index] * YEAR, finish = start + duration;
+      let subStart = start;
+      for (let j = 0; j < 9; j++) {
+        const sub = (index + j) % 9;
+        const subEnd = j === 8 ? finish : subStart + duration * YEARS[sub] / 120;
+        if (subEnd > chart.ms && subStart < end) periods.push({
+          major: ORDER[index], minor: ORDER[sub], start: Math.max(chart.ms, subStart), end: Math.min(end, subEnd),
+          majorStart: start, majorEnd: finish, subStart, subEnd
+        });
+        subStart = subEnd;
+      }
+      start = finish; index = (index + 1) % 9;
+    }
+    return periods;
+  }
+
+  function anniversary(o, age) {
+    const y = o.y + age;
+    const d = Math.min(o.d, new Date(Date.UTC(y, o.m, 0)).getUTCDate());
+    return root.Panchang.localToUTC(y, o.m, d, o.h + o.mi / 60, o.tz);
+  }
+
+  function build(chart, birth) {
+    const boundaries = Array.from({ length: 101 }, (_, age) => age ? anniversary(birth, age) : chart.ms);
+    const periods = timeline(chart, boundaries[100]);
+    const years = Array.from({ length: 100 }, (_, age) => ({
+      age, start: boundaries[age], end: boundaries[age + 1],
+      stage: age < 12 ? 'child' : age < 20 ? 'student' : age < 40 ? 'adult' : age < 65 ? 'mature' : 'elder',
+      periods: periods.filter(p => p.end > boundaries[age] && p.start < boundaries[age + 1]).map(p => ({
+        ...p, start: Math.max(p.start, boundaries[age]), end: Math.min(p.end, boundaries[age + 1])
+      }))
+    }));
+    return { years, periods, facts: Object.fromEntries(ORDER.map(id => [id, facts(chart, id)])) };
+  }
+  function describe(chart, id) {
+    const f = facts(chart, id), name = NAMES[id];
+    const placement = `${name} occupies house ${f.house} from Lagna, bringing a traditional emphasis on ${HOUSES[f.house - 1]}.`;
+    const quality = {
+      exalted: `${name} is in its exaltation sign, traditionally suggesting ease in expressing its qualities; this is not a guarantee of favourable events.`,
+      debilitated: `${name} is in its debilitation sign, traditionally suggesting that its qualities may need more care and balance. This alone does not establish an adverse outcome; cancellation rules are not assessed here.`,
+      own: `${name} is in its own sign, traditionally suggesting a more self-directed expression of its qualities.`,
+      ordinary: `${name} is neither in its own, exaltation nor debilitation sign under the rules used here. This alone does not establish strength or weakness.`
+    }[f.dignity];
+    const ownership = f.owns.length ? `${name} rules ${f.owns.map(h => `house ${h} (${HOUSES[h - 1]})`).join(' and ')} in this chart, linking these themes to its periods.` :
+      `${name} has no sign ownership assigned in this reading. Its sign ruler is ${NAMES[f.dispositor]}, in house ${facts(chart, f.dispositor).house}; node interpretations differ between traditions.`;
+    const aspects = f.aspects.length ? `Whole-sign aspects received from ${f.aspects.map(p => NAMES[p]).join(', ')} add those planets’ themes. Their net effect is not scored here.` : 'No whole-sign aspect from the seven visible planets is included for this placement.';
+    return { theme: THEMES[id], placement, quality: ['rahu', 'ketu'].includes(id) ? 'Exaltation and debilitation are not assigned to the nodes here, because schools differ.' : quality, ownership, aspects,
+      retro: f.retro ? `${name} was retrograde at birth. Some traditions associate this with revisiting or internalising its themes; retrograde motion is not automatically unfavourable.` : '' };
+  }
+  root.Predictions = { build, timeline, facts, describe, ORDER, YEARS, YEAR, NAMES, THEMES, HOUSES, STAGES, LORDS };
 })(typeof globalThis !== 'undefined' ? globalThis : this);
 
 </script>
@@ -1513,6 +1667,11 @@ const LISTS = {
   const S = lines => lines.forEach(l => { const p = l.split('|'); put(p[0], p[1]); });                 // Sanskrit words: one Devanagari form
   const U = lines => lines.forEach(l => { const p = l.split('|'); put(p[0], p[1], p[2], p[3], p[4]); }); // each language written out
   const zip = (tamils, hindi) => tamils.forEach((ta, i) => { if (hindi[i] != null) put(ta, hindi[i]); });
+  U([
+    'பிறப்பு ஜாதகம்|जन्म कुंडली|జన్మ జాతకం|ಜನ್ಮ ಜಾತಕ|ജനന ജാതകം',
+    'ஆண்டு பலன்கள்|वर्षों के फल|సంవత్సరాల ఫలితాలు|ವರ್ಷಗಳ ಫಲಗಳು|വർഷത്തെ ഫലങ്ങൾ',
+    'பலன்களைக் காட்டு|फल दिखाएँ|ఫలితాలు చూపించు|ಫಲಗಳನ್ನು ತೋರಿಸಿ|ഫലങ്ങൾ കാണിക്കുക'
+  ]);
 
   // Tamil words that mean different things in different places get an invisible mark in the data, so they can be told apart:
   // weekdays (Tuesday / Mars) and Tamil solar months (Chithirai month / Chitra star).
@@ -2084,6 +2243,86 @@ const LISTS = {
     return `<svg viewBox="-1 -1 402 402" role="img" aria-label="North Indian Rasi chart">${parts.join('')}</svg>`;
   }
   const H = { city: null, src: '', y: 0, m: 0, d: 0, h: 0, mi: 0, style: 'south', userTime: false };
+  const HP = { key: '', chart: null, report: null };
+  const PR = window.Predictions;
+  function hsResetPredictions() {
+    HP.report = null;
+    $('hsPredictionResult').replaceChildren();
+    $('hsPredictionResult').hidden = true;
+    $('hsShowPredictions').setAttribute('aria-expanded', 'false');
+    $('hsPredictionStatus').textContent = 'Choose Show predictions to read the selected birth chart.';
+  }
+  function hsTab(name, focus) {
+    for (const key of ['chart', 'predictions']) {
+      const active = key === name, button = $('hstab-' + key);
+      button.setAttribute('aria-selected', String(active)); button.tabIndex = active ? 0 : -1;
+      $('hspane-' + key).hidden = !active;
+      if (active && focus) button.focus();
+    }
+  }
+  for (const name of ['chart', 'predictions']) {
+    $('hstab-' + name).addEventListener('click', () => hsTab(name));
+    $('hstab-' + name).addEventListener('keydown', e => {
+      if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(e.key)) return;
+      e.preventDefault(); hsTab(e.key === 'Home' ? 'chart' : e.key === 'End' ? 'predictions' : name === 'chart' ? 'predictions' : 'chart', true);
+    });
+  }
+  const predictionDate = ms => new Intl.DateTimeFormat('en-GB', { timeZone: H.city.tz, day: 'numeric', month: 'short', year: 'numeric' }).format(new Date(ms));
+  const predictionTime = ms => new Intl.DateTimeFormat('en-GB', { timeZone: H.city.tz, day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).format(new Date(ms));
+  function hsPeriodReading(p) {
+    const major = PR.describe(HP.chart, p.major), minor = PR.describe(HP.chart, p.minor);
+    const same = p.major === p.minor;
+    return `<article class="prediction-period"><h4>${esc(PR.NAMES[p.major])} Dasa / ${esc(PR.NAMES[p.minor])} Bhukti</h4>
+      <small>${esc(predictionTime(p.start))} → ${esc(predictionTime(p.end))}</small>
+      <p><b>Main theme:</b> ${esc(major.theme)} ${esc(major.placement)}</p>
+      <p><b>Subperiod emphasis:</b> ${same ? 'The same planet rules both levels, so the themes above recur in the traditional reading. This does not make an outcome certain.' : esc(minor.theme) + ' ' + esc(minor.placement)}</p>
+      <p>${esc(major.quality)} ${!same ? esc(minor.quality) : ''}</p>
+      <p class="note">${esc(major.ownership)} ${major.retro ? esc(major.retro) : ''}</p>
+      ${!same ? `<p class="note">${esc(minor.ownership)} ${esc(minor.retro)}</p>` : ''}
+      <p class="note">Read the two influences together. These are broad themes, not dated promises of events. Full natal factors are listed in the overview above.</p></article>`;
+  }
+  function hsShowPredictions() {
+    renderHoroscope();
+    if (!HP.chart) return;
+    const birth = { y: H.y, m: H.m, d: H.d, h: H.h, mi: H.mi, tz: H.city.tz };
+    HP.report = PR.build(HP.chart, birth);
+    const c = HP.chart, moon = c.grahas.find(g => g.id === 'chandra');
+    const lord = PR.LORDS[c.lagna.rasi], lf = HP.report.facts[lord];
+    const planetOverview = c.grahas.map(g => {
+      const f = HP.report.facts[g.id], d = PR.describe(c, g.id);
+      return `<details class="prediction-year"><summary>${esc(PR.NAMES[g.id])} · ${esc(P.N.rasi[g.rasi][0])} · House ${f.house}</summary>
+        <p>${esc(d.theme)} ${esc(d.placement)}</p><p>${esc(d.quality)} ${esc(d.retro)}</p><p>${esc(d.ownership)}</p><p class="note">${esc(d.aspects)}</p></details>`;
+    }).join('');
+    const now = Date.now();
+    const years = HP.report.years.map(y => {
+      const current = now >= y.start && now < y.end;
+      const pairs = [...new Set(y.periods.map(p => PR.NAMES[p.major] + ' / ' + PR.NAMES[p.minor]))].join(' → ');
+      return `<details class="prediction-year${current ? ' current' : ''}" data-prediction-age="${y.age}">
+        <summary><b>Age ${y.age}–${y.age + 1}${current ? ' · Current age interval' : ''}</b> · ${esc(predictionDate(y.start))} → ${esc(predictionDate(y.end))}<small>${esc(pairs)}</small></summary>
+        <div class="prediction-year-body"></div></details>`;
+    }).join('');
+    $('hsPredictionResult').innerHTML = `<section class="panel"><h3>Your birth-chart overview</h3>
+      <p>${esc(H.city.name)} · ${esc(predictionTime(c.ms))} · ${esc(H.city.tz)}</p>
+      <p><b>Lagna:</b> ${esc(P.N.rasi[c.lagna.rasi][0])}. <b>Moon sign:</b> ${esc(P.N.rasi[moon.rasi][0])}. <b>Birth star:</b> ${esc(P.N.nakshatra[moon.nak][0])}, pada ${moon.pada}.</p>
+      <p>The Lagna ruler, ${esc(PR.NAMES[lord])}, is in house ${lf.house}. In this tradition, this connects personal direction with ${esc(PR.HOUSES[lf.house - 1])}. The Moon is in house ${HP.report.facts.chandra.house}, highlighting ${esc(PR.HOUSES[HP.report.facts.chandra.house - 1])} as a reflective theme.</p>
+      <p class="note">Tap a planet for its traditional themes and the chart factors used in this reading.</p>${planetOverview}</section>
+      <section class="panel"><h3>How to read the timeline</h3>
+      <p>Each row covers one birthday to the next, from birth to the 100th birthday. Open a year to see every Dasa/Bhukti change in that interval. The first period uses the balance remaining at birth; Bhukti periods are not restarted at birth.</p>
+      <p class="note">Vimshottari uses a 120-year cycle. This display stops at 100 years. One Dasa year here is 365.25 days; other conventions can give different dates. Times are in ${esc(H.city.tz)} and rounded for display. End times belong to the following interval. February 29 anniversaries use February 28 in other years.</p>
+      <p class="note">Interpretation uses whole-sign houses, sign ownership, basic sign dignity and natal retrograde motion. The overview also lists classical whole-sign aspects. It does not assess divisional charts, Shadbala, yogas, combustion, cancellation rules or future transits. The same influences can repeat across adjacent years. There is no numerical luck or accuracy score.</p>
+      <p class="note">Method references: <a href="https://samvat.in/calculators/vimshottari-dasha/" target="_blank" rel="noopener noreferrer">Vimshottari timeline calculation</a> · <a href="https://www.vedicastrologer.org/articles/astro_books.htm" target="_blank" rel="noopener noreferrer">Traditional astrology study</a>. Interpretive wording is a simplified guide written for this app.</p></section>
+      <section class="panel"><h3>100 years from birth</h3>${years}</section>`;
+    $('hsPredictionResult').hidden = false;
+    $('hsShowPredictions').setAttribute('aria-expanded', 'true');
+    $('hsPredictionStatus').textContent = '100 yearly readings are ready. Open any age interval below. Changing birth details clears this reading.';
+    $('hsPredictionResult').querySelectorAll('[data-prediction-age]').forEach(el => el.addEventListener('toggle', () => {
+      if (!el.open || el.dataset.loaded) return;
+      const y = HP.report.years[Number(el.dataset.predictionAge)];
+      el.querySelector('.prediction-year-body').innerHTML = `<p>${esc(PR.STAGES[y.stage])}</p>${y.periods.map(hsPeriodReading).join('')}`;
+      el.dataset.loaded = 'true';
+    }));
+  }
+  $('hsShowPredictions').addEventListener('click', hsShowPredictions);
   const p2 = v => String(v).padStart(2, '0');
   function hsFields() {
     $('hsDate').value = `${H.y}-${p2(H.m)}-${p2(H.d)}`; $('hsTime').value = `${p2(H.h)}:${p2(H.mi)}`;
@@ -2099,7 +2338,23 @@ const LISTS = {
   function renderHoroscope() {
     if ($('hspage').hidden || !H.city) return;
     const c0 = H.city;
-    const c = P.chart({ y: H.y, m: H.m, d: H.d, h: H.h, mi: H.mi, lat: c0.lat, lon: c0.lon, tz: c0.tz });
+    const key = JSON.stringify([H.y, H.m, H.d, H.h, H.mi, c0.name, c0.lat, c0.lon, c0.tz]);
+    if (key !== HP.key) { HP.key = key; hsResetPredictions(); }
+    let c;
+    try {
+      if (!$('hsDate').value || !$('hsTime').value || !$('hsDate').validity.valid || !$('hsTime').validity.valid) throw new RangeError('Missing birth details');
+      c = P.chart({ y: H.y, m: H.m, d: H.d, h: H.h, mi: H.mi, lat: c0.lat, lon: c0.lon, tz: c0.tz });
+    } catch (e) {
+      HP.chart = null; hsResetPredictions();
+      $('hsError').textContent = 'Enter a valid birth date (1600–2400), time and city. A clock time skipped by daylight saving is not valid.';
+      $('hsError').hidden = false; $('hsTimeNote').hidden = true;
+      $('hsShowPredictions').disabled = true;
+      for (const id of ['hsChart', 'hsKey', 'hsRows', 'hsTransit', 'hsTrWhen']) $(id).replaceChildren();
+      return;
+    }
+    HP.chart = c;
+    $('hsError').hidden = true; $('hsShowPredictions').disabled = false;
+    $('hsTimeNote').hidden = !c.timeAmbiguous;
     const dateLabel = `${H.d} ${MONTHS_EN[H.m - 1]} ${H.y}, ${p2(H.h)}:${p2(H.mi)}`;
     $('hsChart').innerHTML = H.style === 'south' ? southSVG(c, dateLabel) : northSVG(c, dateLabel);
     const moon = c.grahas.find(g => g.id === 'chandra'), sun = c.grahas.find(g => g.id === 'surya');
@@ -2139,9 +2394,12 @@ const LISTS = {
   }
   $('hsSouth').addEventListener('click', () => hsStyle('south'));
   $('hsNorth').addEventListener('click', () => hsStyle('north'));
-  $('hsDate').addEventListener('change', e => { const v = e.target.value; if (!v) return; const [y, m, d] = v.split('-').map(Number); if (y < 1600 || y > 2400) return; Object.assign(H, { y, m, d, userTime: true }); renderHoroscope(); });
-  $('hsTime').addEventListener('change', e => { const v = e.target.value; if (!v) return; const [h, mi] = v.split(':').map(Number); Object.assign(H, { h, mi, userTime: true }); renderHoroscope(); });
-  $('hsTime').addEventListener('input', e => { const v = e.target.value; if (!v) return; const [h, mi] = v.split(':').map(Number); Object.assign(H, { h, mi, userTime: true }); renderHoroscope(); });
+  const hsDateChanged = e => { const [y, m, d] = e.target.value.split('-').map(Number); Object.assign(H, { y, m, d, userTime: true }); renderHoroscope(); };
+  const hsTimeChanged = e => { const [h, mi] = e.target.value.split(':').map(Number); Object.assign(H, { h, mi, userTime: true }); renderHoroscope(); };
+  for (const event of ['input', 'change']) {
+    $('hsDate').addEventListener(event, hsDateChanged);
+    $('hsTime').addEventListener(event, hsTimeChanged);
+  }
   $('hsNow').addEventListener('click', () => { hsNow(); renderHoroscope(); });
   $('hsForm').addEventListener('submit', e => e.preventDefault());
   $('hsBack').addEventListener('click', () => { location.hash = ''; });
