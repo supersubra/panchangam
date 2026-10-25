@@ -457,9 +457,9 @@ dialog::backdrop { background: rgb(10 20 14 / .45); }
   </div>
   <div id="hspane-summary" class="tabpane" role="tabpanel" aria-labelledby="hstab-summary" hidden>
     <section class="panel">
-      <h3>Prediction summary · next 20 years</h3>
+      <h3>Prediction summary · 20-year period</h3>
       <p>Traditional astrology for personal reflection only. These provisional ratings are not scientifically validated predictions or guarantees. They do not predict lifespan or replace professional advice.</p>
-      <p class="note">From today, using the selected birth chart. Green = favourable, amber = mixed, red = challenging. Sade Sati and Guru/Sani transit houses are counted from your birth Moon sign.</p>
+      <p class="note">Starts on January 1 of the previous year and covers 20 years, using the selected birth city's time zone. Green = favourable, amber = mixed, red = challenging. Sade Sati and Guru/Sani transit houses are counted from your birth Moon sign.</p>
       <button type="button" id="hsShowSummary" class="primary" aria-controls="hsSummaryResult" aria-expanded="false">Show summary · சுருக்கத்தைக் காட்டு</button>
       <p id="hsSummaryStatus" role="status" aria-live="polite"></p>
     </section>
@@ -1067,14 +1067,18 @@ dialog::backdrop { background: rgb(10 20 14 / .45); }
     const d = Math.min(q.d, new Date(Date.UTC(y, q.m, 0)).getUTCDate());
     return P.localToUTC(y, q.m, d, q.h + q.mi / 60, tz) + q.s * 1000 + start % 1000;
   }
-  async function build(chart, start, tz, cancelled = () => false) {
-    if (!Number.isFinite(start) || chart.ms > start) throw new RangeError('The birth date and time must be in the past to show a summary from today.');
+  function windowStart(now, tz) {
+    return P.localToUTC(P.tzParts(now, tz).y - 1, 1, 1, 0, tz);
+  }
+  async function build(chart, now, tz, cancelled = () => false) {
+    if (!Number.isFinite(now) || chart.ms > now) throw new RangeError('The birth date and time must be in the past to show this summary.');
+    const start = windowStart(now, tz), periodStart = Math.max(start, chart.ms);
     const end = windowEnd(start, tz), moon = chart.grahas.find(g => g.id === 'chandra').rasi;
-    const dasas = R.timeline(chart, end, start);
-    const saturn = await signPeriods(t => P.grahaLongitude('sani', t), start, end, cancelled);
-    const jupiter = await signPeriods(t => P.grahaLongitude('guru', t), start, end, cancelled);
+    const dasas = R.timeline(chart, end, periodStart);
+    const saturn = await signPeriods(t => P.grahaLongitude('sani', t), periodStart, end, cancelled);
+    const jupiter = await signPeriods(t => P.grahaLongitude('guru', t), periodStart, end, cancelled);
     if (cancelled()) throw new Error('Summary cancelled');
-    const boundaries = [...new Set([start, end, ...dasas.map(p => p.end), ...saturn.map(p => p.end), ...jupiter.map(p => p.end)])].sort((a, b) => a - b);
+    const boundaries = [...new Set([periodStart, end, ...dasas.map(p => p.end), ...saturn.map(p => p.end), ...jupiter.map(p => p.end)])].sort((a, b) => a - b);
     let di = 0, si = 0, ji = 0;
     const rows = boundaries.slice(0, -1).map((t, i) => {
       while (dasas[di].end <= t) di++;
@@ -1085,9 +1089,9 @@ dialog::backdrop { background: rgb(10 20 14 / .45); }
     });
     const highlights = [...saturn.map(p => ({ ...p, ...transit('sani', p.rasi, moon) })), ...jupiter.map(p => ({ ...p, ...transit('guru', p.rasi, moon) }))]
       .filter(p => p.special).sort((a, b) => a.start - b.start || a.end - b.end);
-    return { start, end, moon, rows, highlights };
+    return { start, periodStart, end, moon, rows, highlights };
   }
-  root.PredictionSummary = { build, windowEnd, signPeriods, transit, rate, natalScore };
+  root.PredictionSummary = { build, windowStart, windowEnd, signPeriods, transit, rate, natalScore };
 })(typeof globalThis !== 'undefined' ? globalThis : this);
 
 </script>
@@ -2477,7 +2481,7 @@ const LISTS = {
     $('hsSummaryResult').replaceChildren(); $('hsSummaryResult').hidden = true;
     $('hsSummaryResult').setAttribute('aria-busy', 'false');
     $('hsShowSummary').setAttribute('aria-expanded', 'false');
-    $('hsSummaryStatus').textContent = 'Choose Show summary for the next 20 years from today.';
+    $('hsSummaryStatus').textContent = 'Choose Show summary for 20 years starting January 1 of the previous year.';
   }
   const summaryPeriod = p => `${esc(predictionDate(p.start))}<small>${esc(predictionTime(p.start).split(', ')[1] || '')}</small>→ ${esc(predictionDate(p.end))}<small>${esc(predictionTime(p.end).split(', ')[1] || '')}</small>`;
   async function hsShowSummary() {
@@ -2500,7 +2504,7 @@ const LISTS = {
         <td data-label="Transits from birth Moon">${transitText(p.saturn)}${transitText(p.jupiter)}</td></tr>`).join('');
       const highlights = report.highlights.map(p => `<tr data-transit-highlight><td data-label="Period">${summaryPeriod(p)}</td><td data-label="Transit">${esc(p.label)}</td><td data-label="Sign">${esc(P.N.rasi[p.rasi][0])}</td></tr>`).join('');
       $('hsSummaryResult').innerHTML = `<section class="panel"><h3>${esc(predictionDate(report.start))} – ${esc(predictionDate(report.end))}</h3>
-        <p class="note">${esc(H.city.name)} · ${esc(tz)} · Birth Moon: ${esc(P.N.rasi[report.moon][0])}. Rows split at each Dasa–Bhukti or Saturn/Jupiter sign change. The first and last rows are clipped to this 20-year window. Transit boundary times are approximate and may differ by several hours from other ephemerides.</p>
+        <p class="note">${esc(H.city.name)} · ${esc(tz)} · Birth Moon: ${esc(P.N.rasi[report.moon][0])}. Rows split at each Dasa–Bhukti or Saturn/Jupiter sign change. The first and last rows are clipped to this 20-year window.${report.periodStart > report.start ? ' This birth falls within the window, so periods begin at birth; no pre-birth predictions are shown.' : ''} Transit boundary times are approximate and may differ by several hours from other ephemerides.</p>
         <button type="button" id="hsSummaryJump">Jump to Sade Sati / Guru periods ↓</button>
         <table class="summary-table"><thead><tr><th scope="col">Period</th><th scope="col">Dasa–Bhukti</th><th scope="col">Provisional traditional rating</th><th scope="col">Transits from birth Moon</th></tr></thead><tbody>${rows}</tbody></table></section>
         <section class="panel" id="hsSummaryTransits"><h3>Sade Sati and other important transits</h3>
@@ -2514,7 +2518,7 @@ const LISTS = {
         </details></section>`;
       $('hsSummaryResult').hidden = false; $('hsShowSummary').setAttribute('aria-expanded', 'true');
       $('hsSummaryJump').addEventListener('click', () => $('hsSummaryTransits').scrollIntoView({ block: 'start' }));
-      $('hsSummaryStatus').textContent = `${report.rows.length} periods ready, covering today through the next 20 years. Your 100-year readings remain in their own tab.`;
+      $('hsSummaryStatus').textContent = `${report.rows.length} periods ready for ${predictionDate(report.start)} – ${predictionDate(report.end)}. Your 100-year readings remain in their own tab.`;
     } catch (e) {
       if (token === HS.version) $('hsSummaryStatus').textContent = e instanceof RangeError ? e.message : 'The summary could not be calculated. Please try again.';
     } finally {
