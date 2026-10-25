@@ -1,3 +1,4 @@
+<meta charset="UTF-8">
 <title>Daily Panchangam</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="claude:viewport-fit-sides" content="cover">
@@ -178,6 +179,28 @@ footer { font-size: .82rem; color: var(--muted); max-width: 70ch; }
 #hsPredictionResult { display: flex; flex-direction: column; gap: 18px; overflow-wrap: anywhere; }
 #hsPredictionResult h4 { margin-bottom: 6px; }
 #hsPredictionStatus { color: var(--muted); }
+.summary-table { table-layout: fixed; font-size: .9rem; }
+.summary-table th { width: auto; }
+.summary-table td, .summary-table th { padding: 10px 8px; overflow-wrap: anywhere; }
+.summary-table small { display: block; color: var(--muted); }
+.summary-table .rating-good { background: var(--good-soft); }
+.summary-table .rating-mixed { background: var(--accent-soft); }
+.summary-table .rating-bad { background: var(--bad-soft); }
+.summary-rating { display: inline-block; border-radius: 6px; padding: 3px 8px; font-weight: 700; }
+.summary-rating.good { color: var(--good); background: var(--good-soft); }
+.summary-rating.mixed { color: var(--accent); background: var(--accent-soft); }
+.summary-rating.bad { color: var(--bad); background: var(--bad-soft); }
+.summary-table details { margin-top: 8px; font-size: .82rem; }
+.summary-table summary { cursor: pointer; }
+.summary-transit + .summary-transit { margin-top: 8px; }
+#hsSummaryResult { display: flex; flex-direction: column; gap: 18px; }
+@media (max-width: 600px) {
+  .summary-table thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+  .summary-table, .summary-table tbody, .summary-table tr, .summary-table td { display: block; width: auto; }
+  .summary-table tr { border: 1px solid var(--line); border-radius: 8px; margin: 10px 0; padding: 6px; }
+  .summary-table td { border: 0; padding: 6px; }
+  .summary-table td::before { content: attr(data-label); display: block; font-size: .75rem; font-weight: 600; color: var(--muted); margin-bottom: 3px; }
+}
 
 /* Tappable terms */
 button.term { all: unset; cursor: pointer; font-weight: inherit; border-bottom: 1px dotted var(--muted); }
@@ -396,6 +419,7 @@ dialog::backdrop { background: rgb(10 20 14 / .45); }
   <div class="tabs" role="tablist" aria-label="Horoscope sections">
     <button type="button" role="tab" id="hstab-chart" aria-controls="hspane-chart" aria-selected="true">Birth chart · பிறப்பு ஜாதகம்</button>
     <button type="button" role="tab" id="hstab-predictions" aria-controls="hspane-predictions" aria-selected="false" tabindex="-1">100-year predictions · 100 ஆண்டு பலன்கள்</button>
+    <button type="button" role="tab" id="hstab-summary" aria-controls="hspane-summary" aria-selected="false" tabindex="-1">Prediction summary · பலன் சுருக்கம்</button>
   </div>
   <div id="hspane-chart" class="tabpane" role="tabpanel" aria-labelledby="hstab-chart">
   <div class="hfilter" role="group" aria-label="Chart style">
@@ -430,6 +454,16 @@ dialog::backdrop { background: rgb(10 20 14 / .45); }
       <p id="hsPredictionStatus" role="status" aria-live="polite"></p>
     </section>
     <div id="hsPredictionResult" hidden></div>
+  </div>
+  <div id="hspane-summary" class="tabpane" role="tabpanel" aria-labelledby="hstab-summary" hidden>
+    <section class="panel">
+      <h3>Prediction summary · next 20 years</h3>
+      <p>Traditional astrology for personal reflection only. These provisional ratings are not scientifically validated predictions or guarantees. They do not predict lifespan or replace professional advice.</p>
+      <p class="note">From today, using the selected birth chart. Green = favourable, amber = mixed, red = challenging. Sade Sati and Guru/Sani transit houses are counted from your birth Moon sign.</p>
+      <button type="button" id="hsShowSummary" class="primary" aria-controls="hsSummaryResult" aria-expanded="false">Show summary · சுருக்கத்தைக் காட்டு</button>
+      <p id="hsSummaryStatus" role="status" aria-live="polite"></p>
+    </section>
+    <div id="hsSummaryResult" hidden></div>
   </div>
 </div>
 
@@ -830,7 +864,7 @@ dialog::backdrop { background: rgb(10 20 14 / .45); }
     return { ms, grahas, lagna, timeAmbiguous: candidates.length > 1, ayanamsa: ayanamsa(ms), nakshatraNames: N.nakshatra, rasiNames: N.rasi };
   }
 
-  root.Panchang = { calculate, chart, tzParts, localToUTC, localDateKey, N };
+  root.Panchang = { calculate, chart, grahaLongitude: grahaLon, tzParts, localToUTC, localDateKey, N };
 })(typeof globalThis !== 'undefined' ? globalThis : this);
 
 </script>
@@ -885,9 +919,9 @@ dialog::backdrop { background: rgb(10 20 14 / .45); }
     return { id, house: house(g.rasi, chart.lagna.rasi), owns, dignity, retro: g.retro && !['rahu', 'ketu'].includes(id), aspects, dispositor };
   }
 
-  function timeline(chart, end) {
+  function timeline(chart, end, from = chart.ms) {
     const moon = chart.grahas.find(g => g.id === 'chandra');
-    if (!moon || !Number.isFinite(moon.lon) || moon.lon < 0 || moon.lon >= 360 || !Number.isFinite(chart.ms) || !Number.isFinite(end) || end <= chart.ms || end - chart.ms > 121 * YEAR)
+    if (!moon || !Number.isFinite(moon.lon) || moon.lon < 0 || moon.lon >= 360 || !Number.isFinite(chart.ms) || !Number.isFinite(end) || !Number.isFinite(from) || from < chart.ms || end <= from || end - chart.ms > 1000 * YEAR)
       throw new RangeError('Invalid timeline input');
     const pos = moon.lon / WIDTH, first = Math.floor(pos) % 9;
     let index = first, start = chart.ms - (pos - Math.floor(pos)) * YEARS[first] * YEAR;
@@ -898,8 +932,8 @@ dialog::backdrop { background: rgb(10 20 14 / .45); }
       for (let j = 0; j < 9; j++) {
         const sub = (index + j) % 9;
         const subEnd = j === 8 ? finish : subStart + duration * YEARS[sub] / 120;
-        if (subEnd > chart.ms && subStart < end) periods.push({
-          major: ORDER[index], minor: ORDER[sub], start: Math.max(chart.ms, subStart), end: Math.min(end, subEnd),
+        if (subEnd > from && subStart < end) periods.push({
+          major: ORDER[index], minor: ORDER[sub], start: Math.max(from, subStart), end: Math.min(end, subEnd),
           majorStart: start, majorEnd: finish, subStart, subEnd
         });
         subStart = subEnd;
@@ -943,6 +977,117 @@ dialog::backdrop { background: rgb(10 20 14 / .45); }
       retro: f.retro ? `${name} was retrograde at birth. Some traditions associate this with revisiting or internalising its themes; retrograde motion is not automatically unfavourable.` : '' };
   }
   root.Predictions = { build, timeline, facts, describe, ORDER, YEARS, YEAR, NAMES, THEMES, HOUSES, STAGES, LORDS };
+})(typeof globalThis !== 'undefined' ? globalThis : this);
+
+</script>
+<script>
+// Twenty-year overview. Ratings are this app's disclosed heuristic, not a classical score.
+(function (root) {
+  'use strict';
+  const P = root.Panchang, R = root.Predictions, DAY = 86400e3;
+  const delta = (a, b) => ((a - b + 540) % 360) - 180;
+  const sign = lon => Math.floor(((lon % 360) + 360) % 360 / 30);
+  const LABELS = { good: 'Favourable', mixed: 'Mixed', bad: 'Challenging' };
+  function transit(id, rasi, moonRasi) {
+    const house = (rasi - moonRasi + 12) % 12 + 1;
+    if (id === 'sani') {
+      const special = { 12: 'Sade Sati · first phase (12th)', 1: 'Sade Sati · middle phase (1st)', 2: 'Sade Sati · final phase (2nd)',
+        4: 'Ardhashtama / Kantaka Sani (4th)', 8: 'Ashtama Sani (8th)' };
+      const score = special[house] ? -1 : [3, 6, 11].includes(house) ? 1 : 0;
+      return { id, rasi, house, score, label: special[house] || `Saturn in house ${house}`, special: !!special[house] };
+    }
+    if (id !== 'guru') throw new RangeError('Only Saturn and Jupiter transits are supported');
+    const score = [2, 5, 7, 9, 11].includes(house) ? 1 : [3, 4, 6, 8, 12].includes(house) ? -1 : 0;
+    return { id, rasi, house, score, label: house === 8 ? 'Ashtama Guru (8th)' : house === 4 ? 'Guru in 4th · caution' : `Jupiter in house ${house}`, special: [4, 8].includes(house) };
+  }
+  function natalScore(chart, id) {
+    const f = R.facts(chart, id), reasons = [];
+    let score = 0;
+    if ([1, 5, 9].includes(f.house)) { score++; reasons.push('supportive natal house'); }
+    if ([6, 8, 12].includes(f.house)) { score--; reasons.push('difficult natal house'); }
+    if (['own', 'exalted'].includes(f.dignity)) { score++; reasons.push('own / exaltation sign'); }
+    if (f.dignity === 'debilitated') { score--; reasons.push('debilitation sign'); }
+    if (f.owns.some(h => [1, 5, 9].includes(h))) { score++; reasons.push('rules the ascendant or a trine'); }
+    if (f.owns.some(h => [6, 8, 12].includes(h))) { score--; reasons.push('also rules a difficult house'); }
+    if (['rahu', 'ketu'].includes(id)) reasons.push('node: placement only; no dignity or lordship assigned');
+    return { score, reason: `${R.NAMES[id]}: ${reasons.join('; ') || 'no scored natal factor'}.` };
+  }
+  function rate(chart, major, minor, saturn, jupiter) {
+    const a = natalScore(chart, major), b = natalScore(chart, minor);
+    const score = (a.score + b.score) / 2 + saturn.score + jupiter.score;
+    const key = score >= 1 ? 'good' : score <= -1 ? 'bad' : 'mixed';
+    return { key, label: LABELS[key], score, reasons: [a.reason, ...(major !== minor ? [b.reason] : []),
+      `${saturn.label}: ${saturn.score > 0 ? 'supportive' : saturn.score < 0 ? 'caution' : 'neutral'} transit factor.`,
+      `${jupiter.label}: ${jupiter.score > 0 ? 'supportive' : jupiter.score < 0 ? 'caution' : 'neutral'} transit factor.`] };
+  }
+  // Scan daily, inserting refined turning points so even a short retrograde
+  // re-entry around a station is bracketed. Refine sign crossings to one minute.
+  async function signPeriods(getLongitude, start, end, cancelled = () => false) {
+    if (!Number.isFinite(start) || !Number.isFinite(end) || end <= start || end - start > 21 * R.YEAR) throw new RangeError('Invalid transit window');
+    const points = [{ t: start, lon: getLongitude(start) }];
+    for (let t = Math.min(start + DAY, end), count = 0; ; t = Math.min(t + DAY, end)) {
+      if (cancelled()) throw new Error('Summary cancelled');
+      points.push({ t, lon: getLongitude(t) });
+      if (t === end) break;
+      if (++count % 180 === 0) await new Promise(resolve => setTimeout(resolve, 0));
+    }
+    const extra = [];
+    for (let i = 1; i < points.length - 1; i++) {
+      const a = points[i - 1], b = points[i], c = points[i + 1];
+      const left = delta(b.lon, a.lon), right = delta(c.lon, b.lon);
+      if (left * right > 0 || (left === 0 && right === 0)) continue;
+      let lo = a.t, hi = c.t;
+      const maximum = left >= 0;
+      while (hi - lo > 1000) {
+        const x = lo + (hi - lo) / 3, y = hi - (hi - lo) / 3;
+        const vx = delta(getLongitude(x), b.lon), vy = delta(getLongitude(y), b.lon);
+        if (maximum ? vx < vy : vx > vy) lo = x; else hi = y;
+      }
+      const t = (lo + hi) / 2;
+      extra.push({ t, lon: getLongitude(t) });
+    }
+    points.push(...extra); points.sort((a, b) => a.t - b.t);
+    const out = []; let since = start, current = sign(points[0].lon);
+    for (let i = 1; i < points.length; i++) {
+      const next = sign(points[i].lon);
+      if (next === current) continue;
+      let lo = points[i - 1].t, hi = points[i].t;
+      while (hi - lo > 60000) {
+        const mid = (lo + hi) / 2;
+        if (sign(getLongitude(mid)) === current) lo = mid; else hi = mid;
+      }
+      if (hi > since) out.push({ start: since, end: hi, rasi: current });
+      since = hi; current = next;
+    }
+    if (since < end) out.push({ start: since, end, rasi: current });
+    return out;
+  }
+  function windowEnd(start, tz) {
+    const q = P.tzParts(start, tz), y = q.y + 20;
+    const d = Math.min(q.d, new Date(Date.UTC(y, q.m, 0)).getUTCDate());
+    return P.localToUTC(y, q.m, d, q.h + q.mi / 60, tz) + q.s * 1000 + start % 1000;
+  }
+  async function build(chart, start, tz, cancelled = () => false) {
+    if (!Number.isFinite(start) || chart.ms > start) throw new RangeError('The birth date and time must be in the past to show a summary from today.');
+    const end = windowEnd(start, tz), moon = chart.grahas.find(g => g.id === 'chandra').rasi;
+    const dasas = R.timeline(chart, end, start);
+    const saturn = await signPeriods(t => P.grahaLongitude('sani', t), start, end, cancelled);
+    const jupiter = await signPeriods(t => P.grahaLongitude('guru', t), start, end, cancelled);
+    if (cancelled()) throw new Error('Summary cancelled');
+    const boundaries = [...new Set([start, end, ...dasas.map(p => p.end), ...saturn.map(p => p.end), ...jupiter.map(p => p.end)])].sort((a, b) => a - b);
+    let di = 0, si = 0, ji = 0;
+    const rows = boundaries.slice(0, -1).map((t, i) => {
+      while (dasas[di].end <= t) di++;
+      while (saturn[si].end <= t) si++;
+      while (jupiter[ji].end <= t) ji++;
+      const d = dasas[di], s = transit('sani', saturn[si].rasi, moon), j = transit('guru', jupiter[ji].rasi, moon);
+      return { start: t, end: boundaries[i + 1], major: d.major, minor: d.minor, saturn: s, jupiter: j, rating: rate(chart, d.major, d.minor, s, j) };
+    });
+    const highlights = [...saturn.map(p => ({ ...p, ...transit('sani', p.rasi, moon) })), ...jupiter.map(p => ({ ...p, ...transit('guru', p.rasi, moon) }))]
+      .filter(p => p.special).sort((a, b) => a.start - b.start || a.end - b.end);
+    return { start, end, moon, rows, highlights };
+  }
+  root.PredictionSummary = { build, windowEnd, signPeriods, transit, rate, natalScore };
 })(typeof globalThis !== 'undefined' ? globalThis : this);
 
 </script>
@@ -1668,6 +1813,8 @@ const LISTS = {
   const U = lines => lines.forEach(l => { const p = l.split('|'); put(p[0], p[1], p[2], p[3], p[4]); }); // each language written out
   const zip = (tamils, hindi) => tamils.forEach((ta, i) => { if (hindi[i] != null) put(ta, hindi[i]); });
   U([
+    'பலன் சுருக்கம்|फल सारांश|ఫలితాల సారాంశం|ಫಲಗಳ ಸಾರಾಂಶ|ഫലസംഗ്രഹം',
+    'சுருக்கத்தைக் காட்டு|सारांश दिखाएँ|సారాంశం చూపించు|ಸಾರಾಂಶ ತೋರಿಸಿ|സംഗ്രഹം കാണിക്കുക',
     'பிறப்பு ஜாதகம்|जन्म कुंडली|జన్మ జాతకం|ಜನ್ಮ ಜಾತಕ|ജനന ജാതകം',
     'ஆண்டு பலன்கள்|वर्षों के फल|సంవత్సరాల ఫలితాలు|ವರ್ಷಗಳ ಫಲಗಳು|വർഷത്തെ ഫലങ്ങൾ',
     'பலன்களைக் காட்டு|फल दिखाएँ|ఫలితాలు చూపించు|ಫಲಗಳನ್ನು ತೋರಿಸಿ|ഫലങ്ങൾ കാണിക്കുക'
@@ -2244,6 +2391,7 @@ const LISTS = {
   }
   const H = { city: null, src: '', y: 0, m: 0, d: 0, h: 0, mi: 0, style: 'south', userTime: false };
   const HP = { key: '', chart: null, report: null };
+  const HS = { version: 0, busy: false };
   const PR = window.Predictions;
   function hsResetPredictions() {
     HP.report = null;
@@ -2253,18 +2401,19 @@ const LISTS = {
     $('hsPredictionStatus').textContent = 'Choose Show predictions to read the selected birth chart.';
   }
   function hsTab(name, focus) {
-    for (const key of ['chart', 'predictions']) {
+    for (const key of ['chart', 'predictions', 'summary']) {
       const active = key === name, button = $('hstab-' + key);
       button.setAttribute('aria-selected', String(active)); button.tabIndex = active ? 0 : -1;
       $('hspane-' + key).hidden = !active;
       if (active && focus) button.focus();
     }
   }
-  for (const name of ['chart', 'predictions']) {
+  for (const name of ['chart', 'predictions', 'summary']) {
     $('hstab-' + name).addEventListener('click', () => hsTab(name));
     $('hstab-' + name).addEventListener('keydown', e => {
       if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(e.key)) return;
-      e.preventDefault(); hsTab(e.key === 'Home' ? 'chart' : e.key === 'End' ? 'predictions' : name === 'chart' ? 'predictions' : 'chart', true);
+      const tabs = ['chart', 'predictions', 'summary'];
+      e.preventDefault(); hsTab(e.key === 'Home' ? 'chart' : e.key === 'End' ? 'summary' : tabs[(tabs.indexOf(name) + (e.key === 'ArrowRight' ? 1 : 2)) % 3], true);
     });
   }
   const predictionDate = ms => new Intl.DateTimeFormat('en-GB', { timeZone: H.city.tz, day: 'numeric', month: 'short', year: 'numeric' }).format(new Date(ms));
@@ -2323,6 +2472,56 @@ const LISTS = {
     }));
   }
   $('hsShowPredictions').addEventListener('click', hsShowPredictions);
+  function hsResetSummary() {
+    HS.version++; HS.busy = false;
+    $('hsSummaryResult').replaceChildren(); $('hsSummaryResult').hidden = true;
+    $('hsSummaryResult').setAttribute('aria-busy', 'false');
+    $('hsShowSummary').setAttribute('aria-expanded', 'false');
+    $('hsSummaryStatus').textContent = 'Choose Show summary for the next 20 years from today.';
+  }
+  const summaryPeriod = p => `${esc(predictionDate(p.start))}<small>${esc(predictionTime(p.start).split(', ')[1] || '')}</small>→ ${esc(predictionDate(p.end))}<small>${esc(predictionTime(p.end).split(', ')[1] || '')}</small>`;
+  async function hsShowSummary() {
+    renderHoroscope();
+    if (!HP.chart || HS.busy) return;
+    hsResetSummary();
+    const token = HS.version, chart = HP.chart, tz = H.city.tz;
+    HS.busy = true; $('hsShowSummary').disabled = true;
+    $('hsSummaryResult').setAttribute('aria-busy', 'true');
+    $('hsSummaryStatus').textContent = 'Calculating Dasa–Bhukti and Saturn/Jupiter sign changes for 20 years…';
+    try {
+      const report = await window.PredictionSummary.build(chart, Date.now(), tz, () => token !== HS.version);
+      if (token !== HS.version) return;
+      const transitText = t => `<div class="summary-transit"><b>${esc(t.label)}</b><small>${esc(P.N.rasi[t.rasi][0])} · ${t.score > 0 ? 'Supportive' : t.score < 0 ? 'Caution' : 'Neutral'} transit</small></div>`;
+      const rows = report.rows.map(p => `<tr class="rating-${p.rating.key}" data-summary-row>
+        <td data-label="Period">${summaryPeriod(p)}</td>
+        <td data-label="Dasa–Bhukti">${esc(PR.NAMES[p.major])}–${esc(PR.NAMES[p.minor])}</td>
+        <td data-label="Provisional traditional rating"><span class="summary-rating ${p.rating.key}">${p.rating.label}</span>
+          <details><summary>Why this rating?</summary>${p.rating.reasons.map(s => `<p>${esc(s)}</p>`).join('')}</details></td>
+        <td data-label="Transits from birth Moon">${transitText(p.saturn)}${transitText(p.jupiter)}</td></tr>`).join('');
+      const highlights = report.highlights.map(p => `<tr data-transit-highlight><td data-label="Period">${summaryPeriod(p)}</td><td data-label="Transit">${esc(p.label)}</td><td data-label="Sign">${esc(P.N.rasi[p.rasi][0])}</td></tr>`).join('');
+      $('hsSummaryResult').innerHTML = `<section class="panel"><h3>${esc(predictionDate(report.start))} – ${esc(predictionDate(report.end))}</h3>
+        <p class="note">${esc(H.city.name)} · ${esc(tz)} · Birth Moon: ${esc(P.N.rasi[report.moon][0])}. Rows split at each Dasa–Bhukti or Saturn/Jupiter sign change. The first and last rows are clipped to this 20-year window. Transit boundary times are approximate and may differ by several hours from other ephemerides.</p>
+        <button type="button" id="hsSummaryJump">Jump to Sade Sati / Guru periods ↓</button>
+        <table class="summary-table"><thead><tr><th scope="col">Period</th><th scope="col">Dasa–Bhukti</th><th scope="col">Provisional traditional rating</th><th scope="col">Transits from birth Moon</th></tr></thead><tbody>${rows}</tbody></table></section>
+        <section class="panel" id="hsSummaryTransits"><h3>Sade Sati and other important transits</h3>
+        <p class="note">All occurrences within the window, including retrograde returns. Sade Sati: Saturn in the 12th, 1st and 2nd from the Moon. Ashtama Sani: 8th; Ardhashtama/Kantaka Sani: 4th. Ashtama Guru means Jupiter in the 8th; Jupiter in the 4th is listed separately.</p>
+        <table class="summary-table"><thead><tr><th scope="col">Period within this window</th><th scope="col">Transit</th><th scope="col">Sign</th></tr></thead><tbody>${highlights}</tbody></table></section>
+        <section class="panel"><details><summary>How the provisional ratings are calculated</summary>
+        <p>This is the app’s simplified heuristic using traditional factors, not a standard classical grading system. For each Dasa/Bhukti lord: +1 for natal house 1/5/9; −1 for 6/8/12; +1 for own/exaltation sign; −1 for debilitation; +1 for ruling house 1/5/9; −1 for ruling 6/8/12. Both lordship factors can apply. Nodes use placement only.</p>
+        <p>The two lords’ totals are averaged. Saturn adds +1 in house 3/6/11, −1 in 12/1/2/4/8, otherwise 0. Jupiter adds +1 in 2/5/7/9/11, −1 in 3/4/6/8/12, otherwise 0. These transit houses are from the birth Moon. Total ≥1: favourable; ≤−1: challenging; otherwise mixed. A challenging transit can coexist with a mixed or favourable overall rating.</p>
+        <p class="note">This summary treats Guru in the 4th as a caution; traditions differ. No divisional charts, Shadbala, Vedha, Ashtakavarga, cancellation rules or full chart synthesis are included. No accuracy percentage is implied.</p>
+        <p class="note">Vimshottari uses 365.25-day years. Lahiri sidereal transits are searched daily, with turning points checked for short retrograde re-entries and crossings refined to about one minute. Dates remain approximate to the astronomical model. End times belong to the next row. Refresh the summary to update its starting date. <a href="https://www.panchangguru.com/calculators/sade-sati" target="_blank" rel="noopener noreferrer">Sade Sati reference</a> · <a href="https://vedicmarga.com/transit/jupiter/in-aries/" target="_blank" rel="noopener noreferrer">Guru transit reference</a>.</p>
+        </details></section>`;
+      $('hsSummaryResult').hidden = false; $('hsShowSummary').setAttribute('aria-expanded', 'true');
+      $('hsSummaryJump').addEventListener('click', () => $('hsSummaryTransits').scrollIntoView({ block: 'start' }));
+      $('hsSummaryStatus').textContent = `${report.rows.length} periods ready, covering today through the next 20 years. Your 100-year readings remain in their own tab.`;
+    } catch (e) {
+      if (token === HS.version) $('hsSummaryStatus').textContent = e instanceof RangeError ? e.message : 'The summary could not be calculated. Please try again.';
+    } finally {
+      if (token === HS.version) { HS.busy = false; $('hsShowSummary').disabled = !HP.chart; $('hsSummaryResult').setAttribute('aria-busy', 'false'); }
+    }
+  }
+  $('hsShowSummary').addEventListener('click', hsShowSummary);
   const p2 = v => String(v).padStart(2, '0');
   function hsFields() {
     $('hsDate').value = `${H.y}-${p2(H.m)}-${p2(H.d)}`; $('hsTime').value = `${p2(H.h)}:${p2(H.mi)}`;
@@ -2339,21 +2538,23 @@ const LISTS = {
     if ($('hspage').hidden || !H.city) return;
     const c0 = H.city;
     const key = JSON.stringify([H.y, H.m, H.d, H.h, H.mi, c0.name, c0.lat, c0.lon, c0.tz]);
-    if (key !== HP.key) { HP.key = key; hsResetPredictions(); }
+    if (key !== HP.key) { HP.key = key; hsResetPredictions(); hsResetSummary(); }
     let c;
     try {
       if (!$('hsDate').value || !$('hsTime').value || !$('hsDate').validity.valid || !$('hsTime').validity.valid) throw new RangeError('Missing birth details');
       c = P.chart({ y: H.y, m: H.m, d: H.d, h: H.h, mi: H.mi, lat: c0.lat, lon: c0.lon, tz: c0.tz });
     } catch (e) {
-      HP.chart = null; hsResetPredictions();
+      HP.chart = null; hsResetPredictions(); hsResetSummary();
       $('hsError').textContent = 'Enter a valid birth date (1600–2400), time and city. A clock time skipped by daylight saving is not valid.';
       $('hsError').hidden = false; $('hsTimeNote').hidden = true;
       $('hsShowPredictions').disabled = true;
+      $('hsShowSummary').disabled = true;
       for (const id of ['hsChart', 'hsKey', 'hsRows', 'hsTransit', 'hsTrWhen']) $(id).replaceChildren();
       return;
     }
     HP.chart = c;
     $('hsError').hidden = true; $('hsShowPredictions').disabled = false;
+    $('hsShowSummary').disabled = HS.busy;
     $('hsTimeNote').hidden = !c.timeAmbiguous;
     const dateLabel = `${H.d} ${MONTHS_EN[H.m - 1]} ${H.y}, ${p2(H.h)}:${p2(H.mi)}`;
     $('hsChart').innerHTML = H.style === 'south' ? southSVG(c, dateLabel) : northSVG(c, dateLabel);
