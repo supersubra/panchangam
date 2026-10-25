@@ -210,36 +210,36 @@ footer { font-size: .82rem; color: var(--muted); max-width: 70ch; }
 }
 
 
-/* Horoscope: ivory, kumkum and brass, scoped to this page. */
-#hspage {
+/* Horoscope and Sankalpa share ivory, kumkum and brass styling. */
+:is(#hspage, #skpage) {
   --surface: #fffdf7; --line: #e5d6bb; --ink: #35271f; --muted: #74604f;
   --accent: #8d302f; --accent-soft: #f8e9dc; --hs-gold: #a67a31; --hs-ground: #faf4e8;
   --hs-selected: #8d302f; --hs-on-selected: #fff8eb;
   background: var(--hs-ground); color: var(--ink); border-radius: 24px; margin-block: 12px;
   padding: 24px 28px 40px; box-sizing: border-box;
 }
-#hspage .pagehead { gap: 22px; }
-#hspage .top { width: 100%; }
-#hspage h1 { font-size: 2.2rem; }
-#hsBack { background: transparent; border: 0; padding: 0; font-size: .86rem; color: var(--muted); }
+:is(#hspage, #skpage) .pagehead { gap: 22px; }
+:is(#hspage, #skpage) .top { width: 100%; }
+:is(#hspage, #skpage) h1 { font-size: 2.2rem; }
+#hsBack, #skBack { background: transparent; border: 0; padding: 0; font-size: .86rem; color: var(--muted); }
 .hs-intro { display: flex; gap: 20px; align-items: center; padding: 22px 24px; border-block: 1px solid var(--line); }
 .hs-lotus { width: 56px; height: 56px; flex: none; color: var(--hs-gold); fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
 .hs-intro h2 { color: var(--accent); font-size: 1.35rem; }
 .hs-intro p { margin: 5px 0 0; color: var(--muted); max-width: 65ch; }
-#hspage .hs-tabs { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; overflow: visible; border: 0; }
-#hspage .hs-tabs button { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; text-align: left; white-space: normal; overflow-wrap: anywhere; margin: 0; padding: 14px 12px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); color: var(--ink); line-height: 1.35; }
+:is(#hspage, #skpage) .hs-tabs { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; overflow: visible; border: 0; }
+:is(#hspage, #skpage) .hs-tabs button { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; text-align: left; white-space: normal; overflow-wrap: anywhere; margin: 0; padding: 14px 12px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); color: var(--ink); line-height: 1.35; }
 .hs-tab-icon { display: flex; align-items: center; justify-content: space-between; width: 100%; color: var(--hs-gold); font-size: .72rem; letter-spacing: .08em; margin-bottom: 4px; }
 .hs-tab-icon svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linejoin: round; stroke-linecap: round; }
-#hspage .hs-tabs .ta { font-weight: 400; font-size: .8rem; }
-#hspage .hs-tabs button[aria-selected="true"] { color: var(--hs-on-selected); background: var(--hs-selected); border-color: var(--hs-selected); box-shadow: inset 0 -3px #c8a35e; }
-#hspage .hs-tabs button[aria-selected="true"] .ta, #hspage .hs-tabs button[aria-selected="true"] .hs-tab-icon { color: #f4d9a4; }
-#hspage .panel { border-radius: 16px; padding: 24px; }
-#hspage .panel h3 { margin: 0; font-family: var(--display); font-size: 1.16rem; }
-#hspage .panel h3 .ta { display: block; font-family: var(--body); font-size: .88rem; font-weight: 400; margin-top: 3px; }
-#hspage .panel p { margin-block: 0 8px; }
-#hspage .panel button { align-self: flex-start; }
-#hspage button.primary { background: var(--hs-selected); color: var(--hs-on-selected); border-color: var(--hs-selected); }
-#hspage button:disabled { opacity: .55; cursor: not-allowed; }
+:is(#hspage, #skpage) .hs-tabs .ta { font-weight: 400; font-size: .8rem; }
+:is(#hspage, #skpage) .hs-tabs button[aria-selected="true"] { color: var(--hs-on-selected); background: var(--hs-selected); border-color: var(--hs-selected); box-shadow: inset 0 -3px #c8a35e; }
+:is(#hspage, #skpage) .hs-tabs button[aria-selected="true"] .ta, :is(#hspage, #skpage) .hs-tabs button[aria-selected="true"] .hs-tab-icon { color: #f4d9a4; }
+:is(#hspage, #skpage) .panel { border-radius: 16px; padding: 24px; }
+:is(#hspage, #skpage) .panel h3 { margin: 0; font-family: var(--display); font-size: 1.16rem; }
+:is(#hspage, #skpage) .panel h3 .ta { display: block; font-family: var(--body); font-size: .88rem; font-weight: 400; margin-top: 3px; }
+:is(#hspage, #skpage) .panel p { margin-block: 0 8px; }
+:is(#hspage, #skpage) .panel button { align-self: flex-start; }
+:is(#hspage, #skpage) button.primary { background: var(--hs-selected); color: var(--hs-on-selected); border-color: var(--hs-selected); }
+:is(#hspage, #skpage) button:disabled { opacity: .55; cursor: not-allowed; }
 .hs-form-title { display: flex; gap: 12px; align-items: baseline; justify-content: space-between; flex-wrap: wrap; }
 .hs-kicker { color: var(--hs-gold); font-size: .73rem; letter-spacing: .13em; text-transform: uppercase; font-weight: 700; }
 #hsForm { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; margin-top: 10px; }
@@ -266,28 +266,28 @@ footer { font-size: .82rem; color: var(--muted); max-width: 70ch; }
 #hspage .summary-rating.mixed { color: #7a550d; background: #faedc9; }
 #hspage .summary-table .rating-mixed { background: #faf0d5; }
 @media (max-width: 700px) {
-  #hspage { padding: 20px 16px 32px; border-radius: 16px; margin-block: 0; }
-  #hspage .hs-tabs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  #hspage .hs-tabs button { padding: 12px; }
-  #hspage .hs-tabs button:last-child { grid-column: 1 / -1; }
+  :is(#hspage, #skpage) { padding: 20px 16px 32px; border-radius: 16px; margin-block: 0; }
+  :is(#hspage, #skpage) .hs-tabs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  :is(#hspage, #skpage) .hs-tabs button { padding: 12px; }
+  :is(#hspage, #skpage) .hs-tabs button:last-child { grid-column: 1 / -1; }
   .hs-tab-icon { margin-bottom: 0; }
-  #hspage h1 { font-size: 1.8rem; }
+  :is(#hspage, #skpage) h1 { font-size: 1.8rem; }
   .hs-intro { padding: 16px 0; gap: 14px; }
   .hs-lotus { width: 40px; height: 40px; }
   .hs-intro h2 { font-size: 1.1rem; }
   .hs-intro p { font-size: .88rem; }
-  #hspage .panel { padding: 18px 14px; }
+  :is(#hspage, #skpage) .panel { padding: 18px 14px; }
   #hsForm { grid-template-columns: 1fr; gap: 18px; }
   .hs-form-actions button { flex: 1 1 40%; }
   .hs-form-actions .primary { flex-basis: 100%; }
   .hs-profile { flex-wrap: wrap; padding: 14px; }
   .hs-profile button { padding: 7px 10px; }
 }
-:root[data-theme="dark"] #hspage {
+:root[data-theme="dark"] :is(#hspage, #skpage) {
   --surface: #29211d; --line: #584536; --ink: #f6ead8; --muted: #c4b39e;
   --accent: #f0bc83; --accent-soft: #443023; --hs-gold: #d2aa62; --hs-ground: #201a17;
 }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) #hspage {
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) :is(#hspage, #skpage) {
   --surface: #29211d; --line: #584536; --ink: #f6ead8; --muted: #c4b39e;
   --accent: #f0bc83; --accent-soft: #443023; --hs-gold: #d2aa62; --hs-ground: #201a17;
 } }
@@ -372,6 +372,16 @@ dialog::backdrop { background: rgb(10 20 14 / .45); }
 .gloss .item.hl { background: var(--accent-soft); border-radius: 8px; padding-inline: 10px; }
 
 /* Sankalpa tab */
+#skpage .sk-in { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+#skpage .sk-in label { font-size: .9rem; text-transform: none; letter-spacing: 0; color: var(--ink); }
+#skpage .sk-in input, #skpage .sk-in select { min-height: 48px; }
+#skpage .sk-in select:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+#skpage .sk-sec { display: flex; flex-direction: column; gap: 18px; }
+#skpage .mantra p { margin: 0; }
+#skpage .mantra, #skpage .sk-mean { overflow-wrap: anywhere; }
+#skpage .hint { margin-block: 0; }
+@media (max-width: 700px) { #skpage .sk-in { grid-template-columns: 1fr; gap: 16px; } }
+
 :root { --sv: #0b5cad; }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --sv: #7fb9ff } }
 :root[data-theme="dark"] { --sv: #7fb9ff }
@@ -603,15 +613,19 @@ dialog::backdrop { background: rgb(10 20 14 / .45); }
 
 <div class="wrap" id="skpage" hidden>
   <div data-hdr="sankalpa"></div>
-  <div class="tabs" role="tablist" aria-label="Sankalpa sections">
-    <button type="button" role="tab" id="sktab-set" aria-selected="true">1 · Settings · அமைப்பு</button>
-    <button type="button" role="tab" id="sktab-var" aria-selected="false">2 · Values · மாறிகள்</button>
-    <button type="button" role="tab" id="sktab-en" aria-selected="false">3 · English</button>
-    <button type="button" role="tab" id="sktab-ta" aria-selected="false">4 · தமிழ்</button>
-    <button type="button" role="tab" id="sktab-dev" aria-selected="false">5 · Devanagari · देवनागरी</button>
+  <div class="hs-intro">
+    <svg class="hs-lotus" viewBox="0 0 64 64" aria-hidden="true"><path d="M32 45C18 34 23 18 32 9c9 9 14 25 0 36ZM32 45C15 45 8 33 9 21c12 1 20 8 23 24ZM32 45c17 0 24-12 23-24-12 1-20 8-23 24ZM32 47C17 53 7 45 4 35c8-2 18 0 28 12ZM32 47c15 6 25-2 28-12-8-2-18 0-28 12ZM20 57h24"/></svg>
+    <div><h2>Your daily Sankalpa</h2><p>Set your place, time and family details, then read the mantra and its meaning in your chosen language.</p></div>
+  </div>
+  <div class="tabs hs-tabs" role="tablist" aria-label="Sankalpa sections">
+    <button type="button" role="tab" id="sktab-set" aria-controls="skpane-set" aria-selected="true" tabindex="0"><span class="hs-tab-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"/></svg><span>01</span></span><span>Settings</span><span class="ta">அமைப்பு</span></button>
+    <button type="button" role="tab" id="sktab-var" aria-controls="skpane-var" aria-selected="false" tabindex="-1"><span class="hs-tab-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg><span>02</span></span><span>Values</span><span class="ta">மாறிகள்</span></button>
+    <button type="button" role="tab" id="sktab-en" aria-controls="skpane-en" aria-selected="false" tabindex="-1"><span class="hs-tab-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 6C9 4 6 4 3 5v14c3-1 6-1 9 1 3-2 6-2 9-1V5c-3-1-6-1-9 1ZM12 6v14"/></svg><span>03</span></span><span>English</span></button>
+    <button type="button" role="tab" id="sktab-ta" aria-controls="skpane-ta" aria-selected="false" tabindex="-1"><span class="hs-tab-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 6C9 4 6 4 3 5v14c3-1 6-1 9 1 3-2 6-2 9-1V5c-3-1-6-1-9 1ZM12 6v14M6 9h3M15 9h3"/></svg><span>04</span></span><span><span class="lname">Tamil</span></span><span class="ta">தமிழ்</span></button>
+    <button type="button" role="tab" id="sktab-dev" aria-controls="skpane-dev" aria-selected="false" tabindex="-1"><span class="hs-tab-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 5h16M8 5v14M8 12h6a3 3 0 0 1 3 3v4M14 5v7"/></svg><span>05</span></span><span>Devanagari</span><span class="ta" data-keep>देवनागरी</span></button>
   </div>
 
-  <div class="tabpane" id="skpane-set" role="tabpanel">
+  <div class="tabpane" id="skpane-set" role="tabpanel" aria-labelledby="sktab-set">
     <p class="hint">Set the place, date, time and family details once. Everything on the next tabs is filled from these. Wording differs by family, region and Veda, so please follow your own family text where it differs.</p>
     <section class="panel">
       <h2>Place <span>இடம்</span></h2>
@@ -666,10 +680,10 @@ dialog::backdrop { background: rgb(10 20 14 / .45); }
     <div class="btns"><button type="button" class="primary" id="skNext">Next: see the values ▶</button></div>
   </div>
 
-  <div class="tabpane" id="skpane-var" role="tabpanel" hidden><div id="skVars"></div></div>
-  <div class="tabpane" id="skpane-en" role="tabpanel" hidden><div id="skEnBody"></div></div>
-  <div class="tabpane" id="skpane-ta" role="tabpanel" hidden><div id="skTaBody"></div></div>
-  <div class="tabpane" id="skpane-dev" role="tabpanel" hidden><div id="skDevBody"></div></div>
+  <div class="tabpane" id="skpane-var" role="tabpanel" aria-labelledby="sktab-var" hidden><div id="skVars"></div></div>
+  <div class="tabpane" id="skpane-en" role="tabpanel" aria-labelledby="sktab-en" hidden><div id="skEnBody"></div></div>
+  <div class="tabpane" id="skpane-ta" role="tabpanel" aria-labelledby="sktab-ta" hidden><div id="skTaBody"></div></div>
+  <div class="tabpane" id="skpane-dev" role="tabpanel" aria-labelledby="sktab-dev" hidden><div id="skDevBody"></div></div>
 </div>
 
 <dialog id="dlg" aria-labelledby="dlgTitle">
@@ -2136,7 +2150,7 @@ const LISTS = {
   new MutationObserver(ms => { if (LANG.code === 'ta') return; for (const m of ms) for (const n of m.addedNodes) loc(n); })
     .observe(document.body, { childList: true, subtree: true });
 
-  // Shared headers; Horoscope inherits the language chosen on the home page.
+  // All pages inherit the language selected from the home-page header.
   const LOGO = '<svg class="logo" viewBox="0 0 48 48" aria-hidden="true"><circle class="disc" cx="24" cy="24" r="21"/><path class="ray" d="M24 6.5v4M24 37.5v4M6.5 24h4M37.5 24h4M11.6 11.6l2.8 2.8M33.6 33.6l2.8 2.8M36.4 11.6l-2.8 2.8M14.4 33.6l-2.8 2.8"/><circle class="core" cx="24" cy="24" r="7.5"/></svg>';
   const GLOBE = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3.4 3.2 3.4 14.8 0 18M12 3c-3.4 3.2-3.4 14.8 0 18"/></svg>';
   const HDR = { today: ['Daily Panchangam', 'தின பஞ்சாங்கம்', ''], horoscope: ['Horoscope', 'ஜாதகம்', 'hsBack'], sankalpa: ['Sankalpa Mantra', 'சங்கல்ப மந்திரம்', 'skBack'] };
@@ -2145,7 +2159,7 @@ const LISTS = {
     if (h[2]) el.className = 'pagehead';
     el.innerHTML = (h[2] ? `<button type="button" id="${h[2]}">◀ Back to Panchangam</button>` : '') +
       `<header class="top"><div class="brand">${LOGO}<h1>${h[0]} <small>${h[1]}</small></h1></div>` +
-      (el.dataset.hdr === 'horoscope' ? '' : `<label class="langbox">${GLOBE}<select class="langsel" data-keep aria-label="Language · மொழி">${I.LANGS.map(l => `<option value="${l.code}">${l.name} · ${l.en}</option>`).join('')}</select></label>`) + '</header>';
+      (el.dataset.hdr !== 'today' ? '' : `<label class="langbox">${GLOBE}<select class="langsel" data-keep aria-label="Language · மொழி">${I.LANGS.map(l => `<option value="${l.code}">${l.name} · ${l.en}</option>`).join('')}</select></label>`) + '</header>';
   });
   document.querySelectorAll('.langsel').forEach(sel => sel.addEventListener('change', e => applyLang(e.target.value)));
 
@@ -2993,12 +3007,23 @@ const LISTS = {
     if (msg) for (const id of ['skVars', 'skEnBody', 'skTaBody', 'skDevBody']) $(id).innerHTML = `<div class="nosun">${esc(msg)}</div>`;
   }
   const SKT = ['set', 'var', 'en', 'ta', 'dev'];
-  function skShow(name) {
-    for (const k of SKT) { $('skpane-' + k).hidden = k !== name; $('sktab-' + k).setAttribute('aria-selected', k === name); }
+  function skShow(name, focus) {
+    for (const k of SKT) {
+      const active = k === name, button = $('sktab-' + k);
+      $('skpane-' + k).hidden = !active;
+      button.setAttribute('aria-selected', String(active)); button.tabIndex = active ? 0 : -1;
+      if (active && focus) button.focus();
+    }
     if (name === 'dev') ensureFont('hi');
     window.scrollTo(0, 0);
   }
-  for (const k of SKT) $('sktab-' + k).addEventListener('click', () => skShow(k));
+  for (const k of SKT) {
+    $('sktab-' + k).addEventListener('click', () => skShow(k));
+    $('sktab-' + k).addEventListener('keydown', e => {
+      if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(e.key)) return;
+      e.preventDefault(); skShow(e.key === 'Home' ? 'set' : e.key === 'End' ? 'dev' : SKT[(SKT.indexOf(k) + (e.key === 'ArrowRight' ? 1 : SKT.length - 1)) % SKT.length], true);
+    });
+  }
   $('skNext').addEventListener('click', () => skShow('var'));
   $('skBack').addEventListener('click', () => { location.hash = ''; });
   $('tab-sankalpa').addEventListener('click', () => { location.hash = 'sankalpa'; });
