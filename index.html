@@ -107,7 +107,7 @@ footer { font-size: .82rem; color: var(--muted); max-width: 70ch; }
 .langbox svg { width: 18px; height: 18px; flex: none; stroke: var(--accent); fill: none; stroke-width: 1.7; stroke-linecap: round; }
 .langsel { font: inherit; font-weight: 600; color: var(--ink); background: transparent; border: 0; padding: 7px 4px; cursor: pointer; max-width: 11em; }
 .langsel:focus-visible { outline: none; }
-.nav { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; }
+.nav { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 10px; }
 .nav button { position: relative; display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 12px 6px 10px; border-radius: 16px; background: var(--surface); }
 .nav .ico { width: 44px; height: 44px; border-radius: 14px; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent); }
 .nav svg { width: 24px; height: 24px; stroke: currentColor; fill: none; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
@@ -118,8 +118,11 @@ footer { font-size: .82rem; color: var(--muted); max-width: 70ch; }
 .nav .out { position: absolute; top: 6px; right: 9px; font-size: .75rem; color: var(--muted); }
 @media (prefers-reduced-motion: no-preference) { .nav button, .nav .ico { transition: background-color .15s, border-color .15s, color .15s; } }
 @media (max-width: 600px) {
-  .nav { gap: 6px; }
+  .nav { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; }
   .nav button { padding: 9px 2px 8px; border-radius: 14px; gap: 4px; min-height: 0; }
+  .nav #tab-slokasaagar { grid-column: 1 / -1; flex-direction: row; justify-content: center; gap: 10px; }
+  .nav #tab-slokasaagar .lbl { font-size: .9rem; }
+  .nav #tab-slokasaagar .ta { font-size: .8rem; }
   .nav .ico { width: 38px; height: 38px; border-radius: 12px; }
   .nav svg { width: 22px; height: 22px; }
   .nav .lbl { font-size: .68rem; } .nav .ta { font-size: .64rem; }
@@ -128,6 +131,10 @@ footer { font-size: .82rem; color: var(--muted); max-width: 70ch; }
 }
 .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 .pagehead { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; }
+.sloka-links { display: flex; flex-wrap: wrap; gap: 12px; }
+.sloka-links a { display: inline-flex; align-items: center; min-height: 44px; padding: 4px 16px; border: 1px solid var(--accent); border-radius: 10px; background: var(--accent-soft); color: var(--ink); text-decoration: none; font-weight: 600; }
+.sloka-links a:hover { text-decoration: underline; }
+.sloka-links a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 
 /* Horoscope tab */
 .tabs { overflow-x: auto; scrollbar-width: none; }
@@ -397,6 +404,7 @@ dialog::backdrop { background: rgb(10 20 14 / .45); }
     <button type="button" role="tab" id="tab-horoscope" aria-haspopup="true"><span class="out" aria-hidden="true">↗</span><span class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 3l18 18M21 3L3 21"/><path d="M12 3l9 9-9 9-9-9z"/></svg></span><span class="lbl">Horoscope</span><span class="ta">ஜாதகம்</span></button>
     <button type="button" role="tab" id="tab-sankalpa" aria-haspopup="true"><span class="out" aria-hidden="true">↗</span><span class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5c2.2 3 3.2 4.6 3.2 6.6a3.2 3.2 0 0 1-6.4 0c0-2 1-3.6 3.2-6.6z"/><path d="M3.5 14h17c0 3.6-3.8 6.5-8.5 6.5S3.5 17.6 3.5 14z"/></svg></span><span class="lbl">Sankalpa</span><span class="ta">சங்கல்பம்</span></button>
     <button type="button" role="tab" id="tab-meanings" aria-controls="pane-meanings" aria-selected="false"><span class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 6.5C10 5 7 4.5 4 4.5v14c3 0 6 .5 8 2 2-1.5 5-2 8-2v-14c-3 0-6 .5-8 2z"/><path d="M12 6.5v14"/></svg></span><span class="lbl">Meanings</span><span class="ta">பொருள்</span></button>
+    <button type="button" role="tab" id="tab-slokasaagar" aria-controls="pane-slokasaagar" aria-selected="false"><span class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 6.5C10 5 7 4.5 4 4.5v14c3 0 6 .5 8 2 2-1.5 5-2 8-2v-14c-3 0-6 .5-8 2zM12 6.5v14M7 9l2 .5M15 9.5l2-.5M7 13l2 .5M15 13.5l2-.5"/></svg></span><span class="lbl">sloka saagar</span><span class="ta">ஸ்லோக சாகர்</span></button>
   </nav>
 
   <div class="tabpane" id="ctrls">
@@ -482,6 +490,16 @@ dialog::backdrop { background: rgb(10 20 14 / .45); }
     <nav class="jump" id="jump" aria-label="Jump to"></nav>
     <div class="gloss" id="gloss"></div>
     <div class="lists" id="lists"></div>
+  </div>
+  <div class="tabpane" id="pane-slokasaagar" role="tabpanel" aria-labelledby="tab-slokasaagar" hidden>
+    <section class="panel">
+      <h2>Sloka Saagar <span class="ta">ஸ்லோக சாகர்</span></h2>
+      <p>Explore 600+ slokas for daily chanting, with meanings in English and regional languages.</p>
+      <div class="sloka-links">
+        <a href="https://play.google.com/store/apps/details?id=com.supersubra.sloka_saagar&amp;pcampaignid=web_share" target="_blank" rel="noopener noreferrer">Android · Google Play ↗</a>
+        <a href="https://apps.apple.com/in/app/sloka-saagar/id1602117856" target="_blank" rel="noopener noreferrer">iPhone / iPad · App Store ↗</a>
+      </div>
+    </section>
   </div>
 </div>
 
@@ -1931,6 +1949,7 @@ const LISTS = {
   const S = lines => lines.forEach(l => { const p = l.split('|'); put(p[0], p[1]); });                 // Sanskrit words: one Devanagari form
   const U = lines => lines.forEach(l => { const p = l.split('|'); put(p[0], p[1], p[2], p[3], p[4]); }); // each language written out
   const zip = (tamils, hindi) => tamils.forEach((ta, i) => { if (hindi[i] != null) put(ta, hindi[i]); });
+  S(['ஸ்லோக சாகர்|श्लोक सागर']);
   U([
     'பிறப்பு விவரங்கள்|जन्म विवरण|జనన వివరాలు|ಜನನ ವಿವರಗಳು|ജനന വിവരങ്ങൾ',
     'பிறந்த தேதி|जन्म तिथि|పుట్టిన తేదీ|ಹುಟ್ಟಿದ ದಿನಾಂಕ|ജനന തീയതി',
@@ -2991,10 +3010,10 @@ const LISTS = {
   }
   window.addEventListener('hashchange', route);
 
-  const TABS = ['today', 'hourly', 'meanings'];
+  const TABS = ['today', 'hourly', 'meanings', 'slokasaagar'];
   function showTab(name) {
     for (const t of TABS) { $('pane-' + t).hidden = t !== name; $('tab-' + t).setAttribute('aria-selected', t === name); }
-    $('ctrls').hidden = name === 'meanings';
+    $('ctrls').hidden = name === 'meanings' || name === 'slokasaagar';
     if (name === 'meanings') buildLists();
     document.querySelectorAll('.gloss .item.hl').forEach(x => x.classList.remove('hl'));
     window.scrollTo(0, 0);
