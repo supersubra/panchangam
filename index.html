@@ -235,6 +235,15 @@ footer { font-size: .82rem; color: var(--muted); max-width: 70ch; }
 .sk-info-terms dd { margin: 4px 0 0; max-width: 75ch; }
 .sk-info-example { margin: 0; padding: 16px; border-left: 3px solid var(--hs-gold); background: var(--accent-soft); border-radius: 8px; overflow-wrap: anywhere; line-height: 1.8; }
 #skpane-info a { color: var(--accent); text-underline-offset: 3px; }
+.sk-geography { margin-top: 12px; padding: 12px; border: 1px solid var(--line); border-radius: 10px; }
+.sk-geography summary { cursor: pointer; font-weight: 600; color: var(--accent); }
+.sk-geography[open] summary { margin-bottom: 12px; }
+.sk-geography table { table-layout: fixed; margin-block: 12px; font-size: .9rem; }
+.sk-geography th, .sk-geography td { padding: 10px 8px; overflow-wrap: anywhere; }
+.sk-geography thead th { color: var(--muted); font-size: .8rem; }
+.sk-geography th:first-child { width: 34%; }
+.sk-geography th:last-child { width: auto; }
+.sk-geography tbody tr:first-child > * { border-top: 1px solid var(--line); }
 :is(#hspage, #skpage) .hs-tabs button { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; text-align: left; white-space: normal; overflow-wrap: anywhere; margin: 0; padding: 14px 12px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); color: var(--ink); line-height: 1.35; }
 .hs-tab-icon { display: flex; align-items: center; justify-content: space-between; width: 100%; color: var(--hs-gold); font-size: .72rem; letter-spacing: .08em; margin-bottom: 4px; }
 .hs-tab-icon svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linejoin: round; stroke-linecap: round; }
@@ -704,13 +713,76 @@ dialog::backdrop { background: rgb(10 20 14 / .45); }
     <section class="panel">
       <h2>Where am I? The place terms</h2>
       <p>The familiar Indian wording begins with <strong>Jambu Dweepe, Bharata Varshe, Bharata Khande</strong>. These are traditional sacred-geography terms; they do not form a precise map of today's political boundaries.</p>
+      <p><strong>The traditional counts:</strong> 7 great Dweepas in the Puranic world-picture; 9 Varshas within Jambudvipa; and 9 divisions, often called Khandas, within Bharata Varsha. The two lists of nine describe different levels, not nine regions for the whole Earth.</p>
       <dl class="sk-info-terms">
         <dt>Dvipa / Dweepam — the great landmass</dt>
-        <dd>An island or landmass surrounded by water. In Puranic cosmology, Jambudvipa is the landmass containing Bharata Varsha. <em>Jambu Dweepe</em> means “in Jambudvipa”.</dd>
+        <dd>An island or landmass surrounded by water. The <strong>seven great Dweepas (Sapta Dvipa)</strong> are Jambu, Plaksha, Shalmali, Kusha, Krauncha, Shaka and Pushkara. Jambudvipa contains Bharata Varsha; <em>Jambu Dweepe</em> means “in Jambudvipa”.
+          <details class="sk-geography" id="sk-dweepa-list">
+            <summary>All 7 Dweepas and modern continent comparisons</summary>
+            <p>The Puranic account describes landmasses surrounded by successive seas. <strong>There is no established one-to-one identification with today's seven continents.</strong> The modern names below show the convention used by this app's Sankalpa wording, not verified ancient geographical equivalents.</p>
+            <table aria-label="Seven Dweepas and this app's continent convention">
+              <thead><tr><th scope="col">Dweepa</th><th scope="col">Modern continent used by this app (convention only)</th></tr></thead>
+              <tbody>
+                <tr><th scope="row">1. Jambu</th><td>Asia, including India</td></tr>
+                <tr><th scope="row">2. Plaksha</th><td>Europe</td></tr>
+                <tr><th scope="row">3. Shalmali</th><td>South America</td></tr>
+                <tr><th scope="row">4. Kusha</th><td>Africa</td></tr>
+                <tr><th scope="row">5. Krauncha</th><td>North America</td></tr>
+                <tr><th scope="row">6. Shaka</th><td>Australia / Oceania</td></tr>
+                <tr><th scope="row">7. Pushkara</th><td>Antarctica</td></tr>
+              </tbody>
+            </table>
+            <p class="hint">Other traditions use different overseas names. In particular, “Pushkara = Antarctica” is only an app convention, not a geographical identification established by the Puranas.</p>
+            <p class="hint">Traditional list: <a href="https://sacred-texts.com/hin/vp/vp059.htm" target="_blank" rel="noopener noreferrer">Vishnu Purana, Book II, Chapter II</a>.</p>
+          </details>
+        </dd>
         <dt>Varsha / Varshe — the broad region</dt>
-        <dd>A region within a dvipa. <em>Bharata Varshe</em> means “in the region of Bharata”. The Vishnu Purana describes Bharata as lying south of the Himalayas and north of the ocean. Here, <em>varsha</em> means a region, not a year.</dd>
+        <dd>A region within a dvipa. <strong>Jambudvipa has nine Varshas</strong> in this account. <em>Bharata Varshe</em> means “in the region of Bharata”, described as south of the Himalayas and north of the ocean. Here, <em>varsha</em> means a region, not a year.
+          <details class="sk-geography" id="sk-varsha-list">
+            <summary>All 9 Varshas of Jambudvipa and possible modern comparisons</summary>
+            <p>Bharata has a clear broad association with the Indian subcontinent. The other regions belong to the sacred geography around Meru. The comparisons below are interpretive suggestions; <strong>they are not agreed modern borders</strong>.</p>
+            <table aria-label="Nine Varshas of Jambudvipa and possible modern comparisons">
+              <thead><tr><th scope="col">Varsha</th><th scope="col">Approximate association or what is known</th></tr></thead>
+              <tbody>
+                <tr><th scope="row">1. Bharata</th><td>The Indian subcontinent; broader than the modern Republic of India.</td></tr>
+                <tr><th scope="row">2. Kimpurusha</th><td>Nepal / the Himalayan region is a proposed comparison.</td></tr>
+                <tr><th scope="row">3. Harivarsha</th><td>Western Tibet is a proposed comparison.</td></tr>
+                <tr><th scope="row">4. Ilavrita</th><td>The central region around Meru; the Pamir region of Central Asia is one proposed comparison.</td></tr>
+                <tr><th scope="row">5. Ramyaka</th><td>North of Ilavrita in the traditional account; modern location uncertain.</td></tr>
+                <tr><th scope="row">6. Hiranmaya</th><td>Farther north, beyond Ramyaka; modern location uncertain.</td></tr>
+                <tr><th scope="row">7. Uttarakuru</th><td>The far-northern region in the traditional account; no agreed modern country.</td></tr>
+                <tr><th scope="row">8. Bhadrashva</th><td>East of Meru; no agreed modern country.</td></tr>
+                <tr><th scope="row">9. Ketumala</th><td>West of Meru; no agreed modern country.</td></tr>
+              </tbody>
+            </table>
+            <p class="hint">Sources: <a href="https://sacred-texts.com/hin/vp/vp059.htm" target="_blank" rel="noopener noreferrer">Vishnu Purana II.2</a> for the traditional arrangement; <a href="https://vedicpeople.com/puranas/maha-puranas/vayu-purana/read/as-is-translation/chapter-046" target="_blank" rel="noopener noreferrer">Vayu Purana, Chapter 46, translation notes</a> for the proposed Nepal, western Tibet and Pamir comparisons.</p>
+            <p class="hint">This is the list within Jambudvipa, not a fixed count for every Dweepa. The app's overseas phrase “Ramanaka Varshe” is a separate ritual adaptation; it should not be read as a proven identification of Ramyaka with America.</p>
+          </details>
+        </dd>
         <dt>Khanda / Khande — the division or territory</dt>
-        <dd><em>Khanda</em> means a part or division. <em>Bharata Khande</em> (often written “Bharata Kande” in Tamil usage) identifies the land of Bharata in the customary Sankalpa formula.</dd>
+        <dd><em>Khanda</em> means a part or division. A common account gives <strong>nine divisions of Bharata Varsha</strong>, also called Dvipas in the texts. <em>Bharata Khande</em> (often written “Bharata Kande” in Tamil usage) identifies the land of Bharata in the customary Sankalpa formula.
+          <details class="sk-geography" id="sk-khanda-list">
+            <summary>All 9 divisions of Bharata and proposed modern locations</summary>
+            <p>The list below follows the Bharata divisions in the Vishnu and Brahma Puranas. Names vary between texts. The modern comparisons for the first eight follow <strong>historical proposals attributed to Alexander Cunningham</strong> in the linked study; these remain uncertain and other scholars disagree.</p>
+            <table aria-label="Nine divisions of Bharata and historical geographical proposals">
+              <thead><tr><th scope="col">Division / Khanda</th><th scope="col">Proposed modern association (not established)</th></tr></thead>
+              <tbody>
+                <tr><th scope="row">1. Indradvipa</th><td>Myanmar (formerly Burma).</td></tr>
+                <tr><th scope="row">2. Kaserumat / Kasetuman</th><td>The Malay Peninsula.</td></tr>
+                <tr><th scope="row">3. Tamraparna / Tamravarna</th><td>Sri Lanka (formerly Ceylon).</td></tr>
+                <tr><th scope="row">4. Gabhastimat</th><td>Lakshadweep, the Maldives or the Ernakulam area of Kerala have been suggested; no single settled match.</td></tr>
+                <tr><th scope="row">5. Nagadvipa</th><td>Salsette, Elephanta and Kathiawar in western India have been suggested.</td></tr>
+                <tr><th scope="row">6. Saumya</th><td>Kutch, Gujarat.</td></tr>
+                <tr><th scope="row">7. Gandharva</th><td>The Gandhara / Kabul region, roughly parts of present-day Afghanistan and Pakistan.</td></tr>
+                <tr><th scope="row">8. Varuna</th><td>Northeastern India in this proposal; other interpretations place it on India's western coast.</td></tr>
+                <tr><th scope="row">9. Bharata</th><td>The Indian mainland. The Vishnu Purana leaves the ninth division unnamed; the Brahma Purana calls it Bharata.</td></tr>
+              </tbody>
+            </table>
+            <p class="hint">Why “proposed”? For example, another interpretation connects Tamraparna with the part of southern India below the Kaveri, rather than Sri Lanka. These lists should not be used as a modern atlas.</p>
+            <p class="hint">Sources: <a href="https://sacred-texts.com/hin/vp/vp060.htm" target="_blank" rel="noopener noreferrer">Vishnu Purana II.3</a>; <a href="https://www.wisdomlib.org/hinduism/book/brahma-purana-english/d/doc216087.html" target="_blank" rel="noopener noreferrer">Brahma Purana 17 and its geographical notes</a>; <a href="https://www.wisdomlib.org/hinduism/essay/brahma-purana-critical-study/d/doc1455143.html" target="_blank" rel="noopener noreferrer">Brahma Purana: A Critical Study, “The area of Bharata”</a>, reporting Cunningham's comparisons.</p>
+            <p><strong>For Chennai:</strong> the customary sequence remains Jambu Dweepe → Bharata Varshe → Bharata Khande → Tamil Nadu → Chennai. Tamil Nadu is the state named later in the wording, not a separate member of this nine-Khanda list.</p>
+          </details>
+        </dd>
         <dt>Meroh dakshina digbhage — south of Meru</dt>
         <dd>This places the worshipper south of Mount Meru in traditional cosmology. It is a sacred point of reference, not a modern street address.</dd>
         <dt>Maha khanda — a great land division</dt>
@@ -728,15 +800,33 @@ dialog::backdrop { background: rgb(10 20 14 / .45); }
       <p><strong>Meaning:</strong> In Jambudvipa, in the region and territory of Bharata, south of Meru, in India, in Tamil Nadu, in Chennai, in my own home.</p>
       <p>For a temple or another venue, the final place wording changes. Families may also name a nearby sacred river or kshetra. Follow the wording used in your family tradition.</p>
     </section>
-    <section class="panel">
+    <section class="panel" id="sk-cosmic-time">
       <h2>When is the ritual? The cosmic time terms</h2>
-      <p>The opening time phrases describe the traditional Hindu cosmic calendar.</p>
+      <p>The opening time phrases describe the traditional Hindu cosmic calendar. All durations below are in <strong>earthly (human) years</strong>, using the traditional Puranic reckoning.</p>
       <dl class="sk-info-terms">
-        <dt>Dvitiya parardhe</dt><dd>In the second half of Brahma's lifespan.</dd>
-        <dt>Shveta-Varaha kalpe</dt><dd>In the kalpa called Shveta Varaha. A kalpa is a day of Brahma.</dd>
-        <dt>Vaivasvata manvantare</dt><dd>In the period of Vaivasvata Manu, the seventh Manu of this kalpa. A manvantara is an era governed by a Manu.</dd>
-        <dt>Ashtavimshatitame … Kaliyuge, prathame pade</dt><dd>In Kali Yuga of the twenty-eighth cycle of four yugas, in its first quarter. The four yugas are Krita (Satya), Treta, Dvapara and Kali.</dd>
+        <dt>Dvitiya parardhe</dt>
+        <dd>In the second half of <strong>Brahma's lifespan — 311.04 trillion earthly years</strong> (311,040,000,000,000 years). One half, called a <strong>Parardha, is 155.52 trillion earthly years</strong> (155,520,000,000,000 years).</dd>
+        <dt>Shveta-Varaha kalpe</dt>
+        <dd>In the kalpa called Shveta Varaha. <strong>One Kalpa, the daytime of Brahma, is 4.32 billion earthly years</strong> (4,320,000,000 years; 432 crore). His night lasts equally long, so one full day and night is 8.64 billion earthly years.</dd>
+        <dt>Vaivasvata manvantare</dt>
+        <dd>In the period of Vaivasvata Manu, the seventh Manu of this kalpa. A manvantara is an era governed by a Manu. <strong>One Manvantara is 306.72 million earthly years</strong> (306,720,000 years; 30.672 crore), or 71 Mahayugas, excluding the transitional intervals called Sandhyas.</dd>
+        <dt>Ashtavimshatitame — the twenty-eighth cycle</dt>
+        <dd>In the twenty-eighth Mahayuga of the present manvantara. <strong>One Mahayuga (Chaturyuga) is 4.32 million earthly years</strong> (4,320,000 years; 43.2 lakh), comprising Krita (Satya), Treta, Dvapara and Kali Yuga.</dd>
+        <dt>Kaliyuge, prathame pade</dt>
+        <dd>In Kali Yuga, in its first quarter. <strong>Kali Yuga lasts 432,000 earthly years</strong> (4.32 lakh); one quarter of that duration is <strong>108,000 earthly years</strong> (1.08 lakh). “First quarter” names the period we are in; it does not mean that 108,000 years have already elapsed.</dd>
+        <dt>The four Yugas — earthly years</dt>
+        <dd>
+          <ul>
+            <li><strong>Krita / Satya Yuga:</strong> 1,728,000 years (17.28 lakh).</li>
+            <li><strong>Treta Yuga:</strong> 1,296,000 years (12.96 lakh).</li>
+            <li><strong>Dvapara Yuga:</strong> 864,000 years (8.64 lakh).</li>
+            <li><strong>Kali Yuga:</strong> 432,000 years (4.32 lakh).</li>
+          </ul>
+          These standard totals include each yuga's opening and closing twilight periods.
+        </dd>
       </dl>
+      <p class="hint"><strong>How the larger periods fit:</strong> a Kalpa contains 14 Manvantaras and 15 transitional Sandhyas of 1,728,000 earthly years each, totalling 4.32 billion years. One Brahma year comprises 360 of his full days and nights: 3.1104 trillion earthly years. His lifespan is 100 such years.</p>
+      <p class="hint">Source and conversion rules: <a href="https://sacred-texts.com/hin/vp/vp037.htm" target="_blank" rel="noopener noreferrer">Vishnu Purana, Book I, Chapter III: measures of time</a>. One lakh = 100,000; one crore = 10,000,000.</p>
     </section>
     <section class="panel">
       <h2>From cosmic time to today's Panchangam</h2>
