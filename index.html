@@ -134,15 +134,15 @@ footer { font-size: .82rem; color: var(--muted); max-width: 70ch; }
 .tabs button { white-space: nowrap; }
 .jctrl { align-items: end; }
 .jpanel { align-items: center; }
-#hsChart { width: 100%; max-width: 520px; margin: 0 auto; }
-#hsChart svg { width: 100%; height: auto; display: block; }
-#hsChart .ln { stroke: var(--ink); stroke-width: 1.4; fill: none; }
-#hsChart .cellbg { fill: var(--surface); }
-#hsChart .lagbg { fill: var(--accent-soft); }
-#hsChart text { fill: var(--ink); font-family: inherit; }
-#hsChart .pl { font-size: 11px; font-weight: 600; }
-#hsChart .rn { font-size: 8.5px; fill: var(--muted); }
-#hsChart .ctr { font-size: 12px; fill: var(--muted); }
+.hs-chart { width: 100%; max-width: 520px; margin: 0 auto; }
+.hs-chart svg { width: 100%; height: auto; display: block; }
+.hs-chart .ln { stroke: var(--ink); stroke-width: 1.4; fill: none; }
+.hs-chart .cellbg { fill: var(--surface); }
+.hs-chart .lagbg { fill: var(--accent-soft); }
+.hs-chart text { fill: var(--ink); font-family: inherit; }
+.hs-chart .pl { font-size: 11px; font-weight: 600; }
+.hs-chart .rn { font-size: 8.5px; fill: var(--muted); }
+.hs-chart .ctr { font-size: 12px; fill: var(--muted); }
 .trn { display: flex; flex-direction: column; gap: 2px; padding: 10px 12px; border-radius: 8px; margin-bottom: 8px; background: var(--neutral-soft); }
 .trn.bad { background: var(--bad-soft); color: var(--bad); } .trn.good { background: var(--good-soft); color: var(--good); }
 .trn b { font-size: 1rem; }
@@ -201,6 +201,91 @@ footer { font-size: .82rem; color: var(--muted); max-width: 70ch; }
   .summary-table td { border: 0; padding: 6px; }
   .summary-table td::before { content: attr(data-label); display: block; font-size: .75rem; font-weight: 600; color: var(--muted); margin-bottom: 3px; }
 }
+
+
+/* Horoscope: ivory, kumkum and brass, scoped to this page. */
+#hspage {
+  --surface: #fffdf7; --line: #e5d6bb; --ink: #35271f; --muted: #74604f;
+  --accent: #8d302f; --accent-soft: #f8e9dc; --hs-gold: #a67a31; --hs-ground: #faf4e8;
+  --hs-selected: #8d302f; --hs-on-selected: #fff8eb;
+  background: var(--hs-ground); color: var(--ink); border-radius: 24px; margin-block: 12px;
+  padding: 24px 28px 40px; box-sizing: border-box;
+}
+#hspage .pagehead { gap: 22px; }
+#hspage .top { width: 100%; }
+#hspage h1 { font-size: 2.2rem; }
+#hsBack { background: transparent; border: 0; padding: 0; font-size: .86rem; color: var(--muted); }
+.hs-intro { display: flex; gap: 20px; align-items: center; padding: 22px 24px; border-block: 1px solid var(--line); }
+.hs-lotus { width: 56px; height: 56px; flex: none; color: var(--hs-gold); fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+.hs-intro h2 { color: var(--accent); font-size: 1.35rem; }
+.hs-intro p { margin: 5px 0 0; color: var(--muted); max-width: 65ch; }
+#hspage .hs-tabs { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; overflow: visible; border: 0; }
+#hspage .hs-tabs button { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; text-align: left; white-space: normal; overflow-wrap: anywhere; margin: 0; padding: 14px 12px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); color: var(--ink); line-height: 1.35; }
+.hs-tab-icon { display: flex; align-items: center; justify-content: space-between; width: 100%; color: var(--hs-gold); font-size: .72rem; letter-spacing: .08em; margin-bottom: 4px; }
+.hs-tab-icon svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linejoin: round; stroke-linecap: round; }
+#hspage .hs-tabs .ta { font-weight: 400; font-size: .8rem; }
+#hspage .hs-tabs button[aria-selected="true"] { color: var(--hs-on-selected); background: var(--hs-selected); border-color: var(--hs-selected); box-shadow: inset 0 -3px #c8a35e; }
+#hspage .hs-tabs button[aria-selected="true"] .ta, #hspage .hs-tabs button[aria-selected="true"] .hs-tab-icon { color: #f4d9a4; }
+#hspage .panel { border-radius: 16px; padding: 24px; }
+#hspage .panel h3 { margin: 0; font-family: var(--display); font-size: 1.16rem; }
+#hspage .panel h3 .ta { display: block; font-family: var(--body); font-size: .88rem; font-weight: 400; margin-top: 3px; }
+#hspage .panel p { margin-block: 0 8px; }
+#hspage .panel button { align-self: flex-start; }
+#hspage button.primary { background: var(--hs-selected); color: var(--hs-on-selected); border-color: var(--hs-selected); }
+#hspage button:disabled { opacity: .55; cursor: not-allowed; }
+.hs-form-title { display: flex; gap: 12px; align-items: baseline; justify-content: space-between; flex-wrap: wrap; }
+.hs-kicker { color: var(--hs-gold); font-size: .73rem; letter-spacing: .13em; text-transform: uppercase; font-weight: 700; }
+#hsForm { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; margin-top: 10px; }
+#hsForm .field label { font-size: .9rem; text-transform: none; letter-spacing: 0; color: var(--ink); }
+#hsForm label .ta { font-weight: 400; }
+#hsForm input { box-sizing: border-box; width: 100%; min-height: 48px; }
+#hsForm .hs-wide { grid-column: 1 / -1; }
+.hs-form-actions { display: flex; gap: 10px; flex-wrap: wrap; border-top: 1px solid var(--line); padding-top: 18px; align-items: center; }
+#hsForm .hs-now { border: 0; padding: 4px 0; color: var(--accent); font-size: .85rem; background: transparent; min-height: 36px; }
+#hsSaveStatus { min-height: 1.5em; margin: 0; }
+.hs-profile { display: flex; gap: 12px 24px; align-items: center; justify-content: space-between; padding: 16px 20px; background: var(--surface); border: 1px solid var(--line); border-left: 3px solid var(--hs-gold); border-radius: 12px; }
+.hs-profile strong { display: block; font-family: var(--display); font-size: 1.1rem; overflow-wrap: anywhere; }
+.hs-profile p { margin: 3px 0 0; color: var(--muted); font-size: .86rem; overflow-wrap: anywhere; }
+.hs-profile button { flex: none; font-size: .85rem; }
+#hsError { color: var(--bad); background: var(--bad-soft); padding: 12px 16px; border-radius: 10px; margin: 0; }
+#hsTimeNote { margin: 0; padding: 12px 16px; background: var(--accent-soft); border-radius: 10px; }
+#hsChartDetails { display: flex; flex-direction: column; gap: 18px; }
+#hspage .jpanel { gap: 18px; border-top: 3px solid var(--hs-gold); }
+#hspage .jpanel .hs-chart-head { width: 100%; text-align: center; }
+#hspage .jpanel .hs-chart-head p { margin-top: 6px; }
+#hspage .hs-chart .ln { stroke: var(--hs-gold); }
+#hspage .hs-chart { max-width: 560px; }
+#hspage .hs-empty { text-align: center; padding: 28px; border: 1px dashed var(--line); border-radius: 12px; color: var(--muted); }
+#hspage .summary-rating.mixed { color: #7a550d; background: #faedc9; }
+#hspage .summary-table .rating-mixed { background: #faf0d5; }
+@media (max-width: 700px) {
+  #hspage { padding: 20px 16px 32px; border-radius: 16px; margin-block: 0; }
+  #hspage .hs-tabs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  #hspage .hs-tabs button { padding: 12px; }
+  #hspage .hs-tabs button:last-child { grid-column: 1 / -1; }
+  .hs-tab-icon { margin-bottom: 0; }
+  #hspage h1 { font-size: 1.8rem; }
+  .hs-intro { padding: 16px 0; gap: 14px; }
+  .hs-lotus { width: 40px; height: 40px; }
+  .hs-intro h2 { font-size: 1.1rem; }
+  .hs-intro p { font-size: .88rem; }
+  #hspage .panel { padding: 18px 14px; }
+  #hsForm { grid-template-columns: 1fr; gap: 18px; }
+  .hs-form-actions button { flex: 1 1 40%; }
+  .hs-form-actions .primary { flex-basis: 100%; }
+  .hs-profile { flex-wrap: wrap; padding: 14px; }
+  .hs-profile button { padding: 7px 10px; }
+}
+:root[data-theme="dark"] #hspage {
+  --surface: #29211d; --line: #584536; --ink: #f6ead8; --muted: #c4b39e;
+  --accent: #f0bc83; --accent-soft: #443023; --hs-gold: #d2aa62; --hs-ground: #201a17;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) #hspage {
+  --surface: #29211d; --line: #584536; --ink: #f6ead8; --muted: #c4b39e;
+  --accent: #f0bc83; --accent-soft: #443023; --hs-gold: #d2aa62; --hs-ground: #201a17;
+} }
+:root[data-theme="dark"] #hspage .summary-table .rating-mixed { background: #3e321b; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) #hspage .summary-table .rating-mixed { background: #3e321b; } }
 
 /* Tappable terms */
 button.term { all: unset; cursor: pointer; font-weight: inherit; border-bottom: 1px dotted var(--muted); }
@@ -402,33 +487,55 @@ dialog::backdrop { background: rgb(10 20 14 / .45); }
 
 <div class="wrap" id="hspage" hidden>
   <div data-hdr="horoscope"></div>
-  <p class="hint">Rasi chart (ராசி கட்டம்) for a birth date, time and place. Choose the birth details below; the Lagna (லக்னம்) depends on the exact time.</p>
-  <form class="controls jctrl" id="hsForm" autocomplete="off">
-    <div class="field city">
-      <label for="hsCity">Birth place · ஊர்</label>
-      <input id="hsCity" type="text" placeholder="Type a city, e.g. Madurai" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="hsSuggest">
-      <div class="suggest" id="hsSuggest" role="listbox" hidden></div>
-    </div>
-    <div class="field"><label for="hsDate">Birth date · தேதி</label><input id="hsDate" type="date" min="1600-01-01" max="2400-12-31" required></div>
-    <div class="field"><label for="hsTime">Birth time · பிறந்த நேரம்</label><input id="hsTime" type="time"></div>
-    <div class="btns"><button type="button" id="hsNow">Use current date &amp; time</button></div>
-  </form>
-  <div class="where" id="hsWhere"></div>
+  <div class="hs-intro">
+    <svg class="hs-lotus" viewBox="0 0 64 64" aria-hidden="true"><path d="M32 45C18 34 23 18 32 9c9 9 14 25 0 36ZM32 45C15 45 8 33 9 21c12 1 20 8 23 24ZM32 45c17 0 24-12 23-24-12 1-20 8-23 24ZM32 47C17 53 7 45 4 35c8-2 18 0 28 12ZM32 47c15 6 25-2 28-12-8-2-18 0-28 12ZM20 57h24"/></svg>
+    <div><h2>Your horoscope, thoughtfully arranged</h2><p>Begin with your birth details, explore both chart traditions, and read the periods of your life.</p></div>
+  </div>
+  <div class="tabs hs-tabs" role="tablist" aria-label="Horoscope sections">
+    <button type="button" role="tab" id="hstab-details" aria-controls="hspane-details" aria-selected="true" tabindex="0"><span class="hs-tab-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="7" r="3"/><path d="M5 21v-3a7 7 0 0 1 14 0v3M8 21h8"/></svg><span>01</span></span><span>Birth details</span><span class="ta">பிறப்பு விவரங்கள்</span></button>
+    <button type="button" role="tab" id="hstab-south" aria-controls="hspane-south" aria-selected="false" tabindex="-1"><span class="hs-tab-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="1"/><path d="M3 8h18M3 16h18M8 3v18M16 3v18"/></svg><span>02</span></span><span>South Indian</span><span class="ta">தென்னிந்திய</span></button>
+    <button type="button" role="tab" id="hstab-north" aria-controls="hspane-north" aria-selected="false" tabindex="-1"><span class="hs-tab-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="1"/><path d="m12 3 9 9-9 9-9-9zM3 3l18 18M21 3 3 21"/></svg><span>03</span></span><span>North Indian</span><span class="ta">வட இந்திய</span></button>
+    <button type="button" role="tab" id="hstab-predictions" aria-controls="hspane-predictions" aria-selected="false" tabindex="-1"><span class="hs-tab-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 5h16v16H4zM8 3v4M16 3v4M4 10h16M8 14h3M8 17h7"/></svg><span>04</span></span><span>100-year predictions</span><span class="ta">100 ஆண்டு பலன்கள்</span></button>
+    <button type="button" role="tab" id="hstab-summary" aria-controls="hspane-summary" aria-selected="false" tabindex="-1"><span class="hs-tab-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 3v18h17M8 16v-5M13 16V7M18 16v-8"/></svg><span>05</span></span><span>Prediction summary</span><span class="ta">பலன் சுருக்கம்</span></button>
+  </div>
+  <div id="hsProfileStrip" class="hs-profile" hidden>
+    <div><strong id="hsProfileName" data-keep></strong><p id="hsProfileMeta" data-keep></p></div>
+    <button type="button" id="hsEdit">Edit details · திருத்து</button>
+  </div>
   <p id="hsError" role="alert" hidden></p>
   <p id="hsTimeNote" class="note" hidden>This clock time occurs twice when daylight saving ends. The earlier occurrence is used. Please check which occurrence applies to the birth.</p>
-  <div class="tabs" role="tablist" aria-label="Horoscope sections">
-    <button type="button" role="tab" id="hstab-chart" aria-controls="hspane-chart" aria-selected="true">Birth chart · பிறப்பு ஜாதகம்</button>
-    <button type="button" role="tab" id="hstab-predictions" aria-controls="hspane-predictions" aria-selected="false" tabindex="-1">100-year predictions · 100 ஆண்டு பலன்கள்</button>
-    <button type="button" role="tab" id="hstab-summary" aria-controls="hspane-summary" aria-selected="false" tabindex="-1">Prediction summary · பலன் சுருக்கம்</button>
+  <div id="hspane-details" class="tabpane" role="tabpanel" aria-labelledby="hstab-details">
+    <section class="panel">
+      <div class="hs-form-title"><h3>Birth details <span class="ta">பிறப்பு விவரங்கள்</span></h3><span class="hs-kicker">Your starting point</span></div>
+      <p class="note">Enter the time recorded at the place of birth. An accurate birth time matters for the Lagna.</p>
+      <form id="hsForm" autocomplete="off">
+        <div class="field"><label for="hsName">Name <span class="ta">· பெயர்</span> <small>(optional)</small></label><input id="hsName" type="text" maxlength="120" placeholder="Full name" data-keep></div>
+        <div class="field"><label for="hsGotra">Gotra <span class="ta">· கோத்திரம்</span> <small>(optional)</small></label><input id="hsGotra" type="text" maxlength="120" list="skGotraList" placeholder="Choose or type a gotra" data-keep></div>
+        <div class="field"><label for="hsDate">Date of birth <span class="ta">· பிறந்த தேதி</span></label><input id="hsDate" type="date" min="1600-01-01" max="2400-12-31" required></div>
+        <div class="field"><label for="hsTime">Time of birth <span class="ta">· பிறந்த நேரம்</span></label><input id="hsTime" type="time" required aria-describedby="hsWhere"></div>
+        <div class="field city hs-wide">
+          <label for="hsCity">Place of birth <span class="ta">· பிறந்த ஊர்</span></label>
+          <input id="hsCity" type="text" placeholder="Type a city, e.g. Madurai" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="hsSuggest" aria-describedby="hsWhere" required>
+          <div class="suggest" id="hsSuggest" role="listbox" hidden></div>
+          <div class="where" id="hsWhere"></div>
+        </div>
+        <div class="hs-wide"><button type="button" id="hsNow" class="hs-now">Use current date &amp; time</button></div>
+        <div class="hs-wide hs-form-actions">
+          <button type="submit" id="hsView" class="primary">View horoscope · ஜாதகத்தைக் காட்டு <span aria-hidden="true">→</span></button>
+          <button type="button" id="hsSave">Save details · சேமி</button>
+          <button type="button" id="hsClear">Clear details · அழி</button>
+        </div>
+        <div class="hs-wide"><p class="note">Save keeps one profile in this browser for your next visit. Name and gotra are optional and do not affect the calculations.</p><p class="note" id="hsSaveStatus" role="status" aria-live="polite"></p></div>
+      </form>
+    </section>
   </div>
-  <div id="hspane-chart" class="tabpane" role="tabpanel" aria-labelledby="hstab-chart">
-  <div class="hfilter" role="group" aria-label="Chart style">
-    <button type="button" class="pill" id="hsSouth" aria-pressed="true">South Indian · தென்னிந்திய</button>
-    <button type="button" class="pill" id="hsNorth" aria-pressed="false">North Indian · வட இந்திய</button>
-  </div>
-  <section class="panel jpanel">
-    <div id="hsChart"></div>
-  </section>
+  <div id="hspane-south" class="tabpane" role="tabpanel" aria-labelledby="hstab-south" hidden>
+    <section class="panel jpanel">
+      <div class="hs-chart-head"><span class="hs-kicker">Rasi chart</span><h3>South Indian <span class="ta">தென்னிந்திய</span></h3><p class="note">Fixed signs · Lagna marked in gold</p></div>
+      <div id="hsChart" class="hs-chart"></div>
+      <p class="hs-empty">Enter your birth details in the first tab to see your chart.</p>
+    </section>
+    <div id="hsChartDetails" hidden>
   <section class="panel">
     <h3>Birth star · Rasi · Vasi · Lagna <span class="ta">நட்சத்திரம் · ராசி · வாசி · லக்னம்</span></h3>
     <div class="tblwrap"><table class="jtbl"><tbody id="hsKey"></tbody></table></div>
@@ -444,6 +551,14 @@ dialog::backdrop { background: rgb(10 20 14 / .45); }
     <div class="tblwrap"><table class="jtbl"><thead><tr><th>Planet · கிரகம்</th><th>Rasi · ராசி</th><th>Degree</th><th>Star · நட்சத்திரம்</th><th>Pada</th></tr></thead><tbody id="hsRows"></tbody></table></div>
     <p class="note">Sidereal (Lahiri) positions. Rahu and Ketu are the mean nodes. <b>R</b> means retrograde (வக்ரம்). The Lagna (லக்னம்) depends on the exact birth time, so please enter it carefully.</p>
   </section>
+  </div>
+    </div>
+  <div id="hspane-north" class="tabpane" role="tabpanel" aria-labelledby="hstab-north" hidden>
+    <section class="panel jpanel">
+      <div class="hs-chart-head"><span class="hs-kicker">Rasi chart</span><h3>North Indian <span class="ta">வட இந்திய</span></h3><p class="note">Fixed houses · Lagna at the top · Numbers indicate signs</p></div>
+      <div id="hsNorthChart" class="hs-chart"></div>
+      <p class="hs-empty">Enter your birth details in the first tab to see your chart.</p>
+    </section>
   </div>
   <div id="hspane-predictions" class="tabpane" role="tabpanel" aria-labelledby="hstab-predictions" hidden>
     <section class="panel">
@@ -1817,6 +1932,13 @@ const LISTS = {
   const U = lines => lines.forEach(l => { const p = l.split('|'); put(p[0], p[1], p[2], p[3], p[4]); }); // each language written out
   const zip = (tamils, hindi) => tamils.forEach((ta, i) => { if (hindi[i] != null) put(ta, hindi[i]); });
   U([
+    'பிறப்பு விவரங்கள்|जन्म विवरण|జనన వివరాలు|ಜನನ ವಿವರಗಳು|ജനന വിവരങ്ങൾ',
+    'பிறந்த தேதி|जन्म तिथि|పుట్టిన తేదీ|ಹುಟ್ಟಿದ ದಿನಾಂಕ|ജനന തീയതി',
+    'பிறந்த ஊர்|जन्म स्थान|పుట్టిన ఊరు|ಹುಟ್ಟಿದ ಊರು|ജനന സ്ഥലം',
+    'ஜாதகத்தைக் காட்டு|कुंडली दिखाएँ|జాతకం చూపించు|ಜಾತಕ ತೋರಿಸಿ|ജാതകം കാണിക്കുക',
+    'சேமி|सहेजें|భద్రపరచు|ಉಳಿಸಿ|സൂക്ഷിക്കുക',
+    'அழி|मिटाएँ|తొలగించు|ಅಳಿಸಿ|മായ്ക്കുക',
+    'திருத்து|संपादित करें|సవరించు|ತಿದ್ದುಪಡಿ ಮಾಡಿ|തിരുത്തുക',
     'பலன் சுருக்கம்|फल सारांश|ఫలితాల సారాంశం|ಫಲಗಳ ಸಾರಾಂಶ|ഫലസംഗ്രഹം',
     'சுருக்கத்தைக் காட்டு|सारांश दिखाएँ|సారాంశం చూపించు|ಸಾರಾಂಶ ತೋರಿಸಿ|സംഗ്രഹം കാണിക്കുക',
     'பிறப்பு ஜாதகம்|जन्म कुंडली|జన్మ జాతకం|ಜನ್ಮ ಜಾತಕ|ജനന ജാതകം',
@@ -2393,7 +2515,9 @@ const LISTS = {
     });
     return `<svg viewBox="-1 -1 402 402" role="img" aria-label="North Indian Rasi chart">${parts.join('')}</svg>`;
   }
-  const H = { city: null, src: '', y: 0, m: 0, d: 0, h: 0, mi: 0, style: 'south', userTime: false };
+  const H = { city: null, src: '', y: 0, m: 0, d: 0, h: NaN, mi: NaN, userTime: true };
+  const HSTABS = ['details', 'south', 'north', 'predictions', 'summary'];
+  let hsActiveTab = 'details';
   const HP = { key: '', chart: null, report: null };
   const HS = { version: 0, busy: false };
   const PR = window.Predictions;
@@ -2404,22 +2528,32 @@ const LISTS = {
     $('hsShowPredictions').setAttribute('aria-expanded', 'false');
     $('hsPredictionStatus').textContent = 'Choose Show predictions to read the selected birth chart.';
   }
+  function hsIdentity() {
+    const name = $('hsName').value.trim(), gotra = $('hsGotra').value.trim();
+    $('hsProfileName').textContent = name || 'Your birth chart';
+    const birth = HP.chart ? `${H.d} ${MONTHS_EN[H.m - 1]} ${H.y} · ${p2(H.h)}:${p2(H.mi)} · ${H.city.name} · ${H.city.tz}` : 'Complete your birth details in the first tab.';
+    $('hsProfileMeta').textContent = [gotra ? 'Gotra: ' + gotra : '', birth].filter(Boolean).join(' · ');
+    $('hsProfileStrip').hidden = hsActiveTab === 'details';
+  }
   function hsTab(name, focus) {
-    for (const key of ['chart', 'predictions', 'summary']) {
+    hsActiveTab = name;
+    for (const key of HSTABS) {
       const active = key === name, button = $('hstab-' + key);
       button.setAttribute('aria-selected', String(active)); button.tabIndex = active ? 0 : -1;
       $('hspane-' + key).hidden = !active;
       if (active && focus) button.focus();
     }
+    if (name === 'south' || name === 'north') $('hspane-' + name).appendChild($('hsChartDetails'));
+    hsIdentity();
   }
-  for (const name of ['chart', 'predictions', 'summary']) {
+  for (const name of HSTABS) {
     $('hstab-' + name).addEventListener('click', () => hsTab(name));
     $('hstab-' + name).addEventListener('keydown', e => {
       if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(e.key)) return;
-      const tabs = ['chart', 'predictions', 'summary'];
-      e.preventDefault(); hsTab(e.key === 'Home' ? 'chart' : e.key === 'End' ? 'summary' : tabs[(tabs.indexOf(name) + (e.key === 'ArrowRight' ? 1 : 2)) % 3], true);
+      e.preventDefault(); hsTab(e.key === 'Home' ? 'details' : e.key === 'End' ? 'summary' : HSTABS[(HSTABS.indexOf(name) + (e.key === 'ArrowRight' ? 1 : HSTABS.length - 1)) % HSTABS.length], true);
     });
   }
+  $('hsEdit').addEventListener('click', () => { hsTab('details', true); });
   const predictionDate = ms => new Intl.DateTimeFormat('en-GB', { timeZone: H.city.tz, day: 'numeric', month: 'short', year: 'numeric' }).format(new Date(ms));
   const predictionTime = ms => new Intl.DateTimeFormat('en-GB', { timeZone: H.city.tz, day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).format(new Date(ms));
   function hsPeriodReading(p) {
@@ -2528,13 +2662,13 @@ const LISTS = {
   $('hsShowSummary').addEventListener('click', hsShowSummary);
   const p2 = v => String(v).padStart(2, '0');
   function hsFields() {
-    $('hsDate').value = `${H.y}-${p2(H.m)}-${p2(H.d)}`; $('hsTime').value = `${p2(H.h)}:${p2(H.mi)}`;
+    $('hsDate').value = H.y ? `${H.y}-${p2(H.m)}-${p2(H.d)}` : ''; $('hsTime').value = Number.isFinite(H.h) && Number.isFinite(H.mi) ? `${p2(H.h)}:${p2(H.mi)}` : '';
     const c = H.city; $('hsCity').value = c.name;
     $('hsWhere').innerHTML = `<b>${esc(c.name)}</b>${c.region ? ', ' + esc(c.region) : ''} · ${Math.abs(c.lat).toFixed(2)}°${c.lat >= 0 ? 'N' : 'S'} ${Math.abs(c.lon).toFixed(2)}°${c.lon >= 0 ? 'E' : 'W'} · ${esc(c.tz)}${H.src ? ' · ' + esc(H.src) : ''}`;
   }
   function hsNow() {
     const q = P.tzParts(Date.now(), H.city.tz);
-    Object.assign(H, { y: q.y, m: q.m, d: q.d, h: q.h, mi: q.mi, userTime: false });
+    Object.assign(H, { y: q.y, m: q.m, d: q.d, h: q.h, mi: q.mi, userTime: true });
     hsFields();
   }
   function hsSetCity(c, src) { H.city = c; H.src = src || ''; if (!H.userTime) hsNow(); else hsFields(); }
@@ -2550,10 +2684,13 @@ const LISTS = {
     } catch (e) {
       HP.chart = null; hsResetPredictions(); hsResetSummary();
       $('hsError').textContent = 'Enter a valid birth date (1600–2400), time and city. A clock time skipped by daylight saving is not valid.';
-      $('hsError').hidden = false; $('hsTimeNote').hidden = true;
+      $('hsError').hidden = !($('hsDate').value || $('hsTime').value); $('hsTimeNote').hidden = true;
       $('hsShowPredictions').disabled = true;
       $('hsShowSummary').disabled = true;
-      for (const id of ['hsChart', 'hsKey', 'hsRows', 'hsTransit', 'hsTrWhen']) $(id).replaceChildren();
+      for (const id of ['hsChart', 'hsNorthChart', 'hsKey', 'hsRows', 'hsTransit', 'hsTrWhen']) $(id).replaceChildren();
+      $('hsChartDetails').hidden = true;
+      document.querySelectorAll('#hspage .hs-empty').forEach(el => { el.hidden = false; });
+      hsIdentity();
       return;
     }
     HP.chart = c;
@@ -2561,7 +2698,11 @@ const LISTS = {
     $('hsShowSummary').disabled = HS.busy;
     $('hsTimeNote').hidden = !c.timeAmbiguous;
     const dateLabel = `${H.d} ${MONTHS_EN[H.m - 1]} ${H.y}, ${p2(H.h)}:${p2(H.mi)}`;
-    $('hsChart').innerHTML = H.style === 'south' ? southSVG(c, dateLabel) : northSVG(c, dateLabel);
+    $('hsChart').innerHTML = southSVG(c, dateLabel);
+    $('hsNorthChart').innerHTML = northSVG(c, dateLabel);
+    $('hsChartDetails').hidden = false;
+    document.querySelectorAll('#hspage .hs-empty').forEach(el => { el.hidden = true; });
+    hsIdentity();
     const moon = c.grahas.find(g => g.id === 'chandra'), sun = c.grahas.find(g => g.id === 'surya');
     $('hsKey').innerHTML = [['Birth star (Janma Nakshatra)', 'பிறந்த நட்சத்திரம்', moon, 1], ['Rasi (Moon sign)', 'ராசி (சந்திரன் இருக்கும் ராசி)', moon], ['Vasi (Sun sign)', 'வாசி (சூரியன் இருக்கும் ராசி)', sun], ['Lagna (Ascendant)', 'லக்னம்', c.lagna]].map(([e, t, g, star]) => star ?
       `<tr><th>${esc(e)}<span class="ta">${esc(t)}</span></th><td><b>${esc(P.N.nakshatra[g.nak][0])}</b> <span class="ta">${esc(P.N.nakshatra[g.nak][1])}</span></td><td>Pada ${g.pada}</td></tr>` :
@@ -2592,21 +2733,54 @@ const LISTS = {
     out.push([gd, gu, hg]);
     return out.map(([d, g, h]) => `<div class="trn ${d[0]}"><b>${esc(d[1])}</b><span class="ta">${esc(d[2])}</span><span>${bi(P.N.planet[g.id])} is in ${bi(P.N.rasi[g.rasi])}, house ${h} from your Moon sign.</span></div>`).join('');
   }
-  function hsStyle(st) {
-    H.style = st;
-    $('hsSouth').setAttribute('aria-pressed', st === 'south'); $('hsNorth').setAttribute('aria-pressed', st === 'north');
-    renderHoroscope();
-  }
-  $('hsSouth').addEventListener('click', () => hsStyle('south'));
-  $('hsNorth').addEventListener('click', () => hsStyle('north'));
-  const hsDateChanged = e => { const [y, m, d] = e.target.value.split('-').map(Number); Object.assign(H, { y, m, d, userTime: true }); renderHoroscope(); };
-  const hsTimeChanged = e => { const [h, mi] = e.target.value.split(':').map(Number); Object.assign(H, { h, mi, userTime: true }); renderHoroscope(); };
+  function hsEdited() { $('hsSaveStatus').textContent = 'Changes are not saved yet. Choose Save details to keep them.'; }
+  const hsDateChanged = e => { const [y, m, d] = e.target.value.split('-').map(Number); Object.assign(H, { y, m, d, userTime: true }); hsEdited(); renderHoroscope(); };
+  const hsTimeChanged = e => { const [h, mi] = e.target.value.split(':').map(Number); Object.assign(H, { h, mi, userTime: true }); hsEdited(); renderHoroscope(); };
   for (const event of ['input', 'change']) {
     $('hsDate').addEventListener(event, hsDateChanged);
     $('hsTime').addEventListener(event, hsTimeChanged);
   }
-  $('hsNow').addEventListener('click', () => { hsNow(); renderHoroscope(); });
-  $('hsForm').addEventListener('submit', e => e.preventDefault());
+  for (const id of ['hsName', 'hsGotra']) $(id).addEventListener('input', () => { hsEdited(); hsIdentity(); });
+  $('hsNow').addEventListener('click', () => { hsNow(); hsEdited(); renderHoroscope(); });
+  function hsValidate() {
+    renderHoroscope();
+    if (!$('hsForm').reportValidity() || !HP.chart) { $('hsError').hidden = false; return false; }
+    return true;
+  }
+  $('hsForm').addEventListener('submit', e => { e.preventDefault(); if (hsValidate()) hsTab('south', true); });
+  $('hsSave').addEventListener('click', () => {
+    if (!hsValidate()) return;
+    const profile = { version: 1, name: $('hsName').value.trim(), gotra: $('hsGotra').value.trim(), city: H.city, y: H.y, m: H.m, d: H.d, h: H.h, mi: H.mi };
+    try {
+      localStorage.setItem('hsProfile', JSON.stringify(profile));
+      $('hsSaveStatus').textContent = 'Details saved in this browser. They will be here when you return.';
+    } catch (e) { $('hsSaveStatus').textContent = 'This browser could not save your details. You can still view the horoscope for this visit.'; }
+  });
+  $('hsClear').addEventListener('click', () => {
+    try { localStorage.removeItem('hsProfile'); }
+    catch (e) { $('hsSaveStatus').textContent = 'This browser could not remove the saved profile. Please clear it through your browser settings.'; return; }
+    $('hsName').value = ''; $('hsGotra').value = '';
+    Object.assign(H, { city: state.city || H.city, src: '', y: 0, m: 0, d: 0, h: NaN, mi: NaN, userTime: true });
+    hsFields(); renderHoroscope(); hsTab('details');
+    $('hsSaveStatus').textContent = 'Details cleared from this browser. Enter a new birth date and time to begin.';
+  });
+  function hsRestore() {
+    try {
+      const o = JSON.parse(lsGet('hsProfile', 'null'));
+      if (!o) return;
+      const c = o.city;
+      if (o.version !== 1 || typeof o.name !== 'string' || typeof o.gotra !== 'string' || o.name.length > 120 || o.gotra.length > 120 ||
+          !c || typeof c.name !== 'string' || !c.name.trim() || typeof c.tz !== 'string' ||
+          !Number.isFinite(c.lat) || Math.abs(c.lat) > 90 || !Number.isFinite(c.lon) || Math.abs(c.lon) > 180 ||
+          !['y', 'm', 'd', 'h', 'mi'].every(k => Number.isInteger(o[k]))) throw new Error('Invalid saved profile');
+      new Intl.DateTimeFormat('en', { timeZone: c.tz });
+      P.chart({ y: o.y, m: o.m, d: o.d, h: o.h, mi: o.mi, lat: c.lat, lon: c.lon, tz: c.tz });
+      Object.assign(H, { city: { name: c.name, region: typeof c.region === 'string' ? c.region : '', lat: c.lat, lon: c.lon, tz: c.tz }, y: o.y, m: o.m, d: o.d, h: o.h, mi: o.mi, userTime: true });
+      $('hsName').value = o.name; $('hsGotra').value = o.gotra; hsFields();
+      $('hsSaveStatus').textContent = 'Saved details restored from this browser.';
+    } catch (e) { $('hsSaveStatus').textContent = 'Saved details could not be restored. Please enter them again.'; }
+  }
+  hsRestore();
   $('hsBack').addEventListener('click', () => { location.hash = ''; });
   $('tab-horoscope').addEventListener('click', () => { location.hash = 'horoscope'; });
 
@@ -2619,13 +2793,13 @@ const LISTS = {
       box.innerHTML = list.map((c, i) => `<button type="button" role="option" aria-selected="${i === 0}" data-i="${i}">${esc(c.name)} <span>${esc(c.region)}</span></button>`).join('');
       box.hidden = false; inp.setAttribute('aria-expanded', 'true');
     };
-    const pick = c => { show([]); onPick(c); };
+    const pick = c => { ++sq; show([]); onPick(c); };
     inp.addEventListener('input', async e => {
       const q = e.target.value, my = ++sq, local = localMatches(q);
       show(local);
       if (q.trim().length >= 3 && local.length < 3) {
         const more = await onlineMatches(q);
-        if (my === sq && more.length) show(local.concat(more.filter(m => !local.some(l => l.name === m.name && l.region === m.region))).slice(0, 8));
+        if (my === sq && document.activeElement === inp && more.length) show(local.concat(more.filter(m => !local.some(l => l.name === m.name && l.region === m.region))).slice(0, 8));
       }
     });
     inp.addEventListener('keydown', e => {
@@ -2634,13 +2808,16 @@ const LISTS = {
         act = (act + (e.key === 'ArrowDown' ? 1 : -1) + opts.length) % opts.length;
         [...box.children].forEach((b, i) => b.setAttribute('aria-selected', i === act));
       } else if (e.key === 'Enter') { e.preventDefault(); if (opts.length) pick(opts[act]); }
-      else if (e.key === 'Escape') show([]);
+      else if (e.key === 'Escape') { ++sq; show([]); }
     });
     box.addEventListener('mousedown', e => e.preventDefault());
     box.addEventListener('click', e => { const b = e.target.closest('button'); if (b) pick(opts[+b.dataset.i]); });
-    inp.addEventListener('blur', () => setTimeout(() => { show([]); const c = current(); if (c) inp.value = c.name; }, 150));
+    inp.addEventListener('blur', () => {
+      ++sq;
+      setTimeout(() => { if (document.activeElement === inp) return; show([]); const c = current(); if (c) inp.value = c.name; }, 150);
+    });
   }
-  citySearch('hsCity', 'hsSuggest', () => H.city, c => { hsSetCity(c, ''); renderHoroscope(); });
+  citySearch('hsCity', 'hsSuggest', () => H.city, c => { hsSetCity(c, ''); hsEdited(); renderHoroscope(); });
 
   // ---------- Sankalpa Mantra: its own page with four tabs ----------
   const SK = Sankalpa, TA_MONTHS = ['ஜனவரி','பிப்ரவரி','மார்ச்','ஏப்ரல்','மே','ஜூன்','ஜூலை','ஆகஸ்ட்','செப்டம்பர்','அக்டோபர்','நவம்பர்','டிசம்பர்'];
