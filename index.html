@@ -2136,7 +2136,7 @@ const LISTS = {
   new MutationObserver(ms => { if (LANG.code === 'ta') return; for (const m of ms) for (const n of m.addedNodes) loc(n); })
     .observe(document.body, { childList: true, subtree: true });
 
-  // header shared by the three pages: logo, title and language menu
+  // Shared headers; Horoscope inherits the language chosen on the home page.
   const LOGO = '<svg class="logo" viewBox="0 0 48 48" aria-hidden="true"><circle class="disc" cx="24" cy="24" r="21"/><path class="ray" d="M24 6.5v4M24 37.5v4M6.5 24h4M37.5 24h4M11.6 11.6l2.8 2.8M33.6 33.6l2.8 2.8M36.4 11.6l-2.8 2.8M14.4 33.6l-2.8 2.8"/><circle class="core" cx="24" cy="24" r="7.5"/></svg>';
   const GLOBE = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3.4 3.2 3.4 14.8 0 18M12 3c-3.4 3.2-3.4 14.8 0 18"/></svg>';
   const HDR = { today: ['Daily Panchangam', 'தின பஞ்சாங்கம்', ''], horoscope: ['Horoscope', 'ஜாதகம்', 'hsBack'], sankalpa: ['Sankalpa Mantra', 'சங்கல்ப மந்திரம்', 'skBack'] };
@@ -2145,7 +2145,7 @@ const LISTS = {
     if (h[2]) el.className = 'pagehead';
     el.innerHTML = (h[2] ? `<button type="button" id="${h[2]}">◀ Back to Panchangam</button>` : '') +
       `<header class="top"><div class="brand">${LOGO}<h1>${h[0]} <small>${h[1]}</small></h1></div>` +
-      `<label class="langbox">${GLOBE}<select class="langsel" data-keep aria-label="Language · மொழி">${I.LANGS.map(l => `<option value="${l.code}">${l.name} · ${l.en}</option>`).join('')}</select></label></header>`;
+      (el.dataset.hdr === 'horoscope' ? '' : `<label class="langbox">${GLOBE}<select class="langsel" data-keep aria-label="Language · மொழி">${I.LANGS.map(l => `<option value="${l.code}">${l.name} · ${l.en}</option>`).join('')}</select></label>`) + '</header>';
   });
   document.querySelectorAll('.langsel').forEach(sel => sel.addEventListener('change', e => applyLang(e.target.value)));
 
