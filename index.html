@@ -227,6 +227,14 @@ footer { font-size: .82rem; color: var(--muted); max-width: 70ch; }
 .hs-intro h2 { color: var(--accent); font-size: 1.35rem; }
 .hs-intro p { margin: 5px 0 0; color: var(--muted); max-width: 65ch; }
 :is(#hspage, #skpage) .hs-tabs { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; overflow: visible; border: 0; }
+#skpage .hs-tabs { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+#skpane-info { gap: 18px; }
+.sk-info-terms { margin: 0; }
+.sk-info-terms dt { font-weight: 600; margin-top: 14px; color: var(--accent); }
+.sk-info-terms dt:first-child { margin-top: 0; }
+.sk-info-terms dd { margin: 4px 0 0; max-width: 75ch; }
+.sk-info-example { margin: 0; padding: 16px; border-left: 3px solid var(--hs-gold); background: var(--accent-soft); border-radius: 8px; overflow-wrap: anywhere; line-height: 1.8; }
+#skpane-info a { color: var(--accent); text-underline-offset: 3px; }
 :is(#hspage, #skpage) .hs-tabs button { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; text-align: left; white-space: normal; overflow-wrap: anywhere; margin: 0; padding: 14px 12px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); color: var(--ink); line-height: 1.35; }
 .hs-tab-icon { display: flex; align-items: center; justify-content: space-between; width: 100%; color: var(--hs-gold); font-size: .72rem; letter-spacing: .08em; margin-bottom: 4px; }
 .hs-tab-icon svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linejoin: round; stroke-linecap: round; }
@@ -270,6 +278,8 @@ footer { font-size: .82rem; color: var(--muted); max-width: 70ch; }
   :is(#hspage, #skpage) .hs-tabs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   :is(#hspage, #skpage) .hs-tabs button { padding: 12px; }
   :is(#hspage, #skpage) .hs-tabs button:last-child { grid-column: 1 / -1; }
+  #skpage .hs-tabs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  #skpage .hs-tabs button:last-child { grid-column: auto; }
   .hs-tab-icon { margin-bottom: 0; }
   :is(#hspage, #skpage) h1 { font-size: 1.8rem; }
   .hs-intro { padding: 16px 0; gap: 14px; }
@@ -623,6 +633,7 @@ dialog::backdrop { background: rgb(10 20 14 / .45); }
     <button type="button" role="tab" id="sktab-en" aria-controls="skpane-en" aria-selected="false" tabindex="-1"><span class="hs-tab-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 6C9 4 6 4 3 5v14c3-1 6-1 9 1 3-2 6-2 9-1V5c-3-1-6-1-9 1ZM12 6v14"/></svg><span>03</span></span><span>English</span></button>
     <button type="button" role="tab" id="sktab-ta" aria-controls="skpane-ta" aria-selected="false" tabindex="-1"><span class="hs-tab-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 6C9 4 6 4 3 5v14c3-1 6-1 9 1 3-2 6-2 9-1V5c-3-1-6-1-9 1ZM12 6v14M6 9h3M15 9h3"/></svg><span>04</span></span><span><span class="lname">Tamil</span></span><span class="ta">தமிழ்</span></button>
     <button type="button" role="tab" id="sktab-dev" aria-controls="skpane-dev" aria-selected="false" tabindex="-1"><span class="hs-tab-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 5h16M8 5v14M8 12h6a3 3 0 0 1 3 3v4M14 5v7"/></svg><span>05</span></span><span>Devanagari</span><span class="ta" data-keep>देवनागरी</span></button>
+    <button type="button" role="tab" id="sktab-info" aria-controls="skpane-info" aria-selected="false" tabindex="-1"><span class="hs-tab-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7v1"/></svg><span>06</span></span><span>General information</span><span class="ta">பொதுத் தகவல்</span></button>
   </div>
 
   <div class="tabpane" id="skpane-set" role="tabpanel" aria-labelledby="sktab-set">
@@ -684,6 +695,66 @@ dialog::backdrop { background: rgb(10 20 14 / .45); }
   <div class="tabpane" id="skpane-en" role="tabpanel" aria-labelledby="sktab-en" hidden><div id="skEnBody"></div></div>
   <div class="tabpane" id="skpane-ta" role="tabpanel" aria-labelledby="sktab-ta" hidden><div id="skTaBody"></div></div>
   <div class="tabpane" id="skpane-dev" role="tabpanel" aria-labelledby="sktab-dev" hidden><div id="skDevBody"></div></div>
+  <div class="tabpane" id="skpane-info" role="tabpanel" aria-labelledby="sktab-info" hidden>
+    <section class="panel">
+      <h2>Understanding Sankalpam <span class="ta">பொதுத் தகவல்</span></h2>
+      <p>A Sankalpam is a solemn statement of intention before a puja or other ritual. It identifies <strong>when, where, who and for what purpose</strong>: the time, the place, the person and the worship being undertaken.</p>
+      <p>Its wording moves from vast cycles of sacred time and geography to our own day and home. This guide uses <strong>India, Tamil Nadu and Chennai</strong> as its example.</p>
+    </section>
+    <section class="panel">
+      <h2>Where am I? The place terms</h2>
+      <p>The familiar Indian wording begins with <strong>Jambu Dweepe, Bharata Varshe, Bharata Khande</strong>. These are traditional sacred-geography terms; they do not form a precise map of today's political boundaries.</p>
+      <dl class="sk-info-terms">
+        <dt>Dvipa / Dweepam — the great landmass</dt>
+        <dd>An island or landmass surrounded by water. In Puranic cosmology, Jambudvipa is the landmass containing Bharata Varsha. <em>Jambu Dweepe</em> means “in Jambudvipa”.</dd>
+        <dt>Varsha / Varshe — the broad region</dt>
+        <dd>A region within a dvipa. <em>Bharata Varshe</em> means “in the region of Bharata”. The Vishnu Purana describes Bharata as lying south of the Himalayas and north of the ocean. Here, <em>varsha</em> means a region, not a year.</dd>
+        <dt>Khanda / Khande — the division or territory</dt>
+        <dd><em>Khanda</em> means a part or division. <em>Bharata Khande</em> (often written “Bharata Kande” in Tamil usage) identifies the land of Bharata in the customary Sankalpa formula.</dd>
+        <dt>Meroh dakshina digbhage — south of Meru</dt>
+        <dd>This places the worshipper south of Mount Meru in traditional cosmology. It is a sacred point of reference, not a modern street address.</dd>
+        <dt>Maha khanda — a great land division</dt>
+        <dd>Some present-day Sankalpa versions add the modern continent here. This is an additional location description, not a compulsory phrase in every Indian family tradition.</dd>
+      </dl>
+      <p class="hint">In these Sanskrit phrases, the ending “-e” expresses “in”: Dweepe, Varshe and Khande. A literal word meaning and its use in a particular ritual formula are not always identical.</p>
+    </section>
+    <section class="panel">
+      <h2>From Bharata to a home in Chennai</h2>
+      <p>The place can then be named more closely: <strong>Desha</strong> (country), <strong>Pradesha</strong> (state or region), <strong>Nagara</strong> (city) and <strong>Griha</strong> (home).</p>
+      <p class="hint">Illustrative place passage for a puja in one's own home; this is not the complete mantra or a live reading of your Settings.</p>
+      <blockquote class="sk-info-example" lang="en">Jambu Dweepe, Bharata Varshe, Bharata Khande, Meroh dakshina digbhage, Bharata deshe, Tamil Nadu pradeshe, Chennai nagare, mama sva-grihe.</blockquote>
+      <p class="hint">Tamil-script reading of the example:</p>
+      <blockquote class="sk-info-example" lang="ta" data-keep>ஜம்பூ த்வீபே, பாரத வர்ஷே, பாரத கண்டே, மேரோ: தக்ஷிண திக்பாகே, பாரத தேஶே, தமிழ்நாடு ப்ரதேஶே, சென்னை நகரே, மம ஸ்வக்ருஹே.</blockquote>
+      <p><strong>Meaning:</strong> In Jambudvipa, in the region and territory of Bharata, south of Meru, in India, in Tamil Nadu, in Chennai, in my own home.</p>
+      <p>For a temple or another venue, the final place wording changes. Families may also name a nearby sacred river or kshetra. Follow the wording used in your family tradition.</p>
+    </section>
+    <section class="panel">
+      <h2>When is the ritual? The cosmic time terms</h2>
+      <p>The opening time phrases describe the traditional Hindu cosmic calendar.</p>
+      <dl class="sk-info-terms">
+        <dt>Dvitiya parardhe</dt><dd>In the second half of Brahma's lifespan.</dd>
+        <dt>Shveta-Varaha kalpe</dt><dd>In the kalpa called Shveta Varaha. A kalpa is a day of Brahma.</dd>
+        <dt>Vaivasvata manvantare</dt><dd>In the period of Vaivasvata Manu, the seventh Manu of this kalpa. A manvantara is an era governed by a Manu.</dd>
+        <dt>Ashtavimshatitame … Kaliyuge, prathame pade</dt><dd>In Kali Yuga of the twenty-eighth cycle of four yugas, in its first quarter. The four yugas are Krita (Satya), Treta, Dvapara and Kali.</dd>
+      </dl>
+    </section>
+    <section class="panel">
+      <h2>From cosmic time to today's Panchangam</h2>
+      <dl class="sk-info-terms">
+        <dt>Samvatsara, Ayana and Ritu</dt><dd>The named year in the 60-year cycle; Uttarayana or Dakshinayana, the half-year; and one of the six traditional seasons.</dd>
+        <dt>Masa and Paksha</dt><dd>The month and the Moon's waxing fortnight (Shukla) or waning fortnight (Krishna). This app lets you choose a lunar month or Tamil solar month in Settings.</dd>
+        <dt>Tithi and Vasara</dt><dd>The lunar day, determined by the angle between the Moon and Sun, and the weekday.</dd>
+        <dt>Nakshatra, Yoga and Karana</dt><dd>The Moon's stellar division, the Sun–Moon longitude combination, and a half-tithi. Together with Tithi and Vasara, these are the five limbs of the Panchangam.</dd>
+      </dl>
+      <p>Use the <strong>Values</strong> tab for the selected place and time. The Chennai passage above is only an explanation; your actual mantra uses your Settings.</p>
+    </section>
+    <section class="panel">
+      <h2>The person and the purpose</h2>
+      <p>The Sankalpa then names the worshipper and gotra, states the intention and deity, and declares the ritual to be performed. The purpose is to begin consciously, with a clear resolve.</p>
+      <p class="hint">Wording varies by family and ritual tradition. Overseas adaptations of dvipa, varsha and khanda also differ; there is no single universally agreed mapping to modern continents.</p>
+      <p class="hint">Further reading: <a href="https://www.atmajyotifoundation.org/article/what-is-sankalpa" target="_blank" rel="noopener noreferrer">Atma Jyoti Foundation: What is Sankalpa?</a> · <a href="https://sacred-texts.com/hin/vp/vp060.htm" target="_blank" rel="noopener noreferrer">Vishnu Purana, Book II, Chapter III: Bharata</a>.</p>
+    </section>
+  </div>
 </div>
 
 <dialog id="dlg" aria-labelledby="dlgTitle">
@@ -1966,6 +2037,7 @@ const LISTS = {
   const zip = (tamils, hindi) => tamils.forEach((ta, i) => { if (hindi[i] != null) put(ta, hindi[i]); });
   S(['ஸ்லோக சாகர்|श्लोक सागर']);
   U([
+    'பொதுத் தகவல்|सामान्य जानकारी|సాధారణ సమాచారం|ಸಾಮಾನ್ಯ ಮಾಹಿತಿ|പൊതുവിവരങ്ങൾ',
     'பிறப்பு விவரங்கள்|जन्म विवरण|జనన వివరాలు|ಜನನ ವಿವರಗಳು|ജനന വിവരങ്ങൾ',
     'பிறந்த தேதி|जन्म तिथि|పుట్టిన తేదీ|ಹುಟ್ಟಿದ ದಿನಾಂಕ|ജനന തീയതി',
     'பிறந்த ஊர்|जन्म स्थान|పుట్టిన ఊరు|ಹುಟ್ಟಿದ ಊರು|ജനന സ്ഥലം',
@@ -3006,7 +3078,7 @@ const LISTS = {
     } catch (e) { msg = 'Could not calculate for this date. Please try another date.'; console.error(e); }
     if (msg) for (const id of ['skVars', 'skEnBody', 'skTaBody', 'skDevBody']) $(id).innerHTML = `<div class="nosun">${esc(msg)}</div>`;
   }
-  const SKT = ['set', 'var', 'en', 'ta', 'dev'];
+  const SKT = ['set', 'var', 'en', 'ta', 'dev', 'info'];
   function skShow(name, focus) {
     for (const k of SKT) {
       const active = k === name, button = $('sktab-' + k);
@@ -3021,7 +3093,7 @@ const LISTS = {
     $('sktab-' + k).addEventListener('click', () => skShow(k));
     $('sktab-' + k).addEventListener('keydown', e => {
       if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(e.key)) return;
-      e.preventDefault(); skShow(e.key === 'Home' ? 'set' : e.key === 'End' ? 'dev' : SKT[(SKT.indexOf(k) + (e.key === 'ArrowRight' ? 1 : SKT.length - 1)) % SKT.length], true);
+      e.preventDefault(); skShow(e.key === 'Home' ? SKT[0] : e.key === 'End' ? SKT[SKT.length - 1] : SKT[(SKT.indexOf(k) + (e.key === 'ArrowRight' ? 1 : SKT.length - 1)) % SKT.length], true);
     });
   }
   $('skNext').addEventListener('click', () => skShow('var'));
