@@ -22,7 +22,7 @@
   --accent: #e3ab45; --accent-soft: #33280f;
   --bad: #f08a7e; --bad-soft: #3a1a17; --good: #6fd09b; --good-soft: #143223; --neutral-soft: #222c26; color-scheme: dark }
 
-body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.5; }
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: calc(15px * var(--active-text-scale, 1)); line-height: 1.5; }
 .wrap { max-width: 1040px; margin: 0 auto; padding-block: 20px 40px;
   padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
   display: flex; flex-direction: column; gap: 18px; }
@@ -107,6 +107,8 @@ footer { font-size: .82rem; color: var(--muted); max-width: 70ch; }
 .langbox svg { width: 18px; height: 18px; flex: none; stroke: var(--accent); fill: none; stroke-width: 1.7; stroke-linecap: round; }
 .langsel { font: inherit; font-weight: 600; color: var(--ink); background: transparent; border: 0; padding: 7px 4px; cursor: pointer; max-width: 11em; }
 .langsel:focus-visible { outline: none; }
+.header-options { display: contents; }
+.fontbox { display: none; }
 .nav { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 10px; }
 .nav button { position: relative; display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 12px 6px 10px; border-radius: 16px; background: var(--surface); }
 .nav .ico { width: 44px; height: 44px; border-radius: 14px; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent); }
@@ -321,7 +323,7 @@ footer { font-size: .82rem; color: var(--muted); max-width: 70ch; }
 
 /* Tappable terms */
 button.term { all: unset; cursor: pointer; font-weight: inherit; border-bottom: 1px dotted var(--muted); }
-button.term::after { content: "?"; display: inline-grid; place-items: center; width: 15px; height: 15px; margin-left: 5px; border-radius: 50%; font-size: 10px; font-weight: 700; color: var(--accent); border: 1px solid var(--accent); vertical-align: 2px; letter-spacing: 0; }
+button.term::after { content: "?"; display: inline-grid; place-items: center; width: calc(15px * var(--active-text-scale, 1)); height: calc(15px * var(--active-text-scale, 1)); margin-left: 5px; border-radius: 50%; font-size: calc(10px * var(--active-text-scale, 1)); font-weight: 700; color: var(--accent); border: 1px solid var(--accent); vertical-align: 2px; letter-spacing: 0; }
 button.term:hover { color: var(--accent); }
 button.term:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 3px; }
 .hint { font-size: .85rem; color: var(--muted); }
@@ -428,6 +430,28 @@ dialog::backdrop { background: rgb(10 20 14 / .45); }
 .mantra .sv { font-weight: 500; }
 .sk-mean p { margin: 0 0 8px; }
 .sk-sec h3 { margin: 0; font-family: var(--display); font-size: 1.1rem; }
+
+/* Mobile reading preference. 100% keeps the established type sizes and layout. */
+@media (max-width: 700px) {
+  :root { --active-text-scale: var(--text-scale, 1); font-size: calc(100% * var(--active-text-scale)); }
+  .header-options { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; max-width: 100%; }
+  .header-options .langbox { min-width: 0; max-width: 100%; box-sizing: border-box; }
+  .header-options .langsel { min-width: 0; max-width: 100%; }
+  .fontbox { display: inline-flex; align-items: center; gap: 5px; padding: 3px 6px 3px 10px; border: 1px solid var(--line); border-radius: 99px; background: var(--surface); min-width: 0; max-width: 100%; box-sizing: border-box; }
+  .fontbox > span[aria-hidden] { color: var(--accent); font-weight: 700; }
+  .fontbox:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
+  #textSize { font: inherit; font-weight: 600; color: var(--ink); background: transparent; border: 0; padding: 7px 2px; min-width: 0; max-width: 100%; min-height: 38px; cursor: pointer; }
+  #textSize:focus-visible { outline: none; }
+  :root[data-text-size] body { overflow-wrap: anywhere; }
+  :root[data-text-size] .when { white-space: normal; }
+  :root[data-text-size] .nav .lbl { min-width: 0; max-width: 100%; overflow-wrap: anywhere; }
+  :root:is([data-text-size="120"], [data-text-size="130"], [data-text-size="140"], [data-text-size="150"]) .nav { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  :root:is([data-text-size="120"], [data-text-size="130"], [data-text-size="140"], [data-text-size="150"]) .nav #tab-slokasaagar { grid-column: auto; flex-direction: column; gap: 4px; }
+  :root[data-text-size] .day { grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)); }
+  :root[data-text-size] .brand, :root[data-text-size] .hs-intro > div { min-width: 0; }
+  :root[data-text-size] .hs-chart { overflow-x: auto; }
+  :root[data-text-size] .hs-chart svg { width: calc(100% * var(--active-text-scale)); max-width: none; }
+}
 </style>
 
 <div class="wrap" id="app">
@@ -2133,6 +2157,7 @@ const LISTS = {
   const zip = (tamils, hindi) => tamils.forEach((ta, i) => { if (hindi[i] != null) put(ta, hindi[i]); });
   S(['ஸ்லோக சாகர்|श्लोक सागर']);
   U([
+    'எழுத்து அளவு|अक्षर आकार|అక్షర పరిమాణం|ಅಕ್ಷರ ಗಾತ್ರ|അക്ഷര വലുപ്പം',
     'பொதுத் தகவல்|सामान्य जानकारी|సాధారణ సమాచారం|ಸಾಮಾನ್ಯ ಮಾಹಿತಿ|പൊതുവിവരങ്ങൾ',
     'பிறப்பு விவரங்கள்|जन्म विवरण|జనన వివరాలు|ಜನನ ವಿವರಗಳು|ജനന വിവരങ്ങൾ',
     'பிறந்த தேதி|जन्म तिथि|పుట్టిన తేదీ|ಹುಟ್ಟಿದ ದಿನಾಂಕ|ജനന തീയതി',
@@ -2288,6 +2313,16 @@ const LISTS = {
   const I = window.I18N;
   const lsGet = (k, d) => { try { const v = localStorage.getItem(k); return v == null ? d : v; } catch (e) { return d; } };
   const lsSet = (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} };
+  const TEXT_SIZES = [80, 90, 100, 110, 120, 130, 140, 150];
+  function applyTextSize(value, save = false) {
+    const size = TEXT_SIZES.includes(Number(value)) ? Number(value) : 100;
+    document.documentElement.style.setProperty('--text-scale', String(size / 100));
+    if (size === 100) delete document.documentElement.dataset.textSize;
+    else document.documentElement.dataset.textSize = String(size);
+    if ($('textSize')) $('textSize').value = String(size);
+    if (save) lsSet('mobileTextSize', String(size));
+  }
+  applyTextSize(lsGet('mobileTextSize', '100'));
   const LANG = { code: lsGet('lang', 'ta') };
   if (!I.LANGS.some(l => l.code === LANG.code)) LANG.code = 'ta';
   const langInfo = () => I.LANGS.find(l => l.code === LANG.code);
@@ -2327,9 +2362,11 @@ const LISTS = {
     if (h[2]) el.className = 'pagehead';
     el.innerHTML = (h[2] ? `<button type="button" id="${h[2]}">◀ Back to Panchangam</button>` : '') +
       `<header class="top"><div class="brand">${LOGO}<h1>${h[0]} <small>${h[1]}</small></h1></div>` +
-      (el.dataset.hdr !== 'today' ? '' : `<label class="langbox">${GLOBE}<select class="langsel" data-keep aria-label="Language · மொழி">${I.LANGS.map(l => `<option value="${l.code}">${l.name} · ${l.en}</option>`).join('')}</select></label>`) + '</header>';
+      (el.dataset.hdr !== 'today' ? '' : `<div class="header-options"><label class="langbox">${GLOBE}<select class="langsel" data-keep aria-label="Language · மொழி">${I.LANGS.map(l => `<option value="${l.code}">${l.name} · ${l.en}</option>`).join('')}</select></label><label class="fontbox" title="Text size · எழுத்து அளவு (100% default)"><span aria-hidden="true">Aa</span><select id="textSize" aria-label="Text size · எழுத்து அளவு">${TEXT_SIZES.map(size => `<option value="${size}">${size}%</option>`).join('')}</select></label></div>`) + '</header>';
   });
   document.querySelectorAll('.langsel').forEach(sel => sel.addEventListener('change', e => applyLang(e.target.value)));
+  applyTextSize(lsGet('mobileTextSize', '100'));
+  $('textSize').addEventListener('change', e => applyTextSize(e.target.value, true));
 
   const TOP = '<button type="button" class="totop" data-top aria-label="Back to top">↑ Top · மேலே</button>';
   const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
