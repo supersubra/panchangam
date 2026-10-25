@@ -227,7 +227,7 @@ footer { font-size: .82rem; color: var(--muted); max-width: 70ch; }
 .hs-intro h2 { color: var(--accent); font-size: 1.35rem; }
 .hs-intro p { margin: 5px 0 0; color: var(--muted); max-width: 65ch; }
 :is(#hspage, #skpage) .hs-tabs { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; overflow: visible; border: 0; }
-#skpage .hs-tabs { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+#skpage .hs-tabs { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 #skpane-info { gap: 18px; }
 .sk-info-terms { margin: 0; }
 .sk-info-terms dt { font-weight: 600; margin-top: 14px; color: var(--accent); }
@@ -247,6 +247,9 @@ footer { font-size: .82rem; color: var(--muted); max-width: 70ch; }
 :is(#hspage, #skpage) .hs-tabs button { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; text-align: left; white-space: normal; overflow-wrap: anywhere; margin: 0; padding: 14px 12px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); color: var(--ink); line-height: 1.35; }
 .hs-tab-icon { display: flex; align-items: center; justify-content: space-between; width: 100%; color: var(--hs-gold); font-size: .72rem; letter-spacing: .08em; margin-bottom: 4px; }
 .hs-tab-icon svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linejoin: round; stroke-linecap: round; }
+#skpage .hs-tabs button.sk-language-tab { padding: 9px 12px; gap: 3px; }
+#skpage .sk-language-tab .hs-tab-icon { margin-bottom: 0; }
+#skpage .sk-language-tab .hs-tab-icon svg { width: 16px; height: 16px; }
 :is(#hspage, #skpage) .hs-tabs .ta { font-weight: 400; font-size: .8rem; }
 :is(#hspage, #skpage) .hs-tabs button[aria-selected="true"] { color: var(--hs-on-selected); background: var(--hs-selected); border-color: var(--hs-selected); box-shadow: inset 0 -3px #c8a35e; }
 :is(#hspage, #skpage) .hs-tabs button[aria-selected="true"] .ta, :is(#hspage, #skpage) .hs-tabs button[aria-selected="true"] .hs-tab-icon { color: #f4d9a4; }
@@ -287,7 +290,10 @@ footer { font-size: .82rem; color: var(--muted); max-width: 70ch; }
   :is(#hspage, #skpage) .hs-tabs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   :is(#hspage, #skpage) .hs-tabs button { padding: 12px; }
   :is(#hspage, #skpage) .hs-tabs button:last-child { grid-column: 1 / -1; }
-  #skpage .hs-tabs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  #skpage .hs-tabs { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+  #skpage .hs-tabs button { padding: 10px 8px; font-size: .82rem; gap: 4px; }
+  #skpage .hs-tabs .ta { font-size: .73rem; }
+  #skpage .hs-tabs button.sk-language-tab { padding: 8px; font-size: .78rem; }
   #skpage .hs-tabs button:last-child { grid-column: auto; }
   .hs-tab-icon { margin-bottom: 0; }
   :is(#hspage, #skpage) h1 { font-size: 1.8rem; }
@@ -639,10 +645,10 @@ dialog::backdrop { background: rgb(10 20 14 / .45); }
   <div class="tabs hs-tabs" role="tablist" aria-label="Sankalpa sections">
     <button type="button" role="tab" id="sktab-set" aria-controls="skpane-set" aria-selected="true" tabindex="0"><span class="hs-tab-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"/></svg><span>01</span></span><span>Settings</span><span class="ta">அமைப்பு</span></button>
     <button type="button" role="tab" id="sktab-var" aria-controls="skpane-var" aria-selected="false" tabindex="-1"><span class="hs-tab-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg><span>02</span></span><span>Values</span><span class="ta">மாறிகள்</span></button>
-    <button type="button" role="tab" id="sktab-en" aria-controls="skpane-en" aria-selected="false" tabindex="-1"><span class="hs-tab-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 6C9 4 6 4 3 5v14c3-1 6-1 9 1 3-2 6-2 9-1V5c-3-1-6-1-9 1ZM12 6v14"/></svg><span>03</span></span><span>English</span></button>
-    <button type="button" role="tab" id="sktab-ta" aria-controls="skpane-ta" aria-selected="false" tabindex="-1"><span class="hs-tab-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 6C9 4 6 4 3 5v14c3-1 6-1 9 1 3-2 6-2 9-1V5c-3-1-6-1-9 1ZM12 6v14M6 9h3M15 9h3"/></svg><span>04</span></span><span><span class="lname">Tamil</span></span><span class="ta">தமிழ்</span></button>
-    <button type="button" role="tab" id="sktab-dev" aria-controls="skpane-dev" aria-selected="false" tabindex="-1"><span class="hs-tab-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 5h16M8 5v14M8 12h6a3 3 0 0 1 3 3v4M14 5v7"/></svg><span>05</span></span><span>Devanagari</span><span class="ta" data-keep>देवनागरी</span></button>
-    <button type="button" role="tab" id="sktab-info" aria-controls="skpane-info" aria-selected="false" tabindex="-1"><span class="hs-tab-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7v1"/></svg><span>06</span></span><span>General information</span><span class="ta">பொதுத் தகவல்</span></button>
+    <button type="button" role="tab" id="sktab-info" aria-controls="skpane-info" aria-selected="false" tabindex="-1"><span class="hs-tab-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7v1"/></svg><span>03</span></span><span>General information</span><span class="ta">பொதுத் தகவல்</span></button>
+    <button type="button" role="tab" class="sk-language-tab" id="sktab-en" aria-controls="skpane-en" aria-selected="false" tabindex="-1"><span class="hs-tab-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 6C9 4 6 4 3 5v14c3-1 6-1 9 1 3-2 6-2 9-1V5c-3-1-6-1-9 1ZM12 6v14"/></svg><span>04</span></span><span>English</span></button>
+    <button type="button" role="tab" class="sk-language-tab" id="sktab-ta" aria-controls="skpane-ta" aria-selected="false" tabindex="-1"><span class="hs-tab-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 6C9 4 6 4 3 5v14c3-1 6-1 9 1 3-2 6-2 9-1V5c-3-1-6-1-9 1ZM12 6v14M6 9h3M15 9h3"/></svg><span>05</span></span><span><span class="lname">Tamil</span></span><span class="ta">தமிழ்</span></button>
+    <button type="button" role="tab" class="sk-language-tab" id="sktab-dev" aria-controls="skpane-dev" aria-selected="false" tabindex="-1"><span class="hs-tab-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 5h16M8 5v14M8 12h6a3 3 0 0 1 3 3v4M14 5v7"/></svg><span>06</span></span><span>Devanagari</span><span class="ta" data-keep>देवनागरी</span></button>
   </div>
 
   <div class="tabpane" id="skpane-set" role="tabpanel" aria-labelledby="sktab-set">
@@ -695,7 +701,7 @@ dialog::backdrop { background: rgb(10 20 14 / .45); }
         <div class="field"><label for="skRegionDv">प्रदेश (state)</label><input id="skRegionDv" type="text" autocomplete="off" lang="sa"></div>
       </div>
       <datalist id="skGotraDvList"></datalist>
-      <div class="note">The 5th tab shows everything in Devanagari. Type your name, gotra, city and state here in Devanagari. Anything left empty is shown as typed in the other boxes.</div>
+      <div class="note">The Devanagari tab shows everything in Devanagari. Type your name, gotra, city and state here in Devanagari. Anything left empty is shown as typed in the other boxes.</div>
     </section>
     <div class="btns"><button type="button" class="primary" id="skNext">Next: see the values ▶</button></div>
   </div>
@@ -3168,7 +3174,7 @@ const LISTS = {
     } catch (e) { msg = 'Could not calculate for this date. Please try another date.'; console.error(e); }
     if (msg) for (const id of ['skVars', 'skEnBody', 'skTaBody', 'skDevBody']) $(id).innerHTML = `<div class="nosun">${esc(msg)}</div>`;
   }
-  const SKT = ['set', 'var', 'en', 'ta', 'dev', 'info'];
+  const SKT = ['set', 'var', 'info', 'en', 'ta', 'dev'];
   function skShow(name, focus) {
     for (const k of SKT) {
       const active = k === name, button = $('sktab-' + k);
