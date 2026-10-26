@@ -2307,7 +2307,7 @@ const LISTS = {
   'use strict';
   const $ = id => document.getElementById(id);
   const P = window.Panchang, DAY = 86400e3;
-  const state = { city: null, y: 0, m: 0, d: 0, source: '' };
+  const state = { city: null, y: 0, m: 0, d: 0, source: '', userLoc: false };
 
   // ---------- language: every label is written in Tamil in the code and turned into the chosen language here ----------
   const I = window.I18N;
@@ -2582,7 +2582,8 @@ const LISTS = {
     box.hidden = false; $('cityInput').setAttribute('aria-expanded', 'true');
   }
   function choose(c, source) {
-    state.city = c; state.source = source || '';
+    state.city = c; state.source = source || ''; state.userLoc = true;
+    skSyncDefault(true);
     showSuggest([]); hideMsg(); update();
   }
   function showMsg(t) { $('msg').textContent = t; $('msg').hidden = false; }
@@ -2638,7 +2639,7 @@ const LISTS = {
     setToday(); update();
     try { // IP lookup: works when hosted on a normal web server; silently skipped where blocked
       const j = await withTimeout('https://ipwho.is/', 3000);
-      if (j && j.success && j.timezone && j.timezone.id) {
+      if (!state.userLoc && j && j.success && j.timezone && j.timezone.id) {
         state.city = { name: j.city, region: [j.region, j.country].filter(Boolean).join(', '), lat: j.latitude, lon: j.longitude, tz: j.timezone.id, cc: j.country_code };
         state.source = 'found from your internet address';
         setToday(); update(); skSyncDefault();
@@ -3060,7 +3061,7 @@ const LISTS = {
 
   // ---------- Sankalpa Mantra: its own page with four tabs ----------
   const SK = Sankalpa, TA_MONTHS = ['ஜனவரி','பிப்ரவரி','மார்ச்','ஏப்ரல்','மே','ஜூன்','ஜூலை','ஆகஸ்ட்','செப்டம்பர்','அக்டோபர்','நவம்பர்','டிசம்பர்'];
-  const S = { city: null, region: '', cc: '', ct: 'AS', y: 0, m: 0, d: 0, h: 0, mi: 0, solar: false, userLoc: false, userTime: false };
+  const S = { city: null, region: '', cc: '', ct: '', y: 0, m: 0, d: 0, h: 0, mi: 0, solar: false, userLoc: false, userTime: false };
   const SK_IDS = ['skName', 'skNameTa', 'skGotra', 'skGotraTa', 'skNameDv', 'skGotraDv', 'skCityDv', 'skRegionDv'];
   const GOTRAS = [['Bharadwaja', 'பாரத்வாஜ'], ['Kashyapa', 'காஶ்யப'], ['Vasishtha', 'வஸிஷ்ட'], ['Vishvamitra', 'விஶ்வாமித்ர'], ['Atri', 'அத்ரி'], ['Gautama', 'கௌதம'], ['Jamadagni', 'ஜமதக்னி'], ['Agastya', 'அகஸ்த்ய'], ['Kaundinya', 'கௌண்டின்ய'], ['Harita', 'ஹாரீத'], ['Srivatsa', 'ஸ்ரீவத்ஸ'], ['Koushika', 'கௌஶிக'], ['Sandilya', 'ஶாண்டில்ய'], ['Vadhula', 'வாதூல'], ['Angirasa', 'ஆங்கிரஸ'], ['Parashara', 'பராஶர'], ['Mudgala', 'முத்கல'], ['Kutsa', 'குத்ஸ'], ['Maudgalya', 'மௌத்கல்ய'], ['Upamanyu', 'உபமன்யு']];
   let savedGotras = []; try { savedGotras = JSON.parse(lsGet('skGotras', '[]')) || []; } catch (e) {}
@@ -3092,7 +3093,7 @@ const LISTS = {
     $('skCountry').value = keep;
   }
   skCountries();
-  $('skContinent').innerHTML = Object.entries(SK.CONT).map(([k, v]) => `<option value="${k}">${esc(v[0])} · ${esc(v[1])}</option>`).join('');
+  $('skContinent').innerHTML = '<option value="">— choose —</option>' + Object.entries(SK.CONT).map(([k, v]) => `<option value="${k}">${esc(v[0])} · ${esc(v[1])}</option>`).join('');
 
   function skNow() {
     const p = P.tzParts(Date.now(), S.city.tz);
@@ -3106,13 +3107,21 @@ const LISTS = {
     const c = S.city;
     $('skWhere').textContent = `${Math.abs(c.lat).toFixed(2)}°${c.lat >= 0 ? 'N' : 'S'} ${Math.abs(c.lon).toFixed(2)}°${c.lon >= 0 ? 'E' : 'W'} · ${c.tz}${S.src ? ' · ' + S.src : ''}. The country and continent come from the city; change them here if they are wrong.`;
   }
-  function skSetCity(c, src) {
+  function skSetCity(c, src, resetPlace = false) {
+    // A translated place name belongs to the old city, not to the person.
+    const changed = S.city && ['name', 'region', 'lat', 'lon', 'tz', 'cc'].some(k => S.city[k] !== c[k]);
+    if (resetPlace || changed) for (const id of ['skCityDv', 'skRegionDv']) { $(id).value = ''; lsSet(skKey(id), ''); }
     const parts = (c.region || '').split(',').map(x => x.trim()).filter(Boolean);
     S.city = c; S.src = src || ''; S.region = parts.length > 1 ? parts[0] : '';
-    S.cc = c.cc || SK.countryCode(c.region) || ''; S.ct = SK.continentOf(S.cc) || S.ct;
+    S.cc = c.cc || SK.countryCode(c.region) || ''; S.ct = SK.continentOf(S.cc);
     if (!S.userTime) skNow(); else skFields();
   }
-  function skSyncDefault() { if (!S.userLoc && state.city) skSetCity(state.city, state.source); }
+  function skSyncDefault(force = false) {
+    if ((!S.userLoc || force) && state.city) {
+      if (force) S.userLoc = false;
+      skSetCity(state.city, state.source, force); skRender();
+    }
+  }
 
   // city search for the settings tab
   let skOpts = [], skAct = 0, skSeq = 0;
@@ -3122,7 +3131,7 @@ const LISTS = {
     box.innerHTML = list.map((c, i) => `<button type="button" role="option" aria-selected="${i === 0}" data-i="${i}">${esc(c.name)} <span>${esc(c.region)}</span></button>`).join('');
     box.hidden = false; $('skCity').setAttribute('aria-expanded', 'true');
   }
-  function skChoose(c) { S.userLoc = true; skSuggest([]); skSetCity(c, ''); skRender(); }
+  function skChoose(c) { S.userLoc = true; skSuggest([]); skSetCity(c, '', true); skRender(); }
   $('skCity').addEventListener('input', async e => {
     const q = e.target.value, my = ++skSeq, local = localMatches(q);
     skSuggest(local);
@@ -3144,7 +3153,7 @@ const LISTS = {
   $('skCity').addEventListener('blur', () => setTimeout(() => { skSuggest([]); if (S.city) $('skCity').value = S.city.name; }, 150));
 
   $('skRegion').addEventListener('input', e => { S.region = e.target.value; skRender(); });
-  $('skCountry').addEventListener('change', e => { S.cc = e.target.value; S.ct = SK.continentOf(S.cc) || S.ct; $('skContinent').value = S.ct; skRender(); });
+  $('skCountry').addEventListener('change', e => { S.cc = e.target.value; S.ct = SK.continentOf(S.cc); $('skContinent').value = S.ct; skRender(); });
   $('skContinent').addEventListener('change', e => { S.ct = e.target.value; skRender(); });
   $('skDate').addEventListener('change', e => { const v = e.target.value; if (!v) return; const [y, m, d] = v.split('-').map(Number); if (y < 1600 || y > 2400) return; Object.assign(S, { y, m, d, userTime: true }); skRender(); });
   $('skTime').addEventListener('change', e => { const v = e.target.value; if (!v) return; const [h, mi] = v.split(':').map(Number); Object.assign(S, { h, mi, userTime: true }); skRender(); });
@@ -3162,6 +3171,10 @@ const LISTS = {
 
   function skRender() {
     if ($('skpage').hidden || !S.city) return;
+    if (!S.cc || !S.ct) {
+      for (const id of ['skVars', 'skEnBody', 'skTaBody', 'skDevBody']) $(id).innerHTML = '<div class="nosun">Please choose the country and continent in Settings for this city.</div>';
+      return;
+    }
     const c = S.city, calc = (y, m, d) => P.calculate({ y, m, d, lat: c.lat, lon: c.lon, tz: c.tz });
     let msg = '';
     try {
