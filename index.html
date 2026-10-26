@@ -267,7 +267,11 @@ footer { font-size: .82rem; color: var(--muted); max-width: 70ch; }
 #hsForm { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; margin-top: 10px; }
 #hsForm .field label { font-size: .9rem; text-transform: none; letter-spacing: 0; color: var(--ink); }
 #hsForm label .ta { font-weight: 400; }
-#hsForm input { box-sizing: border-box; width: 100%; min-height: 48px; }
+#hsForm input, #hsForm select { box-sizing: border-box; width: 100%; min-width: 0; min-height: 48px; }
+#hsForm select { font: inherit; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 9px 11px; }
+#hsForm select:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+#hsForm .field { min-width: 0; }
+.hs-saved-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
 #hsForm .hs-wide { grid-column: 1 / -1; }
 .hs-form-actions { display: flex; gap: 10px; flex-wrap: wrap; border-top: 1px solid var(--line); padding-top: 18px; align-items: center; }
 #hsForm .hs-now { border: 0; padding: 4px 0; color: var(--accent); font-size: .85rem; background: transparent; min-height: 36px; }
@@ -587,6 +591,14 @@ dialog::backdrop { background: rgb(10 20 14 / .45); }
       <div class="hs-form-title"><h3>Birth details <span class="ta">பிறப்பு விவரங்கள்</span></h3><span class="hs-kicker">Your starting point</span></div>
       <p class="note">Enter the time recorded at the place of birth. An accurate birth time matters for the Lagna.</p>
       <form id="hsForm" autocomplete="off">
+        <div class="field hs-wide">
+          <label for="hsSavedPeople">Saved people <span class="ta">· சேமித்த நபர்கள்</span> <small id="hsSavedCount" data-keep>0 / 5</small></label>
+          <select id="hsSavedPeople" aria-describedby="hsStorageNote"><option value="">New person · புதிய நபர்</option></select>
+          <div class="hs-saved-actions">
+            <button type="button" id="hsClear">New person · புதிய நபர்</button>
+            <button type="button" id="hsDelete" disabled>Delete saved person · சேமித்த நபரை நீக்கு</button>
+          </div>
+        </div>
         <div class="field"><label for="hsName">Name <span class="ta">· பெயர்</span> <small>(optional)</small></label><input id="hsName" type="text" maxlength="120" placeholder="Full name" data-keep></div>
         <div class="field"><label for="hsGotra">Gotra <span class="ta">· கோத்திரம்</span> <small>(optional)</small></label><input id="hsGotra" type="text" maxlength="120" list="skGotraList" placeholder="Choose or type a gotra" data-keep></div>
         <div class="field"><label for="hsDate">Date of birth <span class="ta">· பிறந்த தேதி</span></label><input id="hsDate" type="date" min="1600-01-01" max="2400-12-31" required></div>
@@ -601,9 +613,8 @@ dialog::backdrop { background: rgb(10 20 14 / .45); }
         <div class="hs-wide hs-form-actions">
           <button type="submit" id="hsView" class="primary">View horoscope · ஜாதகத்தைக் காட்டு <span aria-hidden="true">→</span></button>
           <button type="button" id="hsSave">Save details · சேமி</button>
-          <button type="button" id="hsClear">Clear details · அழி</button>
         </div>
-        <div class="hs-wide"><p class="note">Save keeps one profile in this browser for your next visit. Name and gotra are optional and do not affect the calculations.</p><p class="note" id="hsSaveStatus" role="status" aria-live="polite"></p></div>
+        <div class="hs-wide"><p class="note" id="hsStorageNote">Save up to 5 people in this browser on this device. Select a saved person to view or update their details; choose New person to enter someone else. Clearing browser data removes saved people. Name and gotra are optional and do not affect the calculations.</p><p class="note" id="hsSaveStatus" role="status" aria-live="polite"></p></div>
       </form>
     </section>
   </div>
@@ -2164,6 +2175,9 @@ const LISTS = {
     'பிறந்த ஊர்|जन्म स्थान|పుట్టిన ఊరు|ಹುಟ್ಟಿದ ಊರು|ജനന സ്ഥലം',
     'ஜாதகத்தைக் காட்டு|कुंडली दिखाएँ|జాతకం చూపించు|ಜಾತಕ ತೋರಿಸಿ|ജാതകം കാണിക്കുക',
     'சேமி|सहेजें|భద్రపరచు|ಉಳಿಸಿ|സൂക്ഷിക്കുക',
+    'சேமித்த நபர்கள்|सहेजे गए लोग|భద్రపరచిన వ్యక్తులు|ಉಳಿಸಿದ ವ್ಯಕ್ತಿಗಳು|സൂക്ഷിച്ച വ്യക്തികൾ',
+    'புதிய நபர்|नया व्यक्ति|కొత్త వ్యక్తి|ಹೊಸ ವ್ಯಕ್ತಿ|പുതിയ വ്യക്തി',
+    'சேமித்த நபரை நீக்கு|सहेजे गए व्यक्ति को हटाएँ|భద్రపరచిన వ్యక్తిని తొలగించు|ಉಳಿಸಿದ ವ್ಯಕ್ತಿಯನ್ನು ಅಳಿಸಿ|സൂക്ഷിച്ച വ്യക്തിയെ നീക്കുക',
     'அழி|मिटाएँ|తొలగించు|ಅಳಿಸಿ|മായ്ക്കുക',
     'திருத்து|संपादित करें|సవరించు|ತಿದ್ದುಪಡಿ ಮಾಡಿ|തിരുത്തുക',
     'பலன் சுருக்கம்|फल सारांश|ఫలితాల సారాంశం|ಫಲಗಳ ಸಾರಾಂಶ|ഫലസംഗ്രഹം',
@@ -2985,40 +2999,127 @@ const LISTS = {
   function hsValidate() {
     renderHoroscope();
     if (!$('hsForm').reportValidity() || !HP.chart) { $('hsError').hidden = false; return false; }
+    if ($('hsCity').value.trim() !== H.city.name) {
+      $('hsError').textContent = 'Choose the place of birth from the city suggestions before saving or viewing.';
+      $('hsError').hidden = false; return false;
+    }
     return true;
   }
   $('hsForm').addEventListener('submit', e => { e.preventDefault(); if (hsValidate()) hsTab('south', true); });
-  $('hsSave').addEventListener('click', () => {
-    if (!hsValidate()) return;
-    const profile = { version: 1, name: $('hsName').value.trim(), gotra: $('hsGotra').value.trim(), city: H.city, y: H.y, m: H.m, d: H.d, h: H.h, mi: H.mi };
+  let hsPeople = [], hsSelectedId = '', hsStoredValue = null, hsStorageReady = false;
+  const hsPersonLabel = o => `${o.name || 'Unnamed person'} · ${o.y}-${p2(o.m)}-${p2(o.d)} · ${p2(o.h)}:${p2(o.mi)} · ${o.city.name}`;
+  function hsPeopleList() {
+    const select = $('hsSavedPeople');
+    select.replaceChildren(new Option('New person · புதிய நபர்', ''));
+    for (const person of hsPeople) {
+      const option = new Option(hsPersonLabel(person), person.id);
+      option.setAttribute('data-keep', ''); select.appendChild(option);
+    }
+    select.value = hsSelectedId;
+    $('hsSavedCount').textContent = `${hsPeople.length} / 5`;
+    $('hsDelete').disabled = !hsSelectedId;
+  }
+  function hsWritePeople(people, selectedId, action = 'save') {
     try {
-      localStorage.setItem('hsProfile', JSON.stringify(profile));
-      $('hsSaveStatus').textContent = 'Details saved in this browser. They will be here when you return.';
-    } catch (e) { $('hsSaveStatus').textContent = 'This browser could not save your details. You can still view the horoscope for this visit.'; }
-  });
-  $('hsClear').addEventListener('click', () => {
-    try { localStorage.removeItem('hsProfile'); }
-    catch (e) { $('hsSaveStatus').textContent = 'This browser could not remove the saved profile. Please clear it through your browser settings.'; return; }
+      if (!hsStorageReady) throw new Error('Storage unavailable');
+      // Do not overwrite changes saved by another tab since our last read/write.
+      if (localStorage.getItem('hsProfiles') !== hsStoredValue) {
+        $('hsSaveStatus').textContent = 'Saved people changed in another tab. Reload this page before saving or deleting.';
+        return false;
+      }
+      const value = JSON.stringify({ version: 2, profiles: people, selectedId });
+      localStorage.setItem('hsProfiles', value);
+      hsStoredValue = value; hsPeople = people; hsSelectedId = selectedId;
+      // The collection is authoritative, including when empty. Remove legacy data only after a successful write.
+      try { localStorage.removeItem('hsProfile'); } catch (e) { /* A leftover legacy key is ignored. */ }
+      hsPeopleList();
+      return true;
+    } catch (e) {
+      $('hsSaveStatus').textContent = action === 'delete'
+        ? 'This browser could not remove the saved person. Their saved details have been kept.'
+        : 'This browser could not save your details. Existing saved people have been kept. You can still view the horoscope for this visit.';
+      return false;
+    }
+  }
+  function hsLoadPerson(o) {
+    Object.assign(H, { city: { ...o.city }, src: '', y: o.y, m: o.m, d: o.d, h: o.h, mi: o.mi, userTime: true });
+    $('hsName').value = o.name; $('hsGotra').value = o.gotra;
+    $('hsSuggest').hidden = true; $('hsCity').setAttribute('aria-expanded', 'false');
+    hsFields(); hsResetPredictions(); hsResetSummary(); renderHoroscope(); hsIdentity();
+  }
+  function hsNewPerson() {
+    const saved = !hsSelectedId || hsWritePeople(hsPeople, '');
+    hsSelectedId = ''; hsPeopleList();
     $('hsName').value = ''; $('hsGotra').value = '';
     Object.assign(H, { city: state.city || H.city, src: '', y: 0, m: 0, d: 0, h: NaN, mi: NaN, userTime: true });
-    hsFields(); renderHoroscope(); hsTab('details');
-    $('hsSaveStatus').textContent = 'Details cleared from this browser. Enter a new birth date and time to begin.';
+    $('hsSuggest').hidden = true; $('hsCity').setAttribute('aria-expanded', 'false');
+    hsFields(); hsResetPredictions(); hsResetSummary(); renderHoroscope(); hsTab('details');
+    if (saved) $('hsSaveStatus').textContent = 'Enter a new person’s birth details. Your saved people are kept.';
+  }
+  $('hsSave').addEventListener('click', () => {
+    if (!hsValidate()) return;
+    if (!hsSelectedId && hsPeople.length >= 5) {
+      $('hsSaveStatus').textContent = 'All 5 spaces are used. Delete a saved person to add another, or view these details without saving.';
+      return;
+    }
+    const id = hsSelectedId || `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    const profile = { id, version: 1, name: $('hsName').value.trim(), gotra: $('hsGotra').value.trim(), city: { ...H.city }, y: H.y, m: H.m, d: H.d, h: H.h, mi: H.mi };
+    const people = hsSelectedId ? hsPeople.map(o => o.id === id ? profile : o) : [...hsPeople, profile];
+    if (hsWritePeople(people, id)) $('hsSaveStatus').textContent = 'Details saved in this browser. They will be here when you return.';
   });
+  $('hsClear').addEventListener('click', hsNewPerson);
+  $('hsSavedPeople').addEventListener('change', () => {
+    const person = hsPeople.find(o => o.id === $('hsSavedPeople').value);
+    if (!person) { hsNewPerson(); return; }
+    const saved = hsWritePeople(hsPeople, person.id);
+    hsSelectedId = person.id; hsPeopleList(); hsLoadPerson(person);
+    if (saved) $('hsSaveStatus').textContent = 'Saved details restored. Save details will update this person; New person starts another entry.';
+  });
+  $('hsDelete').addEventListener('click', () => {
+    const person = hsPeople.find(o => o.id === hsSelectedId);
+    if (!person || !window.confirm(`Delete this saved person from this browser?\n\n${hsPersonLabel(person)}`)) return;
+    if (!hsWritePeople(hsPeople.filter(o => o.id !== person.id), '', 'delete')) return;
+    hsNewPerson();
+    $('hsSaveStatus').textContent = 'Saved person deleted from this browser. Other saved people are kept.';
+  });
+  function hsCheckPerson(o) {
+    const c = o && o.city;
+    if (!o || o.version !== 1 || typeof o.name !== 'string' || typeof o.gotra !== 'string' || o.name.length > 120 || o.gotra.length > 120 ||
+        !c || typeof c.name !== 'string' || !c.name.trim() || typeof c.tz !== 'string' ||
+        !Number.isFinite(c.lat) || Math.abs(c.lat) > 90 || !Number.isFinite(c.lon) || Math.abs(c.lon) > 180 ||
+        !['y', 'm', 'd', 'h', 'mi'].every(k => Number.isInteger(o[k])) || o.y < 1600 || o.y > 2400) throw new Error('Invalid saved person');
+    new Intl.DateTimeFormat('en', { timeZone: c.tz });
+    P.chart({ y: o.y, m: o.m, d: o.d, h: o.h, mi: o.mi, lat: c.lat, lon: c.lon, tz: c.tz });
+    return { id: o.id, version: 1, name: o.name, gotra: o.gotra,
+      city: { name: c.name, region: typeof c.region === 'string' ? c.region : '', lat: c.lat, lon: c.lon, tz: c.tz },
+      y: o.y, m: o.m, d: o.d, h: o.h, mi: o.mi };
+  }
   function hsRestore() {
     try {
-      const o = JSON.parse(lsGet('hsProfile', 'null'));
-      if (!o) return;
-      const c = o.city;
-      if (o.version !== 1 || typeof o.name !== 'string' || typeof o.gotra !== 'string' || o.name.length > 120 || o.gotra.length > 120 ||
-          !c || typeof c.name !== 'string' || !c.name.trim() || typeof c.tz !== 'string' ||
-          !Number.isFinite(c.lat) || Math.abs(c.lat) > 90 || !Number.isFinite(c.lon) || Math.abs(c.lon) > 180 ||
-          !['y', 'm', 'd', 'h', 'mi'].every(k => Number.isInteger(o[k]))) throw new Error('Invalid saved profile');
-      new Intl.DateTimeFormat('en', { timeZone: c.tz });
-      P.chart({ y: o.y, m: o.m, d: o.d, h: o.h, mi: o.mi, lat: c.lat, lon: c.lon, tz: c.tz });
-      Object.assign(H, { city: { name: c.name, region: typeof c.region === 'string' ? c.region : '', lat: c.lat, lon: c.lon, tz: c.tz }, y: o.y, m: o.m, d: o.d, h: o.h, mi: o.mi, userTime: true });
-      $('hsName').value = o.name; $('hsGotra').value = o.gotra; hsFields();
-      $('hsSaveStatus').textContent = 'Saved details restored from this browser.';
-    } catch (e) { $('hsSaveStatus').textContent = 'Saved details could not be restored. Please enter them again.'; }
+      hsStoredValue = localStorage.getItem('hsProfiles');
+      if (hsStoredValue !== null) {
+        const data = JSON.parse(hsStoredValue);
+        if (!data || data.version !== 2 || !Array.isArray(data.profiles) || data.profiles.length > 5 ||
+            typeof data.selectedId !== 'string' || data.profiles.some(o => !o || typeof o.id !== 'string' || !o.id) ||
+            new Set(data.profiles.map(o => o.id)).size !== data.profiles.length ||
+            (data.selectedId && !data.profiles.some(o => o.id === data.selectedId))) throw new Error('Invalid saved people');
+        hsPeople = data.profiles.map(hsCheckPerson); hsSelectedId = data.selectedId; hsStorageReady = true;
+      } else {
+        const legacy = JSON.parse(localStorage.getItem('hsProfile') || 'null');
+        if (legacy) {
+          const person = { ...hsCheckPerson(legacy), id: 'legacy-profile' };
+          hsPeople = [person]; hsSelectedId = person.id; hsStorageReady = true;
+          if (!hsWritePeople(hsPeople, hsSelectedId)) { hsPeopleList(); hsLoadPerson(person); return; }
+        } else hsStorageReady = true;
+      }
+      hsPeopleList();
+      const person = hsPeople.find(o => o.id === hsSelectedId);
+      if (person) hsLoadPerson(person);
+      if (hsPeople.length) $('hsSaveStatus').textContent = 'Saved details restored from this browser.';
+    } catch (e) {
+      hsStorageReady = false;
+      $('hsSaveStatus').textContent = 'Saved details could not be restored. Stored data has been kept. You can enter details to view a horoscope without saving.';
+    }
   }
   hsRestore();
   $('hsBack').addEventListener('click', () => { location.hash = ''; });
