@@ -592,12 +592,18 @@ dialog::backdrop { background: rgb(10 20 14 / .45); }
       <p class="note">Enter the time recorded at the place of birth. An accurate birth time matters for the Lagna.</p>
       <form id="hsForm" autocomplete="off">
         <div class="field hs-wide">
-          <label for="hsSavedPeople">Saved people <span class="ta">· சேமித்த நபர்கள்</span> <small id="hsSavedCount" data-keep>0 / 5</small></label>
+          <label for="hsSavedPeople">Saved people <span class="ta">· சேமித்த நபர்கள்</span> <small id="hsSavedCount" data-keep>0 / 8</small></label>
           <select id="hsSavedPeople" aria-describedby="hsStorageNote"><option value="">New person · புதிய நபர்</option></select>
           <div class="hs-saved-actions">
             <button type="button" id="hsClear">New person · புதிய நபர்</button>
             <button type="button" id="hsDelete" disabled>Delete saved person · சேமித்த நபரை நீக்கு</button>
           </div>
+          <div class="hs-saved-actions">
+            <button type="button" id="hsBackup" disabled>Download backup · காப்புப்பிரதியைப் பதிவிறக்கு</button>
+            <button type="button" id="hsImport">Restore backup · காப்புப்பிரதியை மீட்டெடு</button>
+          </div>
+          <input id="hsBackupFile" type="file" accept=".json,application/json" hidden aria-label="Restore backup file">
+          <p class="note">Download saves a backup file of saved details only. Keep it safe: it contains personal details and is not encrypted. To restore here or on another device, choose Restore backup and select that file. Restore adds people, skips exact duplicates and keeps existing entries (up to 8 total).</p>
         </div>
         <div class="field"><label for="hsName">Name <span class="ta">· பெயர்</span> <small>(optional)</small></label><input id="hsName" type="text" maxlength="120" placeholder="Full name" data-keep></div>
         <div class="field"><label for="hsGotra">Gotra <span class="ta">· கோத்திரம்</span> <small>(optional)</small></label><input id="hsGotra" type="text" maxlength="120" list="skGotraList" placeholder="Choose or type a gotra" data-keep></div>
@@ -614,7 +620,7 @@ dialog::backdrop { background: rgb(10 20 14 / .45); }
           <button type="submit" id="hsView" class="primary">View horoscope · ஜாதகத்தைக் காட்டு <span aria-hidden="true">→</span></button>
           <button type="button" id="hsSave">Save details · சேமி</button>
         </div>
-        <div class="hs-wide"><p class="note" id="hsStorageNote">Save up to 5 people in this browser on this device. Select a saved person to view or update their details; choose New person to enter someone else. Clearing browser data removes saved people. Name and gotra are optional and do not affect the calculations.</p><p class="note" id="hsSaveStatus" role="status" aria-live="polite"></p></div>
+        <div class="hs-wide"><p class="note" id="hsStorageNote">Save up to 8 people in this browser on this device. Select a saved person to view or update their details; choose New person to enter someone else. Clearing browser data removes saved people; a downloaded backup lets you restore them. Name and gotra are optional and do not affect the calculations.</p><p class="note" id="hsSaveStatus" role="status" aria-live="polite"></p></div>
       </form>
     </section>
   </div>
@@ -2177,6 +2183,8 @@ const LISTS = {
     'சேமி|सहेजें|భద్రపరచు|ಉಳಿಸಿ|സൂക്ഷിക്കുക',
     'சேமித்த நபர்கள்|सहेजे गए लोग|భద్రపరచిన వ్యక్తులు|ಉಳಿಸಿದ ವ್ಯಕ್ತಿಗಳು|സൂക്ഷിച്ച വ്യക്തികൾ',
     'புதிய நபர்|नया व्यक्ति|కొత్త వ్యక్తి|ಹೊಸ ವ್ಯಕ್ತಿ|പുതിയ വ്യക്തി',
+    'காப்புப்பிரதியைப் பதிவிறக்கு|बैकअप डाउनलोड करें|బ్యాకప్ డౌన్‌లోడ్ చేయండి|ಬ್ಯಾಕಪ್ ಡೌನ್‌ಲೋಡ್ ಮಾಡಿ|ബാക്കപ്പ് ഡൗൺലോഡ് ചെയ്യുക',
+    'காப்புப்பிரதியை மீட்டெடு|बैकअप बहाल करें|బ్యాకప్ పునరుద్ధరించండి|ಬ್ಯಾಕಪ್ ಮರುಸ್ಥಾಪಿಸಿ|ബാക്കപ്പ് പുനഃസ്ഥാപിക്കുക',
     'சேமித்த நபரை நீக்கு|सहेजे गए व्यक्ति को हटाएँ|భద్రపరచిన వ్యక్తిని తొలగించు|ಉಳಿಸಿದ ವ್ಯಕ್ತಿಯನ್ನು ಅಳಿಸಿ|സൂക്ഷിച്ച വ്യക്തിയെ നീക്കുക',
     'அழி|मिटाएँ|తొలగించు|ಅಳಿಸಿ|മായ്ക്കുക',
     'திருத்து|संपादित करें|సవరించు|ತಿದ್ದುಪಡಿ ಮಾಡಿ|തിരുത്തുക',
@@ -3006,6 +3014,8 @@ const LISTS = {
     return true;
   }
   $('hsForm').addEventListener('submit', e => { e.preventDefault(); if (hsValidate()) hsTab('south', true); });
+  const HS_MAX_PEOPLE = 8;
+  const hsPeopleCount = n => `${n} ${n === 1 ? 'person' : 'people'}`;
   let hsPeople = [], hsSelectedId = '', hsStoredValue = null, hsStorageReady = false;
   const hsPersonLabel = o => `${o.name || 'Unnamed person'} · ${o.y}-${p2(o.m)}-${p2(o.d)} · ${p2(o.h)}:${p2(o.mi)} · ${o.city.name}`;
   function hsPeopleList() {
@@ -3016,8 +3026,9 @@ const LISTS = {
       option.setAttribute('data-keep', ''); select.appendChild(option);
     }
     select.value = hsSelectedId;
-    $('hsSavedCount').textContent = `${hsPeople.length} / 5`;
+    $('hsSavedCount').textContent = `${hsPeople.length} / ${HS_MAX_PEOPLE}`;
     $('hsDelete').disabled = !hsSelectedId;
+    $('hsBackup').disabled = !hsPeople.length;
   }
   function hsWritePeople(people, selectedId, action = 'save') {
     try {
@@ -3058,8 +3069,8 @@ const LISTS = {
   }
   $('hsSave').addEventListener('click', () => {
     if (!hsValidate()) return;
-    if (!hsSelectedId && hsPeople.length >= 5) {
-      $('hsSaveStatus').textContent = 'All 5 spaces are used. Delete a saved person to add another, or view these details without saving.';
+    if (!hsSelectedId && hsPeople.length >= HS_MAX_PEOPLE) {
+      $('hsSaveStatus').textContent = `All ${HS_MAX_PEOPLE} spaces are used. Delete a saved person to add another, or view these details without saving.`;
       return;
     }
     const id = hsSelectedId || `${Date.now()}-${Math.random().toString(36).slice(2)}`;
@@ -3085,7 +3096,8 @@ const LISTS = {
   function hsCheckPerson(o) {
     const c = o && o.city;
     if (!o || o.version !== 1 || typeof o.name !== 'string' || typeof o.gotra !== 'string' || o.name.length > 120 || o.gotra.length > 120 ||
-        !c || typeof c.name !== 'string' || !c.name.trim() || typeof c.tz !== 'string' ||
+        !c || typeof c.name !== 'string' || !c.name.trim() || c.name.length > 200 || typeof c.tz !== 'string' || c.tz.length > 100 ||
+        (typeof c.region === 'string' && c.region.length > 300) ||
         !Number.isFinite(c.lat) || Math.abs(c.lat) > 90 || !Number.isFinite(c.lon) || Math.abs(c.lon) > 180 ||
         !['y', 'm', 'd', 'h', 'mi'].every(k => Number.isInteger(o[k])) || o.y < 1600 || o.y > 2400) throw new Error('Invalid saved person');
     new Intl.DateTimeFormat('en', { timeZone: c.tz });
@@ -3094,12 +3106,81 @@ const LISTS = {
       city: { name: c.name, region: typeof c.region === 'string' ? c.region : '', lat: c.lat, lon: c.lon, tz: c.tz },
       y: o.y, m: o.m, d: o.d, h: o.h, mi: o.mi };
   }
+  // Canonical content, without device-specific identity, makes repeated imports safe.
+  function hsPersonDetails(o) {
+    const { id, ...details } = hsCheckPerson(o);
+    return details;
+  }
+  $('hsBackup').addEventListener('click', () => {
+    if (!hsPeople.length) return;
+    try {
+      if (localStorage.getItem('hsProfiles') !== hsStoredValue) {
+        $('hsSaveStatus').textContent = 'Saved people changed in another tab. Reload this page before downloading a backup.';
+        return;
+      }
+      const data = { format: 'panchangam-birth-profiles', version: 1, createdAt: new Date().toISOString(), profiles: hsPeople.map(hsPersonDetails) };
+      const url = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json;charset=utf-8' }));
+      const link = document.createElement('a');
+      link.href = url; link.download = `panchangam-people-backup-${data.createdAt.slice(0, 10)}.json`;
+      document.body.appendChild(link);
+      try { link.click(); } finally { link.remove(); setTimeout(() => URL.revokeObjectURL(url), 1000); }
+      $('hsSaveStatus').textContent = `Backup download started for ${hsPeopleCount(hsPeople.length)}. Unsaved form changes are not included.`;
+    } catch (e) {
+      $('hsSaveStatus').textContent = 'The backup could not be downloaded. Your saved details have been kept. Please try again.';
+    }
+  });
+  $('hsImport').addEventListener('click', () => $('hsBackupFile').click());
+  $('hsBackupFile').addEventListener('change', async () => {
+    const file = $('hsBackupFile').files[0];
+    if (!file) return;
+    $('hsImport').disabled = true;
+    try {
+      if (file.size > 256 * 1024) throw new Error('File too large');
+      const data = JSON.parse((await file.text()).replace(/^\uFEFF/, ''));
+      if (!data || data.format !== 'panchangam-birth-profiles' || data.version !== 1 ||
+          !Array.isArray(data.profiles) || !data.profiles.length || data.profiles.length > HS_MAX_PEOPLE) throw new Error('Invalid backup');
+      // Validate every record before writing anything. Never trust imported IDs.
+      const incoming = data.profiles.map(hsPersonDetails);
+      const seen = new Set(hsPeople.map(o => JSON.stringify(hsPersonDetails(o))));
+      const additions = [];
+      for (const person of incoming) {
+        const key = JSON.stringify(person);
+        if (!seen.has(key)) { seen.add(key); additions.push(person); }
+      }
+      const skipped = incoming.length - additions.length;
+      if (!additions.length) {
+        $('hsSaveStatus').textContent = 'All people in this backup are already saved with the same details. Nothing was changed.';
+        return;
+      }
+      if (hsPeople.length + additions.length > HS_MAX_PEOPLE) {
+        $('hsSaveStatus').textContent = `This backup would add ${hsPeopleCount(additions.length)} to your saved list of ${hsPeople.length}. The limit is ${HS_MAX_PEOPLE}. Nothing was changed. Download a backup of your current list before deleting entries to make room.`;
+        return;
+      }
+      if (!window.confirm(`Restore ${hsPeopleCount(additions.length)} from this backup?\n\n${additions.map(hsPersonLabel).join('\n')}\n\nExact duplicates skipped: ${skipped}. Existing saved people will be kept.`)) {
+        $('hsSaveStatus').textContent = 'Restore cancelled. Your saved details have been kept.';
+        return;
+      }
+      const usedIds = new Set(hsPeople.map(o => o.id));
+      const restored = additions.map(person => {
+        let id;
+        do { id = `${Date.now()}-${Math.random().toString(36).slice(2)}`; } while (usedIds.has(id));
+        usedIds.add(id); return { id, ...person };
+      });
+      if (!hsWritePeople([...hsPeople, ...restored], restored[0].id)) return;
+      hsLoadPerson(restored[0]);
+      $('hsSaveStatus').textContent = `Restored ${hsPeopleCount(restored.length)}. Exact duplicates skipped: ${skipped}. ${hsPeople.length} of ${HS_MAX_PEOPLE} spaces used. Existing saved people are kept.`;
+    } catch (e) {
+      $('hsSaveStatus').textContent = `This file could not be restored. Choose a valid Panchangam backup with 1–${HS_MAX_PEOPLE} people (up to 256 KB). Nothing was changed.`;
+    } finally {
+      $('hsBackupFile').value = ''; $('hsImport').disabled = false;
+    }
+  });
   function hsRestore() {
     try {
       hsStoredValue = localStorage.getItem('hsProfiles');
       if (hsStoredValue !== null) {
         const data = JSON.parse(hsStoredValue);
-        if (!data || data.version !== 2 || !Array.isArray(data.profiles) || data.profiles.length > 5 ||
+        if (!data || data.version !== 2 || !Array.isArray(data.profiles) || data.profiles.length > HS_MAX_PEOPLE ||
             typeof data.selectedId !== 'string' || data.profiles.some(o => !o || typeof o.id !== 'string' || !o.id) ||
             new Set(data.profiles.map(o => o.id)).size !== data.profiles.length ||
             (data.selectedId && !data.profiles.some(o => o.id === data.selectedId))) throw new Error('Invalid saved people');
