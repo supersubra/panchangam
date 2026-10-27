@@ -37,7 +37,12 @@ h2 span { font-family: var(--body); font-size: .85rem; color: var(--muted); font
 .field label { font-size: .72rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
 .city { position: relative; flex: 1 1 260px; }
 input { font: inherit; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 9px 11px; min-width: 0; }
-input:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+input:focus-visible, button:focus-visible, select:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.method-field { flex: 0 1 360px; max-width: 100%; }
+#panchangMethod { font: inherit; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 9px 8px; width: 100%; min-width: 0; min-height: 44px; }
+#methodStatus { margin: 12px 0; padding: 10px 12px; border-left: 3px solid var(--accent); background: var(--accent-soft); border-radius: 6px; }
+#methodStatus p, #disclaimer p { margin: 6px 0; }
+#disclaimer { margin-top: 20px; padding-top: 14px; border-top: 1px solid var(--line); line-height: 1.65; }
 .btns { display: flex; gap: 6px; flex-wrap: wrap; }
 button { font: inherit; font-weight: 600; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 9px 13px; cursor: pointer; }
 button:hover { border-color: var(--accent); }
@@ -507,12 +512,20 @@ dialog::backdrop { background: rgb(10 20 14 / .45); }
       <label for="dateInput">Date · தேதி</label>
       <input id="dateInput" type="date" required>
     </div>
+    <div class="field method-field">
+      <label for="panchangMethod">Calculation method · கணிப்பு முறை</label>
+      <select id="panchangMethod" aria-describedby="methodStatus">
+        <option value="drik">Drik · திருக்கணிதம்</option>
+        <option value="vakya">Vakya · வாக்கியம்</option>
+      </select>
+    </div>
     <div class="btns" role="group" aria-label="Change day">
       <button type="button" id="prev">◀ Previous</button>
       <button type="button" id="today" class="primary">Today</button>
       <button type="button" id="next">Next ▶</button>
     </div>
   </form>
+  <div id="methodStatus" class="note" role="status" aria-live="polite"></div>
   <div class="msg" id="msg" role="status" hidden></div>
   <div class="where" id="where"></div>
   <div id="nosun" class="nosun" hidden></div>
@@ -559,7 +572,16 @@ dialog::backdrop { background: rgb(10 20 14 / .45); }
     </section>
   </div>
 
-  <footer id="foot"></footer>
+  <footer id="foot">
+    <div id="methodDetails"></div>
+    <section id="disclaimer" aria-labelledby="disclaimerTitle">
+      <strong id="disclaimerTitle">Disclaimer · பொறுப்புத் துறப்பு</strong>
+      <p>This app uses data, reference texts and calculation methods available on the internet. Results are approximate and may contain errors or differ between traditions. Accuracy is not guaranteed; no accuracy percentage is claimed. Please verify important timings independently.</p>
+      <p>You are responsible for decisions and actions based on these results. The site and its creator accept no responsibility for resulting loss or consequences.</p>
+      <p class="ta">இணையத்தில் கிடைக்கும் தரவுகள், நூல்கள் மற்றும் கணிப்பு முறைகள் பயன்படுத்தப்படுகின்றன. முடிவுகளில் பிழைகள் அல்லது மரபு வேறுபாடுகள் இருக்கலாம். துல்லியத்திற்கு உத்தரவாதமோ சதவீதக் கூற்றோ இல்லை. முக்கிய நேரங்களைத் தனியாகச் சரிபார்க்கவும்.</p>
+      <p class="ta">இந்த முடிவுகளின் அடிப்படையில் எடுக்கும் முடிவுகளுக்கும் செயல்களுக்கும் பயனரே பொறுப்பு. அதனால் ஏற்படும் இழப்புகளுக்கும் விளைவுகளுக்கும் தளமும் அதன் உருவாக்குநரும் பொறுப்பேற்க மாட்டார்கள்.</p>
+    </section>
+  </footer>
   <p id="visitorNotice" class="note" data-keep hidden>Usage statistics: approximate city, country and visit time are sent to Cloudflare and kept for 48 hours. We do not save IP addresses or birth details in these statistics.</p>
   </div>
 
@@ -935,6 +957,366 @@ dialog::backdrop { background: rgb(10 20 14 / .45); }
 
 <script src="https://cdn.jsdelivr.net/npm/astronomy-engine@2.1.19/astronomy.browser.min.js"></script>
 <script>
+(function(root) {
+'use strict';
+
+// Independent numeric transcription of Vakyakarana (Sastri/Sarma, 1962).
+// See SOURCES.md. Physical PDF pages are one-based. No publisher corrections
+// or changes inferred from symmetry have been applied to these source cells.
+const source = {
+  url: 'https://www.ebharatisampat.in/pdfs/ebharati-pdf-1644580379VakyaKarana-LaghuParkasikaVyakhya-Ed-KuppannaSastri-SarmaKV-1962.pdf',
+  sha256: '27b4f655dc3ce19727b58df08a8be120c39c3db896eeeb3182fe6ecab57b3eab',
+  status: 'research transcription; not independently certified'
+};
+
+// Printed p.252 / PDF 289: subtractive arcminutes at ten-day intervals.
+// The zero at day zero is the interpolation origin, not a printed table row.
+const solarArcminutes = Object.freeze([
+  0, 14, 32, 54, 78, 105, 133, 163, 194, 224, 254, 284, 311,
+  335, 358, 376, 391, 403, 411, 415, 416, 412, 406, 398,
+  386, 374, 361, 347, 334, 322, 311, 303, 297, 295, 296,
+  301, 309, 322
+]);
+
+// Printed p.251 / PDF 288: cumulative day/nadi/vinadi since Mesha ingress.
+const ingressOffsets = Object.freeze([
+  [0,0,0], [30,55,32], [62,19,44], [93,56,22], [125,24,34],
+  [156,26,44], [186,54,6], [216,48,13], [246,18,37],
+  [275,39,30], [305,6,46], [334,55,10], [365,15,31]
+].map(Object.freeze));
+
+// Introduction p.xvi / PDF23, footnote1. Printed sequence starts Rishabha;
+// reordered here to Mesha first. Arcminutes added to the Moon. The described
+// +26 arcminute bija is already part of manyadi; do NOT add 26 again.
+const manyadiArcminutes = Object.freeze([21,15,10,7,8,11,17,23,28,30,29,26]);
+
+// Appendix II pp.125–134 (125 inferred). Each triplet is sign/degree/minute.
+// Day indices follow body rows, not the erroneous last two running headers.
+const pages = [
+  {pdfPage:162, printedPage:125, firstDay:1, cells:`
+0 12 3; 0 24 9; 1 6 22; 1 18 44; 2 1 19; 2 14 9; 2 27 13;
+3 10 33; 3 24 9; 4 7 58; 4 21 58; 5 6 8; 5 20 25; 6 4 44;
+6 19 2; 7 3 15; 7 17 22; 8 1 17; 8 15 1; 8 28 29; 9 11 42;
+9 24 40; 10 7 23`},
+  {pdfPage:163, printedPage:126, firstDay:24, cells:`
+10 19 52; 11 2 10; 11 14 19; 11 26 24; 0 8 26; 0 20 30;
+1 2 38; 1 14 55; 1 27 23; 2 10 4; 2 23 0; 3 6 12; 3 19 39;
+4 3 21; 4 17 15; 5 1 20; 5 15 33; 5 29 51; 6 14 10; 6 28 27;
+7 12 37; 7 26 39; 8 10 30; 8 24 7; 9 7 29; 9 20 35; 10 3 26; 10 16 2`},
+  {pdfPage:164, printedPage:127, firstDay:52, cells:`
+10 28 26; 11 10 40; 11 22 46; 0 4 49; 0 16 52; 0 28 58;
+1 11 10; 1 23 31; 2 6 5; 2 18 52; 3 1 55; 3 15 14; 3 28 47;
+4 12 35; 4 26 34; 5 10 44; 5 24 59; 6 9 18; 6 23 36;
+7 7 51; 7 21 58; 8 5 55; 8 19 40; 9 3 10; 9 16 25; 9 29 24;
+10 12 8; 10 24 39`},
+  {pdfPage:165, printedPage:128, firstDay:80, cells:`
+11 6 58; 11 19 8; 0 1 13; 0 13 15; 0 25 19; 1 7 27; 1 19 43;
+2 2 10; 2 14 49; 2 27 43; 3 10 53; 3 24 18; 4 7 58; 4 21 52;
+5 5 56; 5 20 8; 6 4 26; 6 18 45; 7 3 2; 7 17 13;
+8 1 17; 8 15 8; 8 28 47; 9 12 10; 9 25 18; 10 8 11; 10 20 48; 11 3 14`},
+  {pdfPage:166, printedPage:129, firstDay:108, cells:`
+11 15 28; 11 27 36; 0 9 39; 0 21 41; 1 3 46; 1 15 58; 1 28 18;
+2 10 50; 2 23 36; 3 6 37; 3 19 54; 4 3 26; 4 17 12;
+5 1 11; 5 15 19; 5 29 34; 6 13 52; 6 28 10; 7 12 25;
+7 26 33; 8 10 32; 8 24 18; 9 7 50; 9 21 7; 10 4 8`},
+  {pdfPage:167, printedPage:130, firstDay:133, cells:`
+10 16 54; 10 29 26; 11 11 46; 11 23 58; 0 6 3; 0 18 5;
+1 0 8; 1 12 16; 1 24 30; 2 6 56; 2 19 33; 3 2 26; 3 15 34;
+3 28 57; 4 12 36; 4 26 17; 5 10 31; 5 24 42; 6 8 59;
+6 23 18; 7 7 36; 7 21 48; 8 5 52; 8 19 46; 9 3 26`},
+  {pdfPage:168, printedPage:131, firstDay:158, cells:`
+9 16 51; 10 0 1; 10 12 55; 10 25 34; 11 8 1; 11 20 17;
+0 2 25; 0 14 29; 0 26 31; 1 8 36; 1 20 46; 2 3 5; 2 15 36;
+2 28 20; 3 11 19; 3 24 34; 4 8 4; 4 21 49; 5 5 46;
+5 19 53; 6 4 8; 6 18 26; 7 2 45; 7 17 0; 8 1 10`},
+  {pdfPage:169, printedPage:132, firstDay:183, cells:`
+8 15 9; 8 28 57; 9 12 30; 9 25 49; 10 8 52; 10 21 39;
+11 4 13; 11 16 34; 11 28 46; 0 10 52; 0 22 55; 1 4 58;
+1 17 4; 1 29 18; 2 11 42; 2 24 18; 3 7 9; 3 20 15;
+4 3 37; 4 17 14; 5 1 5; 5 15 7; 5 29 17; 6 13 34; 6 27 53`},
+  {pdfPage:170, printedPage:133, firstDay:208, cells:`
+7 12 11; 7 26 24; 8 10 29; 8 24 23; 9 8 5; 9 21 32;
+10 4 44; 10 17 40; 11 0 21; 11 12 49; 11 25 6; 0 7 14;
+0 19 18; 1 1 20; 1 13 25; 1 25 34; 2 7 52; 2 20 21;
+3 3 4; 3 16 2; 3 29 15; 4 12 43; 4 26 27; 5 10 22;
+5 24 29; 6 8 42; 6 23 0`},
+  {pdfPage:171, printedPage:134, firstDay:235, cells:`
+7 7 19; 7 21 36; 8 5 46; 8 19 46; 9 3 35; 9 17 11;
+10 0 31; 10 13 35; 10 26 25; 11 9 0; 11 21 22;
+0 3 35; 0 15 41; 0 27 44`}
+];
+const lunarRows = Object.freeze(pages.flatMap(page => page.cells.trim().split(';').map((cell, i) => {
+  const [sign, degree, minute] = cell.trim().split(/\s+/).map(Number);
+  return Object.freeze({day:page.firstDay+i, sign, degree, minute,
+    arcminutes:sign*1800+degree*60+minute,
+    pdfPage:page.pdfPage, printedPage:page.printedPage, rowOnPage:i+1});
+})));
+const discrepancies = Object.freeze([
+  'Days 100 and 148 visibly end in 17 arcminutes; their complement is 27deg34min, not the printed 27deg44min. Retained unchanged.',
+  'PDF 170 header says 208–232; its body contains 208–234. PDF 171 header says 233–248; its body begins 235.'
+]);
+const tables = {source, solarArcminutes, ingressOffsets, manyadiArcminutes, lunarRows, discrepancies};
+if (typeof module !== 'undefined' && module.exports) module.exports = tables;
+else root.VakyaTables = tables;
+})(typeof globalThis !== 'undefined' ? globalThis : this);
+
+(function(root) {
+'use strict';
+
+// Research reconstruction of the 1962 text, NOT a verified Paambu engine.
+// No dependencies on the production Drik calculations or UI.
+const {solarArcminutes, lunarRows, ingressOffsets, manyadiArcminutes} = (typeof module !== 'undefined' && module.exports) ? require('./vakya-tables') : root.VakyaTables;
+const mod = (x, n=360) => ((x % n) + n) % n;
+const signedAngle = x => mod(x+180)-180;
+const dms = (d,m=0,s=0) => d+m/60+s/3600;
+const lunarEpoch = 1600984;
+const limits = Object.freeze({firstYear:1900, lastYear:2100});
+
+function finite(x, name) {
+  if (!Number.isFinite(x)) throw new TypeError(`${name} must be finite`);
+}
+
+// Appendix VI, printed p.250 / PDF 287. Kali year = Gregorian year + 3101.
+function yearStart(gregorianYear) {
+  if (!Number.isInteger(gregorianYear) || gregorianYear < limits.firstYear-1 || gregorianYear > limits.lastYear+1)
+    throw new RangeError('Research year range is 1899–2101 (including bracketing years)');
+  const k = gregorianYear + 3101;
+  return 365*k + k/4 + (5*k-1237)/576;
+}
+
+// pp.252–253: the interpolated correction remains in ARCMINUTES.
+function sunFromElapsed(elapsedDays) {
+  finite(elapsedDays, 'elapsedDays');
+  if (elapsedDays < 0 || elapsedDays > 370) throw new RangeError('Solar table covers 0–370 days');
+  const i = Math.min(Math.floor(elapsedDays/10), solarArcminutes.length-2);
+  const fraction = (elapsedDays-i*10)/10;
+  const difference = solarArcminutes[i+1]-solarArcminutes[i];
+  const correctionArcminutes = solarArcminutes[i]+difference*fraction;
+  return {longitude:mod(elapsedDays-correctionArcminutes/60),
+    correctionArcminutes, motionDegreesPerDay:1-difference/600};
+}
+
+// pp.253–254. Use an INTEGER Kali day ending at the reference meridian.
+function lunarReduction(day) {
+  if (!Number.isSafeInteger(day) || day <= lunarEpoch)
+    throw new RangeError('An integer Kali day after 1600984 is required');
+  let remainder = day-lunarEpoch;
+  const q1 = Math.floor(remainder/12372); remainder %= 12372;
+  const q2 = Math.floor(remainder/3031); remainder %= 3031;
+  const q3 = Math.floor(remainder/248); remainder %= 248;
+  const dhruva = mod(q1*dms(297,48,10)+q2*dms(337,31,1)+q3*dms(27,44,6)+dms(212,0,7));
+  // Zero remainder means zero additional table displacement. Day 248 has
+  // already entered the quotient and must not be counted a second time.
+  const row = remainder ? lunarRows[remainder-1] : null;
+  return {q1,q2,q3,remainder,dhruva,
+    uncorrected:mod(dhruva+(row ? row.arcminutes/60 : 0)),
+    row:row ? {...row} : null};
+}
+
+function moonAtDay(day) {
+  const r = lunarReduction(day);
+  const previous = lunarReduction(day-1);
+  // The book's example on p.254 takes CURRENT minus PREVIOUS, not next-current.
+  // At reduction boundaries, difference the complete positions so the change
+  // of dhruva is included rather than wrapping a local index incorrectly.
+  const motionDegreesPerDay = mod(r.uncorrected-previous.uncorrected);
+  if (motionDegreesPerDay < 10 || motionDegreesPerDay > 16)
+    throw new RangeError('Unexpected lunar daily motion; investigate the source reduction');
+  const correctionVinadis = r.q3*32-r.q2*8;
+  const correctionArcseconds = (motionDegreesPerDay-dms(13,11))*correctionVinadis;
+  const suspectRows = [r.remainder, previous.remainder].filter(x=>x===100 || x===148);
+  return {...r, longitude:mod(r.uncorrected+correctionArcseconds/3600),
+    motionDegreesPerDay, correctionVinadis, correctionArcseconds,
+    suspectRows:[...new Set(suspectRows)]};
+}
+
+// Explicit research assumption: interpolate between corrected integer-day
+// endpoints. This extension is not claimed to be the publisher's end-time rule.
+function moonAtKali(kali) {
+  finite(kali, 'kali');
+  const day = Math.floor(kali), fraction = kali-day;
+  const a = moonAtDay(day);
+  if (!fraction) return {longitude:a.longitude, suspectRows:a.suspectRows};
+  const b = moonAtDay(day+1);
+  return {longitude:mod(a.longitude+mod(b.longitude-a.longitude)*fraction),
+    suspectRows:[...new Set([...a.suspectRows,...b.suspectRows])]};
+}
+
+// pp.255–256. A degree/day multiplied by a vinadi gives an arcsecond.
+// Caller supplies the traditional cara/desantara/bhujantara sum; this does
+// not calculate modern sunrise or infer a publisher's location correction.
+function localCorrection(longitude, motionDegreesPerDay, correctionVinadis) {
+  [longitude,motionDegreesPerDay,correctionVinadis].forEach(x=>finite(x,'correction input'));
+  return mod(longitude+motionDegreesPerDay*correctionVinadis/3600);
+}
+
+function solarAtKali(kali, civilYear) {
+  finite(kali,'kali');
+  let year = civilYear;
+  if (kali < yearStart(year)) year--;
+  else if (kali >= yearStart(year+1)) year++;
+  const elapsed = kali-yearStart(year);
+  if (elapsed < 0 || elapsed > 366) throw new RangeError('Kali day does not belong to civilYear');
+  return {...sunFromElapsed(elapsed), solarYear:year};
+}
+
+// The footnote supplies month-start values, not an intramonth algorithm.
+// Linear interpolation by elapsed time between the table's solar ingresses
+// is an EXPLICIT candidate assumption, not an established Paambu rule.
+function manyadiCorrection(kali,civilYear) {
+  const year=solarAtKali(kali,civilYear).solarYear;
+  const elapsed=kali-yearStart(year);
+  const offsets=ingressOffsets.map(([d,g,v])=>d+g/60+v/3600);
+  // Use the exact next year start at the annual seam. The printed year-length
+  // offset is rounded to a vinadi, unlike yearStart's rational expression.
+  offsets[12]=yearStart(year+1)-yearStart(year);
+  let month=0;
+  while(month<11 && elapsed>=offsets[month+1]) month++;
+  const fraction=(elapsed-offsets[month])/(offsets[month+1]-offsets[month]);
+  return manyadiArcminutes[month]+fraction*(manyadiArcminutes[(month+1)%12]-manyadiArcminutes[month]);
+}
+
+function positionsAtKali(kali, civilYear, model='classical') {
+  if(!['classical','manyadi-experimental'].includes(model)) throw new RangeError('Unknown research model');
+  const sun = solarAtKali(kali,civilYear), moon = moonAtKali(kali);
+  const manyadi=model==='manyadi-experimental' ? manyadiCorrection(kali,civilYear) : 0;
+  return {sun:sun.longitude, moon:mod(moon.longitude+manyadi/60), suspectRows:moon.suspectRows};
+}
+
+function limbAngle(positions, kind) {
+  if (kind==='tithi' || kind==='karana') return mod(positions.moon-positions.sun);
+  if (kind==='nakshatra') return positions.moon;
+  if (kind==='yoga') return mod(positions.moon+positions.sun);
+  throw new RangeError(`Unknown limb: ${kind}`);
+}
+const widths = Object.freeze({tithi:12, nakshatra:40/3, yoga:40/3, karana:6});
+function limbIndex(positions,kind) {
+  return Math.floor(limbAngle(positions,kind)/widths[kind]);
+}
+function karanaName(halfTithi) {
+  if (!Number.isInteger(halfTithi) || halfTithi<0 || halfTithi>59) throw new RangeError('Invalid half-tithi');
+  if (halfTithi===0) return 'Kimstughna';
+  if (halfTithi>=57) return ['Shakuni','Chatushpada','Naga'][halfTithi-57];
+  return ['Bava','Balava','Kaulava','Taitila','Gara','Vanija','Vishti'][(halfTithi-1)%7];
+}
+
+// Find the first boundary after the supplied instant. Return an event even
+// when beyond the current day; a printed 60-00/full-day entry is not an event.
+function nextBoundary(kali,civilYear,kind,model='classical') {
+  const start = positionsAtKali(kali,civilYear,model);
+  const angle = limbAngle(start,kind), width=widths[kind];
+  const index = Math.floor(angle/width), distance=(index+1)*width-angle;
+  const advance = k=>mod(limbAngle(positionsAtKali(k,civilYear,model),kind)-angle);
+  let lo=kali, hi=kali+1/8;
+  while (advance(hi)<distance && hi<kali+3) hi+=1/8;
+  if (advance(hi)<distance) throw new Error('No limb boundary in three days');
+  for(let i=0;i<40;i++) {
+    const mid=(lo+hi)/2;
+    if(advance(mid)<distance) lo=mid; else hi=mid;
+  }
+  const at=(lo+hi)/2;
+  return {index, kali:at, suspectRows:[...new Set([
+    ...start.suspectRows, ...positionsAtKali(at,civilYear,model).suspectRows]) ]};
+}
+
+// PROVISIONAL modern adapter. Civil midnight JDN minus 588466 gives the
+// integer reference day: 1947-04-14 => 1843824, also reproducing the book's
+// Friday-based weekday arithmetic. Reference 06:00 Ujjain local mean time
+// at assumed longitude 75deg46minE corresponds to 06:26:56 IST.
+// This longitude is an explicit adapter assumption, not a Paambu constant.
+const referenceIstMinutes = 360+(82.5-(75+46/60))*4;
+function civilDay(date) {
+  if(typeof date!=='string' || !/^\d{4}-\d{2}-\d{2}$/.test(date)) throw new RangeError('Use YYYY-MM-DD');
+  const ms=Date.parse(`${date}T00:00:00Z`), year=Number(date.slice(0,4));
+  if (!Number.isFinite(ms) || new Date(ms).toISOString().slice(0,10)!==date || year<limits.firstYear || year>limits.lastYear)
+    throw new RangeError('Valid Gregorian date in 1900–2100 required');
+  return {year, kali:Math.round(ms/86400000+2440587.5+0.5)-588466};
+}
+function kaliAtIst(date, minutesFromMidnight) {
+  finite(minutesFromMidnight,'minutesFromMidnight');
+  return civilDay(date).kali+(minutesFromMidnight-referenceIstMinutes)/1440;
+}
+function istMinutesAtKali(date,kali) {
+  finite(kali,'kali');
+  return (kali-civilDay(date).kali)*1440+referenceIstMinutes;
+}
+
+const api={mod,signedAngle,dms,yearStart,sunFromElapsed,lunarReduction,moonAtDay,
+  moonAtKali,localCorrection,solarAtKali,manyadiCorrection,positionsAtKali,limbAngle,limbIndex,karanaName,
+  nextBoundary,civilDay,kaliAtIst,istMinutesAtKali,referenceIstMinutes,limits};
+
+if (typeof module !== 'undefined' && module.exports) module.exports = api;
+else root.VakyaCore = api;
+})(typeof globalThis !== 'undefined' ? globalThis : this);
+
+// Experimental browser adapter for the source-based Vakya/manyadi candidate.
+// See research/vakya/SOURCES.md and REPORT.md; NOT certified Asal28 equivalence.
+(function(root) {
+  'use strict';
+  const V=root.VakyaCore, T=root.VakyaTables, A=root.Astronomy;
+  const DAY=86400000, IST=19800000, JDN_OFFSET=2440588-588466;
+  const reference=new A.Observer(10+47/60,79+8/60,0);
+  const anchors=new Map();
+  // Reference time convention is provisional. A geometric-centre crossing
+  // deliberately omits atmospheric refraction and solar-disc radius.
+  function anchor(k) {
+    if(!anchors.has(k)) {
+      const midnight=(k-JDN_OFFSET)*DAY-IST;
+      const rise=A.SearchAltitude(A.Body.Sun,reference,1,new Date(midnight),1.2,0);
+      if(!rise) throw new Error('Vakya reference sunrise is unavailable');
+      if(anchors.size>=512) anchors.clear();
+      anchors.set(k,rise.date.getTime());
+    }
+    return anchors.get(k);
+  }
+  function toKali(ms) {
+    if(!Number.isFinite(ms)) throw new RangeError('Invalid Vakya instant');
+    let k=Math.floor((ms+IST)/DAY)+JDN_OFFSET;
+    if(ms<anchor(k)) k--;
+    return k+(ms-anchor(k))/(anchor(k+1)-anchor(k));
+  }
+  function fromKali(k) {
+    const d=Math.floor(k);
+    return anchor(d)+(k-d)*(anchor(d+1)-anchor(d));
+  }
+  function forDate(opts) {
+    if(!Number.isInteger(opts.y) || opts.y<1900 || opts.y>2100)
+      throw new RangeError('Vakya is available for 1900–2100. Choose another date or select Drik.');
+    const samples=new Map(), suspectRows=new Set();
+    function positions(ms) {
+      if(!samples.has(ms)) {
+        const year=new Date(ms+IST).getUTCFullYear();
+        const p=V.positionsAtKali(toKali(ms),year,'manyadi-experimental');
+        p.suspectRows.forEach(r=>suspectRows.add(r));
+        if(samples.size>=1024) samples.clear();
+        samples.set(ms,p);
+      }
+      return samples.get(ms);
+    }
+    const sun=ms=>positions(ms).sun,moon=ms=>positions(ms).moon;
+    const phase=ms=>{const p=positions(ms);return V.mod(p.moon-p.sun);};
+    const quantities={
+      tithi:{n:30,f:phase},nakshatra:{n:27,f:moon},
+      yoga:{n:27,f:ms=>{const p=positions(ms);return V.mod(p.sun+p.moon);}},
+      karana:{n:60,f:phase},moonRasi:{n:12,f:moon},sunRasi:{n:12,f:sun}
+    };
+    function solarIngress(ms) {
+      const k=toKali(ms),civilYear=new Date(ms+IST).getUTCFullYear();
+      const year=V.solarAtKali(k,civilYear).solarYear;
+      const start=V.yearStart(year),elapsed=k-start;
+      let sign=0;
+      for(let i=1;i<12;i++) {
+        const [d,g,v]=T.ingressOffsets[i];
+        if(elapsed>=d+g/60+v/3600) sign=i;
+      }
+      const [d,g,v]=T.ingressOffsets[sign];
+      return {sign,ms:fromKali(start+d+g/60+v/3600)};
+    }
+    return {quantities,sun,solarIngress,suspectRows};
+  }
+  root.Vakya={forDate,toKali,fromKali,reference:{lat:10+47/60,lon:79+8/60},experimental:true};
+})(typeof globalThis!=='undefined'?globalThis:this);
+
 // Panchangam calculation engine (Drik / Thirukanitha, Lahiri ayanamsa).
 // Needs the global `Astronomy` object from astronomy-engine.
 (function (root) {
@@ -1008,26 +1390,26 @@ dialog::backdrop { background: rgb(10 20 14 / .45); }
     moonRasi: { n: 12, f: moonSid },
     sunRasi: { n: 12, f: sunSid }
   };
-  const idxAt = (k, ms) => Math.floor(F[k].f(ms) / (360 / F[k].n)) % F[k].n;
+  const idxAt = (k, ms, functions = F) => Math.floor(functions[k].f(ms) / (360 / functions[k].n)) % functions[k].n;
 
   // Time when index of quantity k changes away from its value at `ms` (searching forward or backward).
-  function nextChange(k, ms, dir, stepH, maxDays) {
+  function nextChange(k, ms, dir, stepH, maxDays, functions = F) {
     dir = dir || 1; stepH = stepH || 1; maxDays = maxDays || 3;
-    const i0 = idxAt(k, ms); let a = ms, b;
+    const i0 = idxAt(k, ms, functions); let a = ms, b;
     for (let t = ms + dir * stepH * HOUR; Math.abs(t - ms) <= maxDays * DAY; t += dir * stepH * HOUR) {
-      if (idxAt(k, t) !== i0) { b = t; break; }
+      if (idxAt(k, t, functions) !== i0) { b = t; break; }
       a = t;
     }
     if (b === undefined) return null;
-    while (Math.abs(b - a) > 1000) { const m = (a + b) / 2; if (idxAt(k, m) === i0) a = m; else b = m; }
+    while (Math.abs(b - a) > 1000) { const m = (a + b) / 2; if (idxAt(k, m, functions) === i0) a = m; else b = m; }
     return dir > 0 ? b : a;
   }
 
   // All values of quantity k from `start` until `end`, with end times.
-  function spans(k, start, end) {
+  function spans(k, start, end, functions = F) {
     const out = []; let t = start;
     for (let guard = 0; guard < 6; guard++) {
-      const i = idxAt(k, t), e = nextChange(k, t, 1);
+      const i = idxAt(k, t, functions), e = nextChange(k, t, 1, undefined, undefined, functions);
       out.push({ i, end: e });
       if (e === null || e >= end) break;
       t = e + 1000;
@@ -1043,10 +1425,18 @@ dialog::backdrop { background: rgb(10 20 14 / .45); }
   // ---------- Main ----------
   function calculate(opts) { // {y,m,d, lat, lon, tz}
     const { y, m, d, lat, lon, tz } = opts;
+    const method=opts.method || 'drik';
+    if(!['drik','vakya'].includes(method)) throw new RangeError('Unknown Panchangam method');
+    if(method==='vakya' && !root.Vakya) throw new Error('Vakya calculations could not be loaded');
+    const model=method==='vakya' ? root.Vakya.forDate(opts) : null;
+    const functions=model ? model.quantities : F;
+    const list=(k,a,b)=>spans(k,a,b,functions);
+    const index=(k,t)=>idxAt(k,t,functions);
+    const solar=model ? model.sun : sunSid;
     const obs = new A.Observer(lat, lon, 0);
     const midnight = localToUTC(y, m, d, 0, tz);
     const weekday = new Date(Date.UTC(y, m - 1, d)).getUTCDay();
-    const res = { input: opts, weekday, vara: N.vara[weekday] };
+    const res = { input: opts, weekday, vara: N.vara[weekday], method, experimental:!!model };
 
     const sunrise = riseSet(+1, midnight, obs);
     const sunset = sunrise && riseSet(-1, sunrise, obs);
@@ -1057,17 +1447,18 @@ dialog::backdrop { background: rgb(10 20 14 / .45); }
     Object.assign(res, { sunrise, sunset, nextSunrise });
     const at = sunrise, until = nextSunrise;
 
-    res.ayanamsa = ayanamsa(at);
-    res.tithi = spans('tithi', at, until).map(s => ({ ...s, name: N.tithi[s.i === 29 ? 15 : s.i % 15], paksha: s.i < 15 ? 0 : 1 }));
+    res.ayanamsa = model ? null : ayanamsa(at);
+    res.tithi = list('tithi', at, until).map(s => ({ ...s, name: N.tithi[s.i === 29 ? 15 : s.i % 15], paksha: s.i < 15 ? 0 : 1 }));
     res.paksha = N.paksha[res.tithi[0].paksha];
-    res.nakshatra = spans('nakshatra', at, until).map(s => ({ ...s, name: N.nakshatra[s.i] }));
-    res.yoga = spans('yoga', at, until).map(s => ({ ...s, name: N.yoga[s.i] }));
-    res.karana = spans('karana', at, until).map(s => ({ ...s, name: s.i === 0 ? N.karanaFix.k0 : (N.karanaFix[s.i] || N.karanaMov[(s.i - 1) % 7]) }));
-    res.moonRasi = spans('moonRasi', at, until).map(s => ({ ...s, name: N.rasi[s.i] }));
+    res.nakshatra = list('nakshatra', at, until).map(s => ({ ...s, name: N.nakshatra[s.i] }));
+    res.yoga = list('yoga', at, until).map(s => ({ ...s, name: N.yoga[s.i] }));
+    res.karana = list('karana', at, until).map(s => ({ ...s, name: s.i === 0 ? N.karanaFix.k0 : (N.karanaFix[s.i] || N.karanaMov[(s.i - 1) % 7]) }));
+    res.moonRasi = list('moonRasi', at, until).map(s => ({ ...s, name: N.rasi[s.i] }));
 
     // Tamil solar month: Sun's sidereal sign at sunset; month day counted from sankranti
-    const mi = idxAt('sunRasi', sunset);
-    const sank = nextChange('sunRasi', sunset, -1, 6, 35); // moment Sun entered this sign
+    const ingress=model ? model.solarIngress(sunset) : null;
+    const mi = ingress ? ingress.sign : index('sunRasi', sunset);
+    const sank = ingress ? ingress.ms : nextChange('sunRasi', sunset, -1, 6, 35); // moment Sun entered this sign
     const sp = tzParts(sank, tz);
     const sankSunset = riseSet(-1, riseSet(+1, localToUTC(sp.y, sp.m, sp.d, 0, tz), obs), obs);
     let startKey = Date.UTC(sp.y, sp.m - 1, sp.d);
@@ -1077,9 +1468,9 @@ dialog::backdrop { background: rgb(10 20 14 / .45); }
     res.ritu = N.ritu[Math.floor(mi / 2)];
     res.solarRasi = mi;
     // Lunar (amanta) month: named from the Sun's sidereal sign at the preceding new moon (Meena -> Chaitra, Mesha -> Vaisakha ...). Adhika masa is not handled.
-    let nm = at; for (let i = 0; i < 4; i++) { let e = F.tithi.f(nm); if (e > 180) e -= 360; nm -= e / 12.19 * DAY; }
-    res.lunarMonth = (Math.floor(sunSid(nm) / 30) + 1) % 12;
-    const ss = sunSid(sunset);
+    let nm = at; for (let i = 0; i < 4; i++) { let e = functions.tithi.f(nm); if (e > 180) e -= 360; nm -= e / 12.19 * DAY; }
+    res.lunarMonth = (Math.floor(solar(nm) / 30) + 1) % 12;
+    const ss = solar(sunset);
     res.ayana = N.ayana[(ss >= 270 || ss < 90) ? 0 : 1];
     let ty = y; if (m <= 4 && mi >= 8) ty--;
     res.samvatsara = N.samvatsara[(((ty - 1987) % 60) + 60) % 60];
@@ -1107,6 +1498,7 @@ dialog::backdrop { background: rgb(10 20 14 / .45); }
       res.hora.push({ planet: p, name: N.planet[p], nature: PLANET_NATURE[p], day: isDay, start: base + j * len, end: base + (j + 1) * len });
     }
     res.planner = planner(res);
+    res.vakyaSuspectRows=model ? [...model.suspectRows].sort((a,b)=>a-b) : [];
     return res;
   }
 
@@ -2200,6 +2592,16 @@ const LISTS = {
   const zip = (tamils, hindi) => tamils.forEach((ta, i) => { if (hindi[i] != null) put(ta, hindi[i]); });
   S(['ஸ்லோகா சாகர்|श्लोका सागर']);
   U([
+    'கணிப்பு முறை|गणना विधि|గణన పద్ధతి|ಲೆಕ್ಕಾಚಾರದ ವಿಧಾನ|കണക്കുകൂട്ടൽ രീതി',
+    'வாக்கியம்|वाक्य|వాక్య|ವಾಕ್ಯ|വാക്യ',
+    'திருக்கணித பஞ்சாங்கம்|दृक पंचांग|దృక్ పంచాంగం|ದೃಕ್ ಪಂಚಾಂಗ|ദൃക് പഞ്ചാംഗം',
+    'வாக்கிய பஞ்சாங்கம்|वाक्य पंचांग|వాక్య పంచాంగం|ವಾಕ್ಯ ಪಂಚಾಂಗ|വാക്യ പഞ്ചാംഗം',
+    'வாக்கியம் (சோதனை)|वाक्य (प्रायोगिक)|వాక్య (ప్రయోగాత్మక)|ವಾಕ್ಯ (ಪ್ರಾಯೋಗಿಕ)|വാക്യ (പരീക്ഷണാത്മകം)',
+    'சோதனை|प्रायोगिक|ప్రయోగాత్మక|ಪ್ರಾಯೋಗಿಕ|പരീക്ഷണാത്മകം',
+    'பொறுப்புத் துறப்பு|अस्वीकरण|నిరాకరణ|ಹಕ್ಕು ನಿರಾಕರಣೆ|നിരാകരണം',
+    'வாக்கியக் கணிப்பு சோதனை நிலையில் உள்ளது. நேரங்கள் தோராயமானவை; முழுச் சரிபார்ப்பு முடியவில்லை.|वाक्य गणना प्रायोगिक है। समय अनुमानित हैं; पूर्ण सत्यापन अभी बाकी है।|వాక్య గణన ప్రయోగాత్మకం. సమయాలు సుమారుగా ఉంటాయి; పూర్తి ధృవీకరణ ఇంకా జరగలేదు.|ವಾಕ್ಯ ಲೆಕ್ಕಾಚಾರ ಪ್ರಾಯೋಗಿಕವಾಗಿದೆ. ಸಮಯಗಳು ಅಂದಾಜು; ಸಂಪೂರ್ಣ ಪರಿಶೀಲನೆ ಇನ್ನೂ ಆಗಿಲ್ಲ.|വാക്യ കണക്കുകൂട്ടൽ പരീക്ഷണാത്മകമാണ്. സമയങ്ങൾ ഏകദേശമാണ്; പൂർണ്ണ പരിശോധന പൂർത്തിയായിട്ടില്ല.',
+    'இணையத்தில் கிடைக்கும் தரவுகள், நூல்கள் மற்றும் கணிப்பு முறைகள் பயன்படுத்தப்படுகின்றன. முடிவுகளில் பிழைகள் அல்லது மரபு வேறுபாடுகள் இருக்கலாம். துல்லியத்திற்கு உத்தரவாதமோ சதவீதக் கூற்றோ இல்லை. முக்கிய நேரங்களைத் தனியாகச் சரிபார்க்கவும்.|इंटरनेट पर उपलब्ध डेटा, ग्रंथों और गणना विधियों का उपयोग किया जाता है। परिणामों में त्रुटियाँ या परंपरागत अंतर हो सकते हैं। सटीकता की कोई गारंटी या प्रतिशत का दावा नहीं है। महत्वपूर्ण समय स्वतंत्र रूप से जाँचें।|ఇంటర్నెట్‌లో లభించే సమాచారం, గ్రంథాలు మరియు గణన పద్ధతులను ఉపయోగిస్తాము. ఫలితాల్లో తప్పులు లేదా సంప్రదాయ భేదాలు ఉండవచ్చు. ఖచ్చితత్వానికి హామీ లేదా శాతం వాదన లేదు. ముఖ్యమైన సమయాలను స్వతంత్రంగా తనిఖీ చేయండి.|ಅಂತರ್ಜಾಲದಲ್ಲಿ ಲಭ್ಯವಿರುವ ಮಾಹಿತಿ, ಗ್ರಂಥಗಳು ಮತ್ತು ಲೆಕ್ಕಾಚಾರದ ವಿಧಾನಗಳನ್ನು ಬಳಸಲಾಗುತ್ತದೆ. ಫಲಿತಾಂಶಗಳಲ್ಲಿ ತಪ್ಪುಗಳು ಅಥವಾ ಸಂಪ್ರದಾಯದ ವ್ಯತ್ಯಾಸಗಳು ಇರಬಹುದು. ನಿಖರತೆಗೆ ಖಾತರಿ ಅಥವಾ ಶೇಕಡಾವಾರು ಹೇಳಿಕೆ ಇಲ್ಲ. ಪ್ರಮುಖ ಸಮಯಗಳನ್ನು ಸ್ವತಂತ್ರವಾಗಿ ಪರಿಶೀಲಿಸಿ.|ഇന്റർനെറ്റിൽ ലഭ്യമായ വിവരങ്ങളും ഗ്രന്ഥങ്ങളും കണക്കുകൂട്ടൽ രീതികളും ഉപയോഗിക്കുന്നു. ഫലങ്ങളിൽ പിശകുകളോ ആചാരവ്യത്യാസങ്ങളോ ഉണ്ടാകാം. കൃത്യതയ്ക്ക് ഉറപ്പോ ശതമാന അവകാശവാദമോ ഇല്ല. പ്രധാന സമയങ്ങൾ സ്വതന്ത്രമായി പരിശോധിക്കുക.',
+    'இந்த முடிவுகளின் அடிப்படையில் எடுக்கும் முடிவுகளுக்கும் செயல்களுக்கும் பயனரே பொறுப்பு. அதனால் ஏற்படும் இழப்புகளுக்கும் விளைவுகளுக்கும் தளமும் அதன் உருவாக்குநரும் பொறுப்பேற்க மாட்டார்கள்.|इन परिणामों पर आधारित निर्णयों और कार्यों की जिम्मेदारी उपयोगकर्ता की है। उनसे होने वाले नुकसान या परिणामों की जिम्मेदारी वेबसाइट और उसके निर्माता नहीं लेते।|ఈ ఫలితాల ఆధారంగా తీసుకునే నిర్ణయాలు, చర్యలకు వినియోగదారుడే బాధ్యుడు. వాటివల్ల కలిగే నష్టం లేదా పరిణామాలకు సైట్ మరియు దాని సృష్టికర్త బాధ్యత వహించరు.|ಈ ಫಲಿತಾಂಶಗಳ ಆಧಾರದ ನಿರ್ಧಾರಗಳು ಮತ್ತು ಕಾರ್ಯಗಳಿಗೆ ಬಳಕೆದಾರರೇ ಜವಾಬ್ದಾರರು. ಅದರಿಂದಾಗುವ ನಷ್ಟ ಅಥವಾ ಪರಿಣಾಮಗಳಿಗೆ ತಾಣ ಮತ್ತು ಅದರ ನಿರ್ಮಾತೃ ಜವಾಬ್ದಾರಿ ವಹಿಸುವುದಿಲ್ಲ.|ഈ ഫലങ്ങളുടെ അടിസ്ഥാനത്തിലുള്ള തീരുമാനങ്ങൾക്കും പ്രവർത്തനങ്ങൾക്കും ഉപയോക്താവാണ് ഉത്തരവാദി. അതുമൂലമുള്ള നഷ്ടങ്ങൾക്കോ പ്രത്യാഘാതങ്ങൾക്കോ സൈറ്റും അതിന്റെ സ്രഷ്ടാവും ഉത്തരവാദിത്തം ഏറ്റെടുക്കുന്നില്ല.',
     'வருகைப் புள்ளிவிவரங்களுக்கு இருமுறை தட்டவும்|आगंतुक आँकड़ों के लिए दो बार टैप करें|సందర్శకుల గణాంకాల కోసం రెండుసార్లు నొక్కండి|ಸಂದರ್ಶಕರ ಅಂಕಿಅಂಶಗಳಿಗಾಗಿ ಎರಡು ಬಾರಿ ಟ್ಯಾಪ್ ಮಾಡಿ|സന്ദർശക സ്ഥിതിവിവരക്കണക്കുകൾക്കായി രണ്ടുതവണ ടാപ്പ് ചെയ്യുക',
     'இரவுத் தோற்றம்|रात का मोड|రాత్రి మోడ్|ರಾತ್ರಿ ಮೋಡ್|രാത്രി മോഡ്',
     'எழுத்து அளவு|अक्षर आकार|అక్షర పరిమాణం|ಅಕ್ಷರ ಗಾತ್ರ|അക്ഷര വലുപ്പം',
@@ -2327,6 +2729,9 @@ const LISTS = {
   function tx(s, lang, over) {
     if (!lang || lang === 'ta' || s == null) return s;
     s = String(s);
+    // Complete explanatory sentences can contain punctuation outside RUN.
+    const exact = (over && over[s]) || MAP[s];
+    if (exact && exact[lang]) return exact[lang];
     return s.replace(RUN, run => {
       const w = run.split(' '), out = [];
       for (let i = 0; i < w.length;) {
@@ -2343,6 +2748,7 @@ const LISTS = {
   }
   // Tamil words on this page that have no entry yet (used by the tests)
   function missing(s) {
+    if (MAP[String(s)]) return [];
     const m = [];
     String(s).replace(RUN, run => { const w = run.split(' '); for (let i = 0; i < w.length;) { let k = Math.min(MAXW, w.length - i); for (; k > 0; k--) if (MAP[w.slice(i, i + k).join(' ')]) break; if (k) i += k; else { m.push(w[i]); i++; } } return run; });
     return m;
@@ -2357,7 +2763,7 @@ const LISTS = {
   'use strict';
   const $ = id => document.getElementById(id);
   const P = window.Panchang, DAY = 86400e3;
-  const state = { city: null, y: 0, m: 0, d: 0, source: '', userLoc: false };
+  const state = { city: null, y: 0, m: 0, d: 0, source: '', userLoc: false, method: 'drik' };
 
   // ---------- language: every label is written in Tamil in the code and turned into the chosen language here ----------
   const I = window.I18N;
@@ -2489,12 +2895,18 @@ const LISTS = {
   // ---------- render ----------
   function render() {
     const c = state.city;
+    const vakya=state.method==='vakya';
+    $('panchangMethod').value=state.method;
+    $('methodStatus').innerHTML=vakya
+      ? '<b>Vakya Panchangam — experimental · வாக்கிய பஞ்சாங்கம் — சோதனை</b><p>Based on traditional tables and limited checks against Asal 28 Paambu Panchangam for Thanjavur. Timings and results for other places are approximate. Available for 1900–2100; full verification is incomplete.</p><p class="ta">வாக்கியக் கணிப்பு சோதனை நிலையில் உள்ளது. நேரங்கள் தோராயமானவை; முழுச் சரிபார்ப்பு முடியவில்லை.</p><p>Applies to this daily Panchangam and hourly planner. Horoscope and Sankalpa continue to use Drik.</p>'
+      : '<b>Drik Panchangam · திருக்கணித பஞ்சாங்கம்</b><p>Thirukanitha calculations with Lahiri ayanamsa. The daily Panchangam and hourly planner use this method.</p>';
+    $('methodDetails').textContent='';
     $('dateInput').value = `${state.y}-${String(state.m).padStart(2, '0')}-${String(state.d).padStart(2, '0')}`;
     $('cityInput').value = c.name;
     const lat = `${Math.abs(c.lat).toFixed(2)}°${c.lat >= 0 ? 'N' : 'S'}`, lon = `${Math.abs(c.lon).toFixed(2)}°${c.lon >= 0 ? 'E' : 'W'}`;
     $('where').innerHTML = `<b>${esc(c.name)}</b>${c.region ? ', ' + esc(c.region) : ''} · ${lat} ${lon} · ${esc(c.tz)} (${utcOffsetLabel(c.tz)})${state.source ? ' · ' + esc(state.source) : ''}`;
 
-    const r = P.calculate({ y: state.y, m: state.m, d: state.d, lat: c.lat, lon: c.lon, tz: c.tz });
+    const r = P.calculate({ y: state.y, m: state.m, d: state.d, lat: c.lat, lon: c.lon, tz: c.tz, method:state.method });
     const dateEn = `${r.vara[0]}, ${state.d} ${MONTHS_EN[state.m - 1]} ${state.y}`;
 
     if (r.noSun) {
@@ -2554,7 +2966,9 @@ const LISTS = {
     renderHourly(r, dateEn);
 
     const ay = r.ayanamsa, deg = Math.floor(ay), min = Math.round((ay - deg) * 60);
-    $('foot').innerHTML = `Calculated in your browser by the ${term('method', 'Thirukanitha (Drik)')} method with Lahiri ayanamsa (${deg}°${String(min).padStart(2, '0')}′). Tithi, Nakshatra, Yoga and Karana are those prevailing at local sunrise. All times are local time in ${esc(c.name)}. Rahu Kalam, Yamagandam and Gulika divide sunrise-to-sunset into eight parts.`;
+    $('methodDetails').innerHTML = (vakya
+      ? `Experimental Vakya: traditional Sun/Moon tables with manyadi correction. Approximate times use a Thanjavur reference sunrise and are displayed in ${esc(c.name)} local time. Local sunrise/sunset, Rahu Kalam, Yamagandam, Gulika and hora use modern astronomy. This is not a certified Asal 28 Paambu edition. ${r.vakyaSuspectRows.length ? '<b>This date also uses a disputed lunar-table entry; extra uncertainty applies.</b>' : ''}`
+      : `Calculated in your browser by the ${term('method', 'Thirukanitha (Drik)')} method with Lahiri ayanamsa (${deg}°${String(min).padStart(2, '0')}′). Tithi, Nakshatra, Yoga and Karana are those prevailing at local sunrise. All times are local time in ${esc(c.name)}. Rahu Kalam, Yamagandam and Gulika divide sunrise-to-sunset into eight parts.`);
   }
 
   // ---------- Hour by hour ----------
@@ -2619,7 +3033,14 @@ const LISTS = {
 
   function update() {
     const app = $('app'); app.classList.add('busy');
-    try { render(); } catch (e) { showMsg('Could not calculate for this date. Please try another date.'); console.error(e); }
+    hideMsg();
+    try { render(); } catch (e) {
+      $('summary').innerHTML=''; $('panels').hidden=true; $('nosun').hidden=true;
+      $('hourTop').innerHTML=''; $('hours').innerHTML=''; $('methodDetails').textContent='';
+      showMsg(state.method==='vakya' && (state.y<1900 || state.y>2100)
+        ? 'Vakya is available for 1900–2100. Choose another date or select Drik.'
+        : 'Could not calculate for this date. Please try another date.');
+    }
     finally { app.classList.remove('busy'); }
   }
 
@@ -2707,6 +3128,10 @@ const LISTS = {
     if (y < 1600 || y > 2400) { showMsg('Please choose a year between 1600 and 2400.'); return; }
     hideMsg(); state.y = y; state.m = m; state.d = d; update();
   });
+  $('panchangMethod').addEventListener('change',e=>{
+    state.method=e.target.value==='vakya'?'vakya':'drik';
+    hideMsg(); update();
+  });
   $('prev').addEventListener('click', () => shift(-1));
   $('next').addEventListener('click', () => shift(1));
   $('today').addEventListener('click', () => { setToday(); update(); });
@@ -2762,7 +3187,7 @@ const LISTS = {
   const nm = n => `${esc(n[0])} <span class="ta">${esc(n[1])}</span>`;
   const sect = (id, title, intro, body) => `<section class="panel" id="L-${id}"><h2>${esc(title)}</h2>${intro ? `<p class="note">${intro}</p>` : ''}${body}${TOP}</section>`;
   function buildLists() {
-    const curYear = (() => { const c = state.city; if (!c) return -1; try { const r = P.calculate({ y: state.y, m: state.m, d: state.d, lat: c.lat, lon: c.lon, tz: c.tz }); return N.samvatsara.indexOf(r.samvatsara); } catch (e) { return -1; } })();
+    const curYear = (() => { const c = state.city; if (!c) return -1; try { const r = P.calculate({ y: state.y, m: state.m, d: state.d, lat: c.lat, lon: c.lon, tz: c.tz, method:state.method }); return N.samvatsara.indexOf(r.samvatsara); } catch (e) { return -1; } })();
     const out = [];
     out.push(sect('tithi', '30 Tithis · திதி', 'The same 14 names appear in both halves of the month; the 15th is Pournami (full moon) in the waxing half and Amavasai (new moon) in the waning half. Tap Tithi for details: ' + term('tithi', 'Tithi'),
       tbl(['#', 'Name', 'Waxing (Shukla)', 'Waning (Krishna)', 'Known for'], N.tithi.slice(0, 14).map((t, i) => `<tr><td class="n">${i + 1}</td><td>${nm(t)}</td><td>Shukla ${i + 1}</td><td>Krishna ${i + 1}</td><td>${esc(L.tithiNotes[i])}${i === 7 || i === 8 ? ' <span class="bad">Caution</span>' : ''}</td></tr>`).concat([
