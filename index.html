@@ -7,16 +7,13 @@
 <style>
 /* Layout: one column almanac; a control bar, a summary band for the day, then a two-column grid of panels. */
 :root {
+  color-scheme: light;
   --bg: #f3f6f1; --surface: #ffffff; --line: #dbe3d9; --ink: #16231b; --muted: #58685d;
   --accent: #8f5f00; --accent-soft: #fbefd6;
   --bad: #a8261c; --bad-soft: #fbe6e3; --good: #1d7148; --good-soft: #e0f2e7; --neutral-soft: #eceff0;
   --display: "Arima", "Noto Serif Tamil", var(--ix, Georgia), Georgia, serif;
   --body: "Hind Madurai", "Noto Sans Tamil", var(--ix, system-ui), system-ui, sans-serif;
 }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
-  --bg: #0f1612; --surface: #16201a; --line: #2a3a30; --ink: #e5ece6; --muted: #98aa9d;
-  --accent: #e3ab45; --accent-soft: #33280f;
-  --bad: #f08a7e; --bad-soft: #3a1a17; --good: #6fd09b; --good-soft: #143223; --neutral-soft: #222c26; color-scheme: dark } }
 :root[data-theme="dark"] {
   --bg: #0f1612; --surface: #16201a; --line: #2a3a30; --ink: #e5ece6; --muted: #98aa9d;
   --accent: #e3ab45; --accent-soft: #33280f;
@@ -107,7 +104,17 @@ footer { font-size: .82rem; color: var(--muted); max-width: 70ch; }
 .langbox svg { width: 18px; height: 18px; flex: none; stroke: var(--accent); fill: none; stroke-width: 1.7; stroke-linecap: round; }
 .langsel { font: inherit; font-weight: 600; color: var(--ink); background: transparent; border: 0; padding: 7px 4px; cursor: pointer; max-width: 11em; }
 .langsel:focus-visible { outline: none; }
-.header-options { display: contents; }
+.header-options { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; max-width: 100%; }
+.theme-toggle { width: 44px; height: 44px; padding: 9px; border-radius: 50%; color: var(--accent); flex: none; }
+.theme-toggle svg { width: 24px; height: 24px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.theme-toggle .theme-sun, :root[data-theme="dark"] .theme-toggle .theme-moon { display: none; }
+:root[data-theme="dark"] .theme-toggle .theme-sun { display: block; }
+#adminpage table { min-width: 540px; }
+#adminpage .visitor-country-table { min-width: 0; }
+#adminpage a { color: var(--accent); }
+#adminpage th, #adminpage td { padding: 8px; width: auto; }
+#adminpage .field { max-width: 320px; }
+#visitorStatus { overflow-wrap: anywhere; }
 .fontbox { display: none; }
 .nav { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 10px; }
 .nav button { position: relative; display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 12px 6px 10px; border-radius: 16px; background: var(--surface); }
@@ -318,12 +325,7 @@ footer { font-size: .82rem; color: var(--muted); max-width: 70ch; }
   --surface: #29211d; --line: #584536; --ink: #f6ead8; --muted: #c4b39e;
   --accent: #f0bc83; --accent-soft: #443023; --hs-gold: #d2aa62; --hs-ground: #201a17;
 }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) :is(#hspage, #skpage) {
-  --surface: #29211d; --line: #584536; --ink: #f6ead8; --muted: #c4b39e;
-  --accent: #f0bc83; --accent-soft: #443023; --hs-gold: #d2aa62; --hs-ground: #201a17;
-} }
 :root[data-theme="dark"] #hspage .summary-table .rating-mixed { background: #3e321b; }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) #hspage .summary-table .rating-mixed { background: #3e321b; } }
 
 /* Tappable terms */
 button.term { all: unset; cursor: pointer; font-weight: inherit; border-bottom: 1px dotted var(--muted); }
@@ -414,7 +416,6 @@ dialog::backdrop { background: rgb(10 20 14 / .45); }
 @media (max-width: 700px) { #skpage .sk-in { grid-template-columns: 1fr; gap: 16px; } }
 
 :root { --sv: #0b5cad; }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --sv: #7fb9ff } }
 :root[data-theme="dark"] { --sv: #7fb9ff }
 .sv { color: var(--sv); font-weight: 600; }
 .sv.ph { border-bottom: 1px dashed var(--sv); font-weight: 500; }
@@ -458,6 +459,25 @@ dialog::backdrop { background: rgb(10 20 14 / .45); }
 }
 </style>
 
+<div class="wrap" id="adminpage" data-keep hidden>
+  <div><a href="#">◀ Back to Panchangam</a></div>
+  <h1>Visitor statistics</h1>
+  <p>Last 48 hours · approximate city from IP · page openings and refreshes, not unique people.</p>
+  <form id="visitorLogin" class="panel">
+    <div class="field"><label for="visitorPassword">Owner password</label><input id="visitorPassword" type="password" autocomplete="current-password" required maxlength="256"></div>
+    <div><button type="submit" id="visitorSubmit">View statistics</button></div>
+  </form>
+  <p id="visitorStatus" role="status" aria-live="polite"></p>
+  <section id="visitorResults" class="panel" hidden>
+    <div class="btns"><button type="button" id="visitorRefresh">Refresh</button><button type="button" id="visitorLogout">Log out</button></div>
+    <p id="visitorTotals"></p>
+    <h2>By country</h2><div class="tblwrap"><table class="visitor-country-table"><thead><tr><th>Country</th><th>Visits</th></tr></thead><tbody id="visitorCountries"></tbody></table></div>
+    <h2>By city</h2><div class="tblwrap"><table><thead><tr><th>City</th><th>Region</th><th>Country</th><th>Visits</th></tr></thead><tbody id="visitorCities"></tbody></table></div>
+    <h2>Recent visits</h2><p class="note">On small screens, swipe the tables sideways to see all columns.</p><div class="tblwrap" tabindex="0" aria-label="Recent visits, scroll horizontally for times"><table><thead><tr><th>City / country</th><th>Local date and time</th><th>IST date and time</th></tr></thead><tbody id="visitorRows"></tbody></table></div>
+    <div><button type="button" id="visitorMore" hidden>Show 100 more visits</button></div>
+    <p class="note">Refreshes and automated visits can increase counts. Blockers, network failures and service limits can miss visits. Locations may be inaccurate or unknown. New records can take about a minute to appear. No IP addresses or birth details are saved in these statistics.</p>
+  </section>
+</div>
 <div class="wrap" id="app">
   <div data-hdr="today"></div>
 
@@ -535,6 +555,7 @@ dialog::backdrop { background: rgb(10 20 14 / .45); }
   </div>
 
   <footer id="foot"></footer>
+  <p id="visitorNotice" class="note" data-keep hidden>Usage statistics: approximate city, country and visit time are sent to Cloudflare and kept for 48 hours. We do not save IP addresses or birth details in these statistics.</p>
   </div>
 
   <div class="tabpane" id="pane-hourly" role="tabpanel" aria-labelledby="tab-hourly" hidden>
@@ -2174,6 +2195,7 @@ const LISTS = {
   const zip = (tamils, hindi) => tamils.forEach((ta, i) => { if (hindi[i] != null) put(ta, hindi[i]); });
   S(['ஸ்லோக சாகர்|श्लोक सागर']);
   U([
+    'இரவுத் தோற்றம்|रात का मोड|రాత్రి మోడ్|ರಾತ್ರಿ ಮೋಡ್|രാത്രി മോഡ്',
     'எழுத்து அளவு|अक्षर आकार|అక్షర పరిమాణం|ಅಕ್ಷರ ಗಾತ್ರ|അക്ഷര വലുപ്പം',
     'பொதுத் தகவல்|सामान्य जानकारी|సాధారణ సమాచారం|ಸಾಮಾನ್ಯ ಮಾಹಿತಿ|പൊതുവിവരങ്ങൾ',
     'பிறப்பு விவரங்கள்|जन्म विवरण|జనన వివరాలు|ಜನನ ವಿವರಗಳು|ജനന വിവരങ്ങൾ',
@@ -2384,10 +2406,16 @@ const LISTS = {
     if (h[2]) el.className = 'pagehead';
     el.innerHTML = (h[2] ? `<button type="button" id="${h[2]}">◀ Back to Panchangam</button>` : '') +
       `<header class="top"><div class="brand">${LOGO}<h1>${h[0]} <small>${h[1]}</small></h1></div>` +
-      (el.dataset.hdr !== 'today' ? '' : `<div class="header-options"><label class="langbox">${GLOBE}<select class="langsel" data-keep aria-label="Language · மொழி">${I.LANGS.map(l => `<option value="${l.code}">${l.name} · ${l.en}</option>`).join('')}</select></label><label class="fontbox" title="Text size · எழுத்து அளவு (100% default)"><span aria-hidden="true">Aa</span><select id="textSize" aria-label="Text size · எழுத்து அளவு">${TEXT_SIZES.map(size => `<option value="${size}">${size}%</option>`).join('')}</select></label></div>`) + '</header>';
+      (el.dataset.hdr !== 'today' ? '' : `<div class="header-options"><button id="themeToggle" class="theme-toggle" type="button" aria-label="Night mode · இரவுத் தோற்றம்" title="Night mode · இரவுத் தோற்றம்" aria-pressed="false"><svg class="theme-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 15.2A8.5 8.5 0 0 1 8.8 4 8.5 8.5 0 1 0 20 15.2z"/></svg><svg class="theme-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5L19 19M19 5l-1.5 1.5M6.5 17.5L5 19"/></svg></button><label class="langbox">${GLOBE}<select class="langsel" data-keep aria-label="Language · மொழி">${I.LANGS.map(l => `<option value="${l.code}">${l.name} · ${l.en}</option>`).join('')}</select></label><label class="fontbox" title="Text size · எழுத்து அளவு (100% default)"><span aria-hidden="true">Aa</span><select id="textSize" aria-label="Text size · எழுத்து அளவு">${TEXT_SIZES.map(size => `<option value="${size}">${size}%</option>`).join('')}</select></label></div>`) + '</header>';
   });
   document.querySelectorAll('.langsel').forEach(sel => sel.addEventListener('change', e => applyLang(e.target.value)));
   applyTextSize(lsGet('mobileTextSize', '100'));
+  document.documentElement.dataset.theme = 'light';
+  $('themeToggle').addEventListener('click', () => {
+    const dark = document.documentElement.dataset.theme !== 'dark';
+    document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+    $('themeToggle').setAttribute('aria-pressed', String(dark));
+  });
   $('textSize').addEventListener('change', e => applyTextSize(e.target.value, true));
 
   const TOP = '<button type="button" class="totop" data-top aria-label="Back to top">↑ Top · மேலே</button>';
@@ -3429,7 +3457,8 @@ const LISTS = {
   $('tab-sankalpa').addEventListener('click', () => { location.hash = 'sankalpa'; });
   function route() {
     if (location.hash === '#jathagam') { location.hash = 'horoscope'; return; }
-    const page = location.hash === '#sankalpa' ? 'sk' : location.hash === '#horoscope' ? 'hs' : '';
+    const page = location.hash === '#sankalpa' ? 'sk' : location.hash === '#horoscope' ? 'hs' : location.hash === '#admin' ? 'admin' : '';
+    $('adminpage').hidden = page !== 'admin';
     $('app').hidden = !!page; $('skpage').hidden = page !== 'sk'; $('hspage').hidden = page !== 'hs';
     if (page === 'sk') { if (!S.userLoc && !S.city && state.city) skSetCity(state.city, state.source); else if (!S.userTime && S.city) skNow(); skRender(); skShow('ta'); }
     if (page === 'hs') { if (!H.city && state.city) hsSetCity(state.city, state.source); else if (!H.userTime && H.city) hsNow(); renderHoroscope(); window.scrollTo(0, 0); }
@@ -3474,4 +3503,141 @@ const LISTS = {
   start();
   route();
 })();
+</script>
+
+<script>
+// Set this to your deployed HTTPS Cloudflare Worker URL, then run npm run build.
+// Leave empty to disable visitor collection. Never put passwords here.
+window.VISITOR_CONFIG = Object.freeze({ workerUrl: 'https://panchangam-visitors.supersubra.workers.dev' });
+
+</script>
+<script>
+// Visitor collection is independent of astronomy, city selection and birth details.
+(() => {
+  'use strict';
+  const $ = id => document.getElementById(id);
+  const configured = window.VISITOR_CONFIG?.workerUrl || '';
+  const endpoint = /^https:\/\/[a-z0-9.-]+\.workers\.dev\/?$/i.test(configured) ? configured.replace(/\/$/, '') : '';
+  const production = location.origin === 'https://supersubra.github.io' && /^\/panchangam\/(?:index\.html)?$/.test(location.pathname);
+  const enabled = !!endpoint && production;
+  const RETENTION = 48 * 60 * 60 * 1000;
+  let password = '', visits = [], asOf = 0, snapshotReceivedAt = 0, shown = 100, pending = null;
+  let countries;
+  try { countries = new Intl.DisplayNames(['en'], { type: 'region' }); } catch {}
+  const countryName = code => {
+    try { return /^[A-Z]{2}$/.test(code) ? (countries?.of(code) || code) : 'Unknown'; }
+    catch { return 'Unknown'; }
+  };
+  const format = (time, timezone) => new Date(time).toLocaleString('en-GB', {
+    timeZone: timezone, year: 'numeric', month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false,
+  });
+  function localTime(v) {
+    try { return `${format(v.time, v.timezone)} (${v.timezone})`; }
+    catch { return `${format(v.time, 'UTC')} UTC (local zone unknown)`; }
+  }
+  function table(id, rows) {
+    const fragment = document.createDocumentFragment();
+    for (const values of rows) {
+      const row = document.createElement('tr');
+      for (const value of values) {
+        const cell = document.createElement('td'); cell.textContent = String(value); row.append(cell);
+      }
+      fragment.append(row);
+    }
+    $(id).replaceChildren(fragment);
+  }
+  function render() {
+    // Keep the server clock authoritative, even when the owner's device clock is wrong.
+    const serverNow = asOf + Math.max(0, performance.now() - snapshotReceivedAt);
+    visits = visits.filter(v => v.time > serverNow - RETENTION);
+    const cities = new Map(), nations = new Map();
+    for (const v of visits) {
+      const nation = countryName(v.country), key = JSON.stringify([v.city, v.region, nation]);
+      if (!cities.has(key)) cities.set(key, { labels: [v.city, v.region, nation], count: 0 });
+      cities.get(key).count++;
+      nations.set(nation, (nations.get(nation) || 0) + 1);
+    }
+    $('visitorTotals').textContent = `${visits.length} visits · ${cities.size} city/region groups · ${nations.size} country groups (including Unknown). Last fetched: ${format(asOf, 'Asia/Kolkata')} IST.`;
+    table('visitorCountries', [...nations].sort((a, b) => b[1] - a[1]));
+    table('visitorCities', [...cities.values()].sort((a, b) => b.count - a.count).map(c => [...c.labels, c.count]));
+    table('visitorRows', visits.slice(0, shown).map(v => [`${v.city}, ${countryName(v.country)}`, localTime(v), format(v.time, 'Asia/Kolkata') + ' IST']));
+    $('visitorMore').hidden = shown >= visits.length;
+  }
+  function logout() {
+    pending?.abort(); pending = null;
+    password = ''; visits = []; asOf = 0;
+    $('visitorPassword').value = '';
+    $('visitorResults').hidden = true; $('visitorLogin').hidden = false;
+    $('visitorSubmit').disabled = false; $('visitorRefresh').disabled = false;
+    $('visitorTotals').textContent = '';
+    for (const id of ['visitorCountries', 'visitorCities', 'visitorRows']) $(id).replaceChildren();
+    $('visitorStatus').textContent = endpoint ? '' : 'Statistics are not connected yet. Complete the Cloudflare setup and add the Worker URL to src/visitor-config.js.';
+  }
+  async function load() {
+    if (!endpoint) { logout(); return; }
+    pending?.abort();
+    const controller = new AbortController(); pending = controller;
+    $('visitorSubmit').disabled = true; $('visitorRefresh').disabled = true;
+    $('visitorStatus').textContent = 'Loading the last 48 hours…';
+    // Hide previous data if refreshing fails, rather than presenting stale totals.
+    $('visitorResults').hidden = true;
+    const records = new Map();
+    let cursor = null, snapshot = null, receivedAt = 0, pages = 0;
+    try {
+      do {
+        if (++pages > 100) throw new Error('Too many records to load completely. No partial total is displayed.');
+        const url = new URL(endpoint + '/stats');
+        if (cursor) url.searchParams.set('cursor', cursor);
+        if (snapshot != null) url.searchParams.set('asOf', String(snapshot));
+        const timeout = setTimeout(() => controller.abort(), 15000);
+        let response, data;
+        try {
+          response = await fetch(url, { headers: { Authorization: 'Bearer ' + password }, cache: 'no-store', credentials: 'omit', signal: controller.signal });
+          data = await response.json();
+        } finally { clearTimeout(timeout); }
+        if (!response.ok) {
+          if (response.status === 401) password = '';
+          throw new Error(data.error || `Could not load statistics (${response.status}).`);
+        }
+        if (!Array.isArray(data.visits) || !Number.isFinite(data.asOf)) throw new Error('Unexpected statistics response. Check the Worker code.');
+        if (snapshot == null) receivedAt = performance.now();
+        snapshot = data.asOf;
+        for (const v of data.visits) if (Number.isFinite(v.time) && typeof v.id === 'string') records.set(v.id, v);
+        if (data.cursor && data.cursor === cursor) throw new Error('Statistics pagination did not advance. Try refreshing.');
+        cursor = data.cursor;
+      } while (cursor);
+      if (pending !== controller || location.hash !== '#admin') return;
+      visits = [...records.values()].sort((a, b) => b.time - a.time); asOf = snapshot; snapshotReceivedAt = receivedAt; shown = 100;
+      render();
+      $('visitorResults').hidden = false; $('visitorLogin').hidden = true;
+      $('visitorStatus').textContent = visits.length ? 'Statistics loaded.' : 'No recorded visits in the last 48 hours. New visits may take about a minute to appear.';
+    } catch (e) {
+      if (pending !== controller) return;
+      visits = []; password = '';
+      $('visitorLogin').hidden = false;
+      $('visitorStatus').textContent = e.name === 'AbortError' ? 'Statistics request timed out. Try again.' : e.message;
+    } finally {
+      if (pending === controller) {
+        pending = null; $('visitorSubmit').disabled = false; $('visitorRefresh').disabled = false;
+      }
+    }
+  }
+  $('visitorLogin').addEventListener('submit', event => {
+    event.preventDefault(); password = $('visitorPassword').value; $('visitorPassword').value = ''; load();
+  });
+  $('visitorRefresh').addEventListener('click', load);
+  $('visitorLogout').addEventListener('click', () => { logout(); $('visitorPassword').focus(); });
+  $('visitorMore').addEventListener('click', () => { shown += 100; render(); });
+  window.addEventListener('hashchange', () => { if (location.hash !== '#admin') logout(); });
+  window.addEventListener('pagehide', logout);
+  setInterval(() => { if (!$('visitorResults').hidden) render(); }, 30000);
+  logout();
+  $('visitorNotice').hidden = !enabled;
+  if (enabled && location.hash !== '#admin') {
+    const controller = new AbortController(), timeout = setTimeout(() => controller.abort(), 5000);
+    fetch(endpoint + '/visit', { method: 'POST', credentials: 'omit', referrerPolicy: 'no-referrer', signal: controller.signal })
+      .catch(() => {}).finally(() => clearTimeout(timeout));
+  }
+})();
+
 </script>
