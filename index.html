@@ -106,6 +106,8 @@ footer { font-size: .82rem; color: var(--muted); max-width: 70ch; }
 .langsel:focus-visible { outline: none; }
 .header-options { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; max-width: 100%; }
 .theme-toggle { width: 44px; height: 44px; padding: 9px; border-radius: 50%; color: var(--accent); flex: none; }
+.title-shortcut { all: unset; cursor: pointer; touch-action: manipulation; user-select: none; -webkit-user-select: none; }
+.title-shortcut:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; border-radius: 4px; }
 .theme-toggle svg { width: 24px; height: 24px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 .theme-toggle .theme-sun, :root[data-theme="dark"] .theme-toggle .theme-moon { display: none; }
 :root[data-theme="dark"] .theme-toggle .theme-sun { display: block; }
@@ -2195,6 +2197,7 @@ const LISTS = {
   const zip = (tamils, hindi) => tamils.forEach((ta, i) => { if (hindi[i] != null) put(ta, hindi[i]); });
   S(['ஸ்லோக சாகர்|श्लोक सागर']);
   U([
+    'வருகைப் புள்ளிவிவரங்களுக்கு இருமுறை தட்டவும்|आगंतुक आँकड़ों के लिए दो बार टैप करें|సందర్శకుల గణాంకాల కోసం రెండుసార్లు నొక్కండి|ಸಂದರ್ಶಕರ ಅಂಕಿಅಂಶಗಳಿಗಾಗಿ ಎರಡು ಬಾರಿ ಟ್ಯಾಪ್ ಮಾಡಿ|സന്ദർശക സ്ഥിതിവിവരക്കണക്കുകൾക്കായി രണ്ടുതവണ ടാപ്പ് ചെയ്യുക',
     'இரவுத் தோற்றம்|रात का मोड|రాత్రి మోడ్|ರಾತ್ರಿ ಮೋಡ್|രാത്രി മോഡ്',
     'எழுத்து அளவு|अक्षर आकार|అక్షర పరిమాణం|ಅಕ್ಷರ ಗಾತ್ರ|അക്ഷര വലുപ്പം',
     'பொதுத் தகவல்|सामान्य जानकारी|సాధారణ సమాచారం|ಸಾಮಾನ್ಯ ಮಾಹಿತಿ|പൊതുവിവരങ്ങൾ',
@@ -2399,14 +2402,15 @@ const LISTS = {
 
   // All pages inherit the language selected from the home-page header.
   const LOGO = '<svg class="logo" viewBox="0 0 48 48" aria-hidden="true"><circle class="disc" cx="24" cy="24" r="21"/><path class="ray" d="M24 6.5v4M24 37.5v4M6.5 24h4M37.5 24h4M11.6 11.6l2.8 2.8M33.6 33.6l2.8 2.8M36.4 11.6l-2.8 2.8M14.4 33.6l-2.8 2.8"/><circle class="core" cx="24" cy="24" r="7.5"/></svg>';
+  const THEME_TOGGLE = '<button id="themeToggle" class="theme-toggle" type="button" aria-label="Night mode · இரவுத் தோற்றம்" title="Night mode · இரவுத் தோற்றம்" aria-pressed="false"><svg class="theme-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 15.2A8.5 8.5 0 0 1 8.8 4 8.5 8.5 0 1 0 20 15.2z"/></svg><svg class="theme-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5L19 19M19 5l-1.5 1.5M6.5 17.5L5 19"/></svg></button>';
   const GLOBE = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3.4 3.2 3.4 14.8 0 18M12 3c-3.4 3.2-3.4 14.8 0 18"/></svg>';
   const HDR = { today: ['Daily Panchangam', 'தின பஞ்சாங்கம்', ''], horoscope: ['Horoscope', 'ஜாதகம்', 'hsBack'], sankalpa: ['Sankalpa Mantra', 'சங்கல்ப மந்திரம்', 'skBack'] };
   document.querySelectorAll('[data-hdr]').forEach(el => {
-    const h = HDR[el.dataset.hdr];
+    const h = HDR[el.dataset.hdr], home = el.dataset.hdr === 'today';
     if (h[2]) el.className = 'pagehead';
     el.innerHTML = (h[2] ? `<button type="button" id="${h[2]}">◀ Back to Panchangam</button>` : '') +
-      `<header class="top"><div class="brand">${LOGO}<h1>${h[0]} <small>${h[1]}</small></h1></div>` +
-      (el.dataset.hdr !== 'today' ? '' : `<div class="header-options"><button id="themeToggle" class="theme-toggle" type="button" aria-label="Night mode · இரவுத் தோற்றம்" title="Night mode · இரவுத் தோற்றம்" aria-pressed="false"><svg class="theme-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 15.2A8.5 8.5 0 0 1 8.8 4 8.5 8.5 0 1 0 20 15.2z"/></svg><svg class="theme-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5L19 19M19 5l-1.5 1.5M6.5 17.5L5 19"/></svg></button><label class="langbox">${GLOBE}<select class="langsel" data-keep aria-label="Language · மொழி">${I.LANGS.map(l => `<option value="${l.code}">${l.name} · ${l.en}</option>`).join('')}</select></label><label class="fontbox" title="Text size · எழுத்து அளவு (100% default)"><span aria-hidden="true">Aa</span><select id="textSize" aria-label="Text size · எழுத்து அளவு">${TEXT_SIZES.map(size => `<option value="${size}">${size}%</option>`).join('')}</select></label></div>`) + '</header>';
+      `<header class="top"><div class="brand">${home ? THEME_TOGGLE : LOGO}<h1>${home ? `<button type="button" id="visitorShortcut" class="title-shortcut" title="Double-tap for visitor statistics · வருகைப் புள்ளிவிவரங்களுக்கு இருமுறை தட்டவும்">${h[0]}</button>` : h[0]} <small>${h[1]}</small></h1></div>` +
+      (el.dataset.hdr !== 'today' ? '' : `<div class="header-options"><label class="langbox">${GLOBE}<select class="langsel" data-keep aria-label="Language · மொழி">${I.LANGS.map(l => `<option value="${l.code}">${l.name} · ${l.en}</option>`).join('')}</select></label><label class="fontbox" title="Text size · எழுத்து அளவு (100% default)"><span aria-hidden="true">Aa</span><select id="textSize" aria-label="Text size · எழுத்து அளவு">${TEXT_SIZES.map(size => `<option value="${size}">${size}%</option>`).join('')}</select></label></div>`) + '</header>';
   });
   document.querySelectorAll('.langsel').forEach(sel => sel.addEventListener('change', e => applyLang(e.target.value)));
   applyTextSize(lsGet('mobileTextSize', '100'));
@@ -2417,6 +2421,34 @@ const LISTS = {
     $('themeToggle').setAttribute('aria-pressed', String(dark));
   });
   $('textSize').addEventListener('change', e => applyTextSize(e.target.value, true));
+
+  // Two intentional taps open the owner login; ordinary taps and scrolling do not.
+  const visitorShortcut = $('visitorShortcut');
+  let titlePress = null, titleTap = null, titlePointerType = 'mouse';
+  const openVisitorStats = () => { titlePress = titleTap = null; location.hash = 'admin'; };
+  visitorShortcut.addEventListener('dblclick', () => { if (titlePointerType === 'mouse') openVisitorStats(); });
+  visitorShortcut.addEventListener('click', e => {
+    // Native keyboard / assistive-technology activation has no mouse click count.
+    if (e.detail === 0) openVisitorStats();
+  });
+  visitorShortcut.addEventListener('pointerdown', e => {
+    titlePointerType = e.pointerType;
+    if (e.pointerType === 'mouse') return;
+    if (!e.isPrimary) { titlePress = titleTap = null; return; }
+    titlePress = { id: e.pointerId, time: performance.now(), x: e.clientX, y: e.clientY };
+  });
+  visitorShortcut.addEventListener('pointermove', e => {
+    if (titlePress && e.pointerId === titlePress.id && Math.hypot(e.clientX - titlePress.x, e.clientY - titlePress.y) > 12) titlePress = titleTap = null;
+  });
+  visitorShortcut.addEventListener('pointercancel', () => { titlePress = titleTap = null; });
+  visitorShortcut.addEventListener('pointerup', e => {
+    if (e.pointerType === 'mouse') return;
+    const press = titlePress, now = performance.now(); titlePress = null;
+    if (!press || e.pointerId !== press.id || now - press.time > 350 || Math.hypot(e.clientX - press.x, e.clientY - press.y) > 12) { titleTap = null; return; }
+    if (titleTap && now - titleTap.time <= 400 && Math.hypot(e.clientX - titleTap.x, e.clientY - titleTap.y) <= 24) openVisitorStats();
+    else titleTap = { time: now, x: e.clientX, y: e.clientY };
+  });
+
 
   const TOP = '<button type="button" class="totop" data-top aria-label="Back to top">↑ Top · மேலே</button>';
   const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
