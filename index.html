@@ -473,6 +473,7 @@ dialog::backdrop { background: rgb(10 20 14 / .45); }
   <div><a href="#">◀ Back to Panchangam</a></div>
   <h1>Visitor statistics</h1>
   <p>Last 48 hours · approximate city from IP · page openings and refreshes, not unique people.</p>
+  <div class="panel"><label><input type="checkbox" id="visitorExclude"> Exclude visits from this browser</label><p class="note">Set this separately in Chrome on each device. Existing visits expire after 48 hours.</p><p id="visitorExcludeStatus" role="status"></p></div>
   <form id="visitorLogin" class="panel">
     <div class="field"><label for="visitorPassword">Owner password</label><input id="visitorPassword" type="password" autocomplete="current-password" required maxlength="256"></div>
     <div><button type="submit" id="visitorSubmit">View statistics</button></div>
@@ -490,6 +491,7 @@ dialog::backdrop { background: rgb(10 20 14 / .45); }
 </div>
 <div class="wrap" id="app">
   <div data-hdr="today"></div>
+  <div id="specialDays" class="panel" role="status" hidden></div>
 
   <nav class="nav" role="tablist" aria-label="Sections">
     <button type="button" role="tab" id="tab-today" aria-controls="pane-today" aria-selected="true"><span class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 10h18"/><circle cx="12" cy="15.5" r="2.4"/></svg></span><span class="lbl">Today</span><span class="ta">இன்று</span></button>
@@ -1486,6 +1488,28 @@ else root.VakyaCore = api;
 
     res.ayanamsa = model ? null : ayanamsa(at);
     res.tithi = list('tithi', at, until).map(s => ({ ...s, name: N.tithi[s.i === 29 ? 15 : s.i % 15], paksha: s.i < 15 ? 0 : 1 }));
+    // Pradosha is the first fifth of the night. Choose the evening with the
+    // longer Trayodasi overlap when the same tithi covers two evenings.
+    const evening = (set, rise) => {
+      if (!set || !rise || rise <= set) return [];
+      const end = set + (rise - set) / 5;
+      let start = set;
+      return list('tithi', set, end).map(s => {
+        const stop = Math.min(s.end || end, end);
+        const part = { i: s.i, start, end: stop, overlap: Math.max(0, stop - start) };
+        start = stop; return part;
+      }).filter(s => (s.i === 12 || s.i === 27) && s.overlap > 0);
+    };
+    const previousSet = riseSet(-1, sunrise - DAY * 0.9, obs);
+    const followingSet = riseSet(-1, nextSunrise, obs);
+    const followingRise = followingSet && riseSet(+1, followingSet, obs);
+    const current = evening(sunset, nextSunrise);
+    const neighbors = [...evening(previousSet && previousSet < sunrise ? previousSet : null, sunrise), ...evening(followingSet, followingRise)];
+    res.pradosham = current.some(s => {
+      const start = nextChange('tithi', s.start + 1000, -1, undefined, undefined, functions);
+      const end = nextChange('tithi', s.start + 1000, 1, undefined, undefined, functions);
+      return !neighbors.some(n => n.i === s.i && n.start < end && n.end > start && n.overlap > s.overlap);
+    });
     res.paksha = N.paksha[res.tithi[0].paksha];
     res.nakshatra = list('nakshatra', at, until).map(s => ({ ...s, name: N.nakshatra[s.i] }));
     res.yoga = list('yoga', at, until).map(s => ({ ...s, name: N.yoga[s.i] }));
@@ -2627,7 +2651,7 @@ const LISTS = {
   const S = lines => lines.forEach(l => { const p = l.split('|'); put(p[0], p[1]); });                 // Sanskrit words: one Devanagari form
   const U = lines => lines.forEach(l => { const p = l.split('|'); put(p[0], p[1], p[2], p[3], p[4]); }); // each language written out
   const zip = (tamils, hindi) => tamils.forEach((ta, i) => { if (hindi[i] != null) put(ta, hindi[i]); });
-  S(['ஸ்லோகா சாகர்|श्लोका सागर']);
+  S(['ஸ்லோகா சாகர்|श्लोका सागर', 'பிரதோஷம்|प्रदोष']);
   U([
     'கணிப்பு முறை|गणना विधि|గణన పద్ధతి|ಲೆಕ್ಕಾಚಾರದ ವಿಧಾನ|കണക്കുകൂട്ടൽ രീതി',
     'வாக்கியம்|वाक्य|వాక్య|ವಾಕ್ಯ|വാക്യ',
@@ -2947,6 +2971,7 @@ const LISTS = {
     const dateEn = `${r.vara[0]}, ${state.d} ${MONTHS_EN[state.m - 1]} ${state.y}`;
 
     if (r.noSun) {
+      $('specialDays').hidden = true;
       $('summary').innerHTML = `<div class="date"><div class="big">${esc(dateEn)}</div><div class="ta">${esc(r.vara[1])}</div></div>`;
       $('nosun').hidden = false; $('panels').hidden = true;
       $('hourTop').innerHTML = ''; $('hours').innerHTML = '';
@@ -2954,6 +2979,11 @@ const LISTS = {
       return;
     }
     $('nosun').hidden = true; $('panels').hidden = false;
+    const special = [];
+    if (r.tithi[0].i === 29) special.push('Amavasai · <span class="ta">அமாவாசை</span>');
+    if (r.pradosham) special.push('Pradosham · <span class="ta">பிரதோஷம்</span>');
+    $('specialDays').innerHTML = special.map(x => `<strong>${x}</strong>`).join(' &nbsp; · &nbsp; ') + (r.pradosham ? '<div class="note">Pradosham is calculated from the local evening; observance traditions may differ.</div>' : '');
+    $('specialDays').hidden = !special.length;
     const tm = r.tamilMonth;
     $('summary').innerHTML = `
       <div class="date"><div class="big">${esc(dateEn)}</div>
@@ -4018,6 +4048,21 @@ window.VISITOR_CONFIG = Object.freeze({ workerUrl: 'https://panchangam-visitors.
   const production = location.origin === 'https://supersubra.github.io' && /^\/panchangam\/(?:index\.html)?$/.test(location.pathname);
   const enabled = !!endpoint && production;
   const RETENTION = 48 * 60 * 60 * 1000;
+  const excludeKey = 'visitorExclude';
+  let excluded = false;
+  try { excluded = localStorage.getItem(excludeKey) === '1'; }
+  catch { $('visitorExcludeStatus').textContent = 'Browser storage is unavailable. The exclusion setting cannot be saved.'; }
+  $('visitorExclude').checked = excluded;
+  $('visitorExclude').addEventListener('change', () => {
+    try {
+      localStorage.setItem(excludeKey, $('visitorExclude').checked ? '1' : '0');
+      excluded = $('visitorExclude').checked;
+      $('visitorExcludeStatus').textContent = excluded ? 'This browser’s future visits are excluded.' : 'This browser’s visits will be counted.';
+    } catch {
+      $('visitorExclude').checked = excluded;
+      $('visitorExcludeStatus').textContent = 'Could not save the setting. Please check browser storage.';
+    }
+  });
   let password = '', visits = [], asOf = 0, snapshotReceivedAt = 0, shown = 100, pending = null;
   let countries;
   try { countries = new Intl.DisplayNames(['en'], { type: 'region' }); } catch {}
@@ -4130,7 +4175,7 @@ window.VISITOR_CONFIG = Object.freeze({ workerUrl: 'https://panchangam-visitors.
   setInterval(() => { if (!$('visitorResults').hidden) render(); }, 30000);
   logout();
   $('visitorNotice').hidden = !enabled;
-  if (enabled && location.hash !== '#admin') {
+  if (enabled && !excluded && location.hash !== '#admin') {
     const controller = new AbortController(), timeout = setTimeout(() => controller.abort(), 5000);
     fetch(endpoint + '/visit', { method: 'POST', credentials: 'omit', referrerPolicy: 'no-referrer', signal: controller.signal })
       .catch(() => {}).finally(() => clearTimeout(timeout));
