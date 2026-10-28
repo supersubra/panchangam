@@ -1097,7 +1097,7 @@ function sunFromElapsed(elapsedDays) {
 }
 
 // pp.253–254. Use an INTEGER Kali day ending at the reference meridian.
-function lunarReduction(day) {
+function lunarReduction(day, model='classical') {
   if (!Number.isSafeInteger(day) || day <= lunarEpoch)
     throw new RangeError('An integer Kali day after 1600984 is required');
   let remainder = day-lunarEpoch;
@@ -1108,14 +1108,20 @@ function lunarReduction(day) {
   // Zero remainder means zero additional table displacement. Day 248 has
   // already entered the quotient and must not be counted a second time.
   const row = remainder ? lunarRows[remainder-1] : null;
+  // Provisional Paambu reconstruction only: the printed 100/148 complement
+  // is short by 10 arcminutes. The 2026–27 comparison supports assigning
+  // that difference to 148. Preserve the raw source row and both baselines.
+  // This is NOT a publisher-issued erratum; see research/vakya/annual/REPORT.md.
+  const rowAdjustmentArcminutes = model==='paambu-experimental' && remainder===148 ? 10 : 0;
   return {q1,q2,q3,remainder,dhruva,
-    uncorrected:mod(dhruva+(row ? row.arcminutes/60 : 0)),
+    uncorrected:mod(dhruva+(row ? (row.arcminutes+rowAdjustmentArcminutes)/60 : 0)),
+    rowAdjustmentArcminutes,
     row:row ? {...row} : null};
 }
 
-function moonAtDay(day) {
-  const r = lunarReduction(day);
-  const previous = lunarReduction(day-1);
+function moonAtDay(day, model='classical') {
+  const r = lunarReduction(day,model);
+  const previous = lunarReduction(day-1,model);
   // The book's example on p.254 takes CURRENT minus PREVIOUS, not next-current.
   // At reduction boundaries, difference the complete positions so the change
   // of dhruva is included rather than wrapping a local index incorrectly.
@@ -1132,12 +1138,12 @@ function moonAtDay(day) {
 
 // Explicit research assumption: interpolate between corrected integer-day
 // endpoints. This extension is not claimed to be the publisher's end-time rule.
-function moonAtKali(kali) {
+function moonAtKali(kali, model='classical') {
   finite(kali, 'kali');
   const day = Math.floor(kali), fraction = kali-day;
-  const a = moonAtDay(day);
+  const a = moonAtDay(day,model);
   if (!fraction) return {longitude:a.longitude, suspectRows:a.suspectRows};
-  const b = moonAtDay(day+1);
+  const b = moonAtDay(day+1,model);
   return {longitude:mod(a.longitude+mod(b.longitude-a.longitude)*fraction),
     suspectRows:[...new Set([...a.suspectRows,...b.suspectRows])]};
 }
@@ -1177,9 +1183,9 @@ function manyadiCorrection(kali,civilYear) {
 }
 
 function positionsAtKali(kali, civilYear, model='classical') {
-  if(!['classical','manyadi-experimental'].includes(model)) throw new RangeError('Unknown research model');
-  const sun = solarAtKali(kali,civilYear), moon = moonAtKali(kali);
-  const manyadi=model==='manyadi-experimental' ? manyadiCorrection(kali,civilYear) : 0;
+  if(!['classical','manyadi-experimental','paambu-experimental'].includes(model)) throw new RangeError('Unknown research model');
+  const sun = solarAtKali(kali,civilYear), moon = moonAtKali(kali,model);
+  const manyadi=model!=='classical' ? manyadiCorrection(kali,civilYear) : 0;
   return {sun:sun.longitude, moon:mod(moon.longitude+manyadi/60), suspectRows:moon.suspectRows};
 }
 
@@ -1203,6 +1209,11 @@ function karanaName(halfTithi) {
 // Find the first boundary after the supplied instant. Return an event even
 // when beyond the current day; a printed 60-00/full-day entry is not an event.
 function nextBoundary(kali,civilYear,kind,model='classical') {
+  if(kind==='karana' && model==='paambu-experimental') {
+    const span=tithiSpan(kali,civilYear,model),mid=(span.start+span.end)/2;
+    const firstHalf=kali<mid;
+    return {index:2*span.index+(firstHalf?0:1),kali:firstHalf?mid:span.end,suspectRows:span.suspectRows};
+  }
   const start = positionsAtKali(kali,civilYear,model);
   const angle = limbAngle(start,kind), width=widths[kind];
   const index = Math.floor(angle/width), distance=(index+1)*width-angle;
@@ -1217,6 +1228,20 @@ function nextBoundary(kali,civilYear,kind,model='classical') {
   const at=(lo+hi)/2;
   return {index, kali:at, suspectRows:[...new Set([
     ...start.suspectRows, ...positionsAtKali(at,civilYear,model).suspectRows]) ]};
+}
+
+// Equal-duration half-tithis reproduce the printed karana pattern much more
+// closely than angular 6-degree crossings. This is an inference from the
+// annual almanac, not a change to Drik or a claim about every Vakya publisher.
+function tithiSpan(kali,civilYear,model='paambu-experimental') {
+  let previous=nextBoundary(kali-2,civilYear,'tithi',model);
+  for(let i=0;i<4;i++) {
+    const next=nextBoundary(previous.kali+1e-7,civilYear,'tithi',model);
+    if(next.kali>kali) return {index:next.index,start:previous.kali,end:next.kali,
+      suspectRows:[...new Set([...previous.suspectRows,...next.suspectRows])]};
+    previous=next;
+  }
+  throw new Error('Cannot bracket Vakya tithi');
 }
 
 // PROVISIONAL modern adapter. Civil midnight JDN minus 588466 gives the
@@ -1243,13 +1268,13 @@ function istMinutesAtKali(date,kali) {
 
 const api={mod,signedAngle,dms,yearStart,sunFromElapsed,lunarReduction,moonAtDay,
   moonAtKali,localCorrection,solarAtKali,manyadiCorrection,positionsAtKali,limbAngle,limbIndex,karanaName,
-  nextBoundary,civilDay,kaliAtIst,istMinutesAtKali,referenceIstMinutes,limits};
+  nextBoundary,tithiSpan,civilDay,kaliAtIst,istMinutesAtKali,referenceIstMinutes,limits};
 
 if (typeof module !== 'undefined' && module.exports) module.exports = api;
 else root.VakyaCore = api;
 })(typeof globalThis !== 'undefined' ? globalThis : this);
 
-// Experimental browser adapter for the source-based Vakya/manyadi candidate.
+// Experimental browser adapter for the annual-tested Paambu reconstruction.
 // See research/vakya/SOURCES.md and REPORT.md; NOT certified Asal28 equivalence.
 (function(root) {
   'use strict';
@@ -1286,7 +1311,7 @@ else root.VakyaCore = api;
     function positions(ms) {
       if(!samples.has(ms)) {
         const year=new Date(ms+IST).getUTCFullYear();
-        const p=V.positionsAtKali(toKali(ms),year,'manyadi-experimental');
+        const p=V.positionsAtKali(toKali(ms),year,'paambu-experimental');
         p.suspectRows.forEach(r=>suspectRows.add(r));
         if(samples.size>=1024) samples.clear();
         samples.set(ms,p);
@@ -1295,10 +1320,22 @@ else root.VakyaCore = api;
     }
     const sun=ms=>positions(ms).sun,moon=ms=>positions(ms).moon;
     const phase=ms=>{const p=positions(ms);return V.mod(p.moon-p.sun);};
+    const tithiSpans=[];
+    function karanaPhase(ms) {
+      const k=toKali(ms);
+      let span=tithiSpans.find(s=>k>=s.start && k<s.end);
+      if(!span) {
+        span=V.tithiSpan(k,new Date(ms+IST).getUTCFullYear());
+        if(tithiSpans.length>=16) tithiSpans.shift();
+        tithiSpans.push(span);
+      }
+      span.suspectRows.forEach(r=>suspectRows.add(r));
+      return V.mod(12*(span.index+(k-span.start)/(span.end-span.start)));
+    }
     const quantities={
       tithi:{n:30,f:phase},nakshatra:{n:27,f:moon},
       yoga:{n:27,f:ms=>{const p=positions(ms);return V.mod(p.sun+p.moon);}},
-      karana:{n:60,f:phase},moonRasi:{n:12,f:moon},sunRasi:{n:12,f:sun}
+      karana:{n:60,f:karanaPhase},moonRasi:{n:12,f:moon},sunRasi:{n:12,f:sun}
     };
     function solarIngress(ms) {
       const k=toKali(ms),civilYear=new Date(ms+IST).getUTCFullYear();
@@ -2898,7 +2935,7 @@ const LISTS = {
     const vakya=state.method==='vakya';
     $('panchangMethod').value=state.method;
     $('methodStatus').innerHTML=vakya
-      ? '<b>Vakya Panchangam — experimental · வாக்கிய பஞ்சாங்கம் — சோதனை</b><p>Based on traditional tables and limited checks against Asal 28 Paambu Panchangam for Thanjavur. Timings and results for other places are approximate. Available for 1900–2100; full verification is incomplete.</p><p class="ta">வாக்கியக் கணிப்பு சோதனை நிலையில் உள்ளது. நேரங்கள் தோராயமானவை; முழுச் சரிபார்ப்பு முடியவில்லை.</p><p>Applies to this daily Panchangam and hourly planner. Horoscope and Sankalpa continue to use Drik.</p>'
+      ? '<b>Vakya Panchangam — experimental · வாக்கிய பஞ்சாங்கம் — சோதனை</b><p>Based on traditional tables, compared across the 2026–27 Asal 28 Paambu Panchangam for Thanjavur. Some differences remain. Timings and results for other places are approximate. Available for 1900–2100; full verification is incomplete.</p><p class="ta">வாக்கியக் கணிப்பு சோதனை நிலையில் உள்ளது. நேரங்கள் தோராயமானவை; முழுச் சரிபார்ப்பு முடியவில்லை.</p><p>Applies to this daily Panchangam and hourly planner. Horoscope and Sankalpa continue to use Drik.</p>'
       : '<b>Drik Panchangam · திருக்கணித பஞ்சாங்கம்</b><p>Thirukanitha calculations with Lahiri ayanamsa. The daily Panchangam and hourly planner use this method.</p>';
     $('methodDetails').textContent='';
     $('dateInput').value = `${state.y}-${String(state.m).padStart(2, '0')}-${String(state.d).padStart(2, '0')}`;
