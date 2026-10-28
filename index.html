@@ -2,6 +2,38 @@
 <title>Daily Panchangam</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="claude:viewport-fit-sides" content="cover">
+<meta name="theme-color" content="#8f5f00">
+<script>// Keep the app manifest and icons inside the deployed HTML file.
+(function () {
+  const icon192 = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMAAAADACAIAAADdvvtQAAAFfUlEQVR42u2dQW4cOwxE20SfJmfLIkfJImfzNXwAb7IYYBAYhuOZJiWy6hX+4mczFqlHSi2J0sv72+uB0LMKXIAACAEQAiAEQAgBEAIgBEAIgBACIFSqExd8qj+/ftz//+dvdnvIQAiAEAAhAEIIgBAAIQBCAIQACCFpgP5dFEYA9AA3t/88GZpicl+AnHeg7mFzDyEAYiDTDKTAd4SKy1eYYRLqH0Jnfw9u4WZXz40LkiC9k37EAfrgR2GGJpoWxGJPeqaYHEQqAWMBkHYSmhsSgccJFReAVJPQ6GAI/E6QHD6Fhbd1xQovP4pjVhumh8GL7SWbuT13naeiwACgeaOe1R6wBUC7hgkHkpQB6jO9ECZJE6CeM1NJjNQA6v9RI4aRDkCzvodlMFIAaO5SigBGAT003jQDKW1lzE1F7MZjDgfKYIghjGNAnAeCnoPCwr4GWxX0DDI2Em/SwKGDTM76/UhsR5HNttcq1Pkz8Zejc+O4XSrd/PSAz/kK+7QpKYf0DpT0XVbUR5mf8blNhJ6sni5Cp2QdKKut0FPnxtx1ppKFxIvthp4UhhbQcxSV9dxa+cGA2z+bL7N+p3n9+V6DzqKtjEcvnVjfPenTi42tXYnOur2wu1Wt6Ml1a5OWr78jZt1m6n8L5zSKtrZb8f1wHVbavH32s6YBn87/hPfzuxznqPb4enz1LOoLUKmv9zpa2LTD4bUek3HTGqC6GG3SeXXN6LAidR4kHo+ZtWYGqvBp21Gjw71YzIFmzzn0pkShlH5GdE96I/cmId5MRTMB8kw/eknoZOrzUGdk/aFdz1gB0NIjw6VblRoMBYVzz1WSdHsOd1djwvy0+UW/X/wFLphSq1VY/1PTGQrP8au0YM9qFAvD9NOtBHt0EgqKhSnEBqBGHezGUAztws7Vrk/8obmPRwW5hzwEQAiAKhP+lnyw6wlEAEIANDkTYC8ZCAGQZaXVRNOCr3e+5wEIARA6RI+0mqxnIEqb0YblTYYwxBwIdR7CmNMg5kCoKh0whCEA4oo7AGJzYKhpDGFoDkBb8vnGQcTBXjIQ8gNoxPbciIPbZCAEQIozA5/l+xjakRurPztXza4HN1jIJ/cAUJcONtx4DsN126Ju7nZfkSxAHcI0vQ2SRukPYU0uJ5z17jMAZTJ0EaOLv8A90QqTzecguA6fhktPjVMQKffGr3zqQOZcyilzkibxFQuO/gyYA4k9m2X7UhGbqWgsQJ5JSOyhtOBYMc0bDJDkQ8ZWT1SfwuUNfdZphCtJQngFrEm31TWjQ4RwxR2555Je3t9eHXp6fbDqWdT6nuhqd4i9ldFnene6vVIoRmr1xk6LIeyDT7+wbaX3c13cquWJb5NvBuhTt35t1foInnWg5/v0rGGoCqAn0OkwCnynhRObV4dRPkDXDTB8eTQ9WS7DKBmgrHbDUJ0bczFKAyi9rTBUVzOUyFACQHVNhKEsZ9b1UT5Acz+P5UtpKzCKXAslC/ZkdporKkmic+PMGVrgz+t/ostmKmPZ+rBJ2fEYA5AVQ4OSbuBWzHTJQPKpiEd3cbSdUYG7McduCFMazqZHQhC7NN46Aw1NRTJDsA5AUzASm72pAdQZI8mPR02AumEkvASqDNB2khyWzi0AWkyS1fGBqVsZRYf0gEYfoKIDkB0esVtZUQpAOnG/uBTwcF6JltyHHx0Ggd8JEheAhE8kzg0GjnMQKh4AyR+I5kAZ3ymOARNEalvTRjAUxCLhcfhcNL7Yv9sXLfuvTQfphyREYSGzaQAi/VDaXPQc7s2bzve8dA6kk4hsa/KI0x08eUnYABACIARACIAQAiAEQAiAEAAhBEDooLAQkYEQACEEQAiAEAAhAEIIgBAAIQBCAIRc9ReyrGIp8U7+hwAAAABJRU5ErkJggg==";
+  const icon512 = "data:image/png;base64,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";
+  const base = new URL('.', location.href);
+  const manifest = {name: 'Daily Panchangam', short_name: 'Panchangam', id: base.href, start_url: base.href, scope: base.href, display: 'standalone', background_color: '#f3f6f1', theme_color: '#8f5f00', icons: [{src: icon192, sizes: '192x192', type: 'image/png'}, {src: icon512, sizes: '512x512', type: 'image/png'}]};
+  const link = document.createElement('link');
+  link.rel = 'manifest';
+  link.href = 'data:application/manifest+json,' + encodeURIComponent(JSON.stringify(manifest));
+  document.head.appendChild(link);
+  const apple = document.createElement('link');
+  apple.rel = 'apple-touch-icon';
+  apple.href = icon192;
+  document.head.appendChild(apple);
+  let installPrompt = null;
+  window.addEventListener('beforeinstallprompt', event => { event.preventDefault(); installPrompt = event; });
+  window.addEventListener('appinstalled', () => { installPrompt = null; });
+  document.addEventListener('DOMContentLoaded', () => {
+    const button = document.getElementById('installApp');
+    const help = document.getElementById('installHelp');
+    button.addEventListener('click', async () => {
+      if (installPrompt) {
+        const prompt = installPrompt; installPrompt = null;
+        try { await prompt.prompt(); return; } catch (e) { /* Show the manual instructions below. */ }
+      }
+      help.hidden = !help.hidden;
+      button.setAttribute('aria-expanded', String(!help.hidden));
+    });
+  });
+})();
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Arima:wght@500;700&family=Hind+Madurai:wght@400;500;600;700&display=swap">
 <style>
@@ -91,6 +123,11 @@ th .ta, td .ta { display: block; font-weight: 400; font-size: .88rem; }
 .g.now { border-color: var(--ink); }
 .subh { font-size: .72rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 600; margin-top: 4px; }
 .nosun { background: var(--accent-soft); border-radius: 12px; padding: 16px 18px; }
+.install-app { margin-top: 8px; }
+.install-app button { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; }
+.install-app svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.install-help { max-width: 70ch; padding: 12px 16px; margin-top: 10px; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; }
+.install-help p { margin: 6px 0; }
 footer { font-size: .82rem; color: var(--muted); max-width: 70ch; }
 @media (max-width: 520px) { .gowri { grid-template-columns: repeat(2, minmax(0, 1fr)); } th { width: 42%; } h1 { font-size: 1.6rem; } }
 @media (prefers-reduced-motion: no-preference) { .day, .panel { transition: opacity .2s; } }
@@ -584,6 +621,15 @@ dialog::backdrop { background: rgb(10 20 14 / .45); }
       <p class="ta">இந்த முடிவுகளின் அடிப்படையில் எடுக்கும் முடிவுகளுக்கும் செயல்களுக்கும் பயனரே பொறுப்பு. அதனால் ஏற்படும் இழப்புகளுக்கும் விளைவுகளுக்கும் தளமும் அதன் உருவாக்குநரும் பொறுப்பேற்க மாட்டார்கள்.</p>
     </section>
   </footer>
+  <div class="install-app">
+    <button type="button" id="installApp" aria-expanded="false" aria-controls="installHelp"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m-4-4 4 4 4-4M4 17v3h16v-3"/></svg><span>Install app · செயலியை நிறுவு</span></button>
+    <div id="installHelp" class="install-help" hidden data-keep>
+      <p><strong>Add Daily Panchangam to your home screen</strong></p>
+      <p><strong>iPhone or iPad (Safari):</strong> Tap Share, then Add to Home Screen. Turn on Open as Web App if offered, then tap Add.</p>
+      <p><strong>Android (Chrome):</strong> Open the browser menu (⋮), then choose Install app or Add to Home screen.</p>
+      <p><strong>Other browsers:</strong> Open the browser menu or Share menu and look for Install app or Add to Home Screen. The name and availability depend on your browser.</p>
+    </div>
+  </div>
   <p id="visitorNotice" class="note" data-keep hidden>Usage statistics: approximate city, country and visit time are sent to Cloudflare and kept for 48 hours. We do not save IP addresses or birth details in these statistics.</p>
   </div>
 
@@ -2653,6 +2699,7 @@ const LISTS = {
   const zip = (tamils, hindi) => tamils.forEach((ta, i) => { if (hindi[i] != null) put(ta, hindi[i]); });
   S(['ஸ்லோகா சாகர்|श्लोका सागर', 'பிரதோஷம்|प्रदोष']);
   U([
+    'செயலியை நிறுவு|ऐप इंस्टॉल करें|యాప్‌ను ఇన్‌స్టాల్ చేయండి|ಆ್ಯಪ್ ಸ್ಥಾಪಿಸಿ|ആപ്പ് ഇൻസ്റ്റാൾ ചെയ്യുക',
     'கணிப்பு முறை|गणना विधि|గణన పద్ధతి|ಲೆಕ್ಕಾಚಾರದ ವಿಧಾನ|കണക്കുകൂട്ടൽ രീതി',
     'வாக்கியம்|वाक्य|వాక్య|ವಾಕ್ಯ|വാക്യ',
     'திருக்கணித பஞ்சாங்கம்|दृक पंचांग|దృక్ పంచాంగం|ದೃಕ್ ಪಂಚಾಂಗ|ദൃക് പഞ്ചാംഗം',
