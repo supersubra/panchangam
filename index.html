@@ -3389,7 +3389,7 @@ const MEANINGS_TA = {
       const j = await withTimeout('https://ipwho.is/', 3000);
       if (!state.userLoc && j && j.success && j.timezone && j.timezone.id) {
         state.city = { name: j.city, region: [j.region, j.country].filter(Boolean).join(', '), lat: j.latitude, lon: j.longitude, tz: j.timezone.id, cc: j.country_code };
-        state.source = 'found from your internet address';
+        state.source = 'Approximate location based on your internet address, used to calculate your local Panchangam';
         setToday(); update(); skSyncDefault();
       }
     } catch (e) { /* keep the time-zone guess */ }
