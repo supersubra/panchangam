@@ -97,6 +97,7 @@ button.primary { background: var(--accent); color: var(--bg); border-color: var(
 .day .date { grid-column: 1 / -1; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 6px 16px; align-items: baseline; border-bottom: 1px solid var(--line); padding-bottom: 12px; }
 .day .date .big { font-size: 1.45rem; font-weight: 700; }
 .day .date .tamil { color: var(--accent); font-weight: 600; }
+#summary .date { border-bottom: 0; padding-bottom: 0; }
 .kv { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
 .kv .k { font-size: .72rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
 .kv .v { font-family: var(--display); font-size: 1.3rem; font-weight: 700; line-height: 1.2; }
@@ -3174,12 +3175,8 @@ const MEANINGS_TA = {
     $('specialDays').hidden = !special.length;
     const tm = r.tamilMonth;
     $('summary').innerHTML = `
-      <div class="date"><div class="big">${esc(dateEn)}</div>
-        <div class="tamil">${esc(tm.name[0])} ${tm.day} · ${esc(tm.name[1])} ${tm.day} · ${esc(r.samvatsara[0])} (${esc(r.samvatsara[1])})</div></div>
-      <div class="kv"><span class="k">${term('vara','Vara')} · வாரம்</span><span class="v">${esc(r.vara[1])}</span><span class="s">${esc(r.vara[0])}</span></div>
-      <div class="kv"><span class="k">${term('tithi','Tithi')} · திதி</span><span class="v">${esc(r.tithi[0].name[1])}</span><span class="s">${esc(r.tithi[0].name[0])}, until ${fmt(r.tithi[0].end)}</span></div>
-      <div class="kv"><span class="k">${term('nakshatra','Nakshatra')} · நட்சத்திரம்</span><span class="v">${esc(r.nakshatra[0].name[1])}</span><span class="s">${esc(r.nakshatra[0].name[0])}, until ${fmt(r.nakshatra[0].end)}</span></div>
-      <div class="kv"><span class="k">${term('rahu','Rahu Kalam')} · ராகு காலம்</span><span class="v num">${range(r.rahu)}</span></div>`;
+      <div class="date"><div class="big">${state.d} ${MONTHS_EN[state.m - 1]} ${state.y}</div>
+        <div class="tamil">${esc(c.name)}</div></div>`;
 
     $('limbs').innerHTML =
       row('Vara', 'வாரம்', bi(r.vara), 'vara') +
@@ -3193,10 +3190,8 @@ const MEANINGS_TA = {
       row('Yamagandam', 'எமகண்டம்', range(r.yama) + '<span class="chip bad">Avoid</span>', 'yama') +
       row('Gulika Kalam', 'குளிகை', range(r.gulika) + '<span class="chip bad">Avoid</span>', 'gulika');
 
-    const goodDay = r.gowriDay.filter(g => g.good).map(g => `<div>${range(g)} <span class="ta">${esc(g.name[0])}</span></div>`).join('');
     $('goodt').innerHTML =
-      row('Abhijit Muhurtham', 'அபிஜித் முகூர்த்தம்', range(r.abhijit) + (r.abhijit.wednesday ? '<div class="note">Traditionally not used on Wednesday.</div>' : '<span class="chip good">Good</span>'), 'abhijit') +
-      row('Gowri Nalla Neram (day)', 'கௌரி நல்ல நேரம் (பகல்)', `<div class="seq">${goodDay}</div>`, 'gowri');
+      row('Abhijit Muhurtham', 'அபிஜித் முகூர்த்தம்', range(r.abhijit) + (r.abhijit.wednesday ? '<div class="note">Traditionally not used on Wednesday.</div>' : '<span class="chip good">Good</span>'), 'abhijit');
 
     $('year').innerHTML =
       row('Samvatsara', 'வருடம்', bi(r.samvatsara), 'samvatsara') +
