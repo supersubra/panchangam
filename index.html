@@ -67,7 +67,10 @@ h2 span { font-family: var(--body); font-size: .85rem; color: var(--muted); font
 .controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: end; }
 .field { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
 .field label { font-size: .72rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
-.city { position: relative; flex: 1 1 260px; }
+.city { position: relative; }
+.controls .location-field { display: grid; grid-template-columns: minmax(0, 110px) minmax(0, 1fr); align-items: center; gap: 8px; flex: 0 0 100%; width: 100%; }
+.controls .location-field input { width: 100%; box-sizing: border-box; }
+#cityInput { max-width: 360px; }
 input { font: inherit; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 9px 11px; min-width: 0; }
 input:focus-visible, button:focus-visible, select:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .method-field { flex: 0 0 100%; max-width: 100%; }
@@ -555,12 +558,12 @@ dialog::backdrop { background: rgb(10 20 14 / .45); }
       <button type="button" id="methodInfo" aria-label="About the selected calculation method" aria-haspopup="dialog">ⓘ</button>
       </div>
     </div>
-    <div class="field city">
+    <div class="field city location-field">
       <label for="cityInput">City · ஊர்</label>
       <input id="cityInput" type="text" placeholder="Type a city, e.g. Madurai" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="suggest">
       <div class="suggest" id="suggest" role="listbox" hidden></div>
     </div>
-    <div class="field">
+    <div class="field location-field">
       <label for="dateInput">Date · தேதி</label>
       <input id="dateInput" type="date" required>
     </div>
