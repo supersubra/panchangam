@@ -72,7 +72,8 @@ input { font: inherit; color: var(--ink); background: var(--surface); border: 1p
 input:focus-visible, button:focus-visible, select:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .method-field { flex: 0 0 100%; max-width: 100%; }
 #panchangMethod { font: inherit; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 9px 8px; width: 100%; max-width: 360px; min-width: 0; min-height: 44px; }
-#methodStatus { margin: 12px 0; padding: 10px 12px; border-left: 3px solid var(--accent); background: var(--accent-soft); border-radius: 6px; }
+.method-choice { display: flex; align-items: center; gap: 8px; }
+#methodInfo { flex: none; width: 44px; height: 44px; padding: 0; color: var(--accent); font-size: 1.2rem; }
 #methodStatus p, #disclaimer p { margin: 6px 0; }
 #disclaimer { margin-top: 20px; padding-top: 14px; border-top: 1px solid var(--line); line-height: 1.65; }
 .btns { display: flex; gap: 6px; flex-wrap: wrap; }
@@ -165,7 +166,7 @@ footer { font-size: .82rem; color: var(--muted); max-width: 70ch; }
 #adminpage .field { max-width: 320px; }
 #visitorStatus { overflow-wrap: anywhere; }
 .fontbox { display: none; }
-.nav { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 10px; }
+.nav { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 10px; margin-top: 16px; }
 .nav button { position: relative; display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 12px 6px 10px; border-radius: 16px; background: var(--surface); }
 .nav .ico { width: 44px; height: 44px; border-radius: 14px; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent); }
 .nav svg { width: 24px; height: 24px; stroke: currentColor; fill: none; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
@@ -538,23 +539,19 @@ dialog::backdrop { background: rgb(10 20 14 / .45); }
 <div class="wrap" id="app">
   <div data-hdr="today"></div>
 
-  <nav class="nav" role="tablist" aria-label="Sections">
-    <button type="button" role="tab" id="tab-today" aria-haspopup="true"><span class="out" aria-hidden="true">↗</span><span class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 10h18"/><circle cx="12" cy="15.5" r="2.4"/></svg></span><span class="lbl">Today</span><span class="ta">இன்று</span></button>
-    <button type="button" role="tab" id="tab-hourly" aria-haspopup="true"><span class="out" aria-hidden="true">↗</span><span class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg></span><span class="lbl">Hour by hour</span><span class="ta">மணி வாரியாக</span></button>
-    <button type="button" role="tab" id="tab-horoscope" aria-haspopup="true"><span class="out" aria-hidden="true">↗</span><span class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 3l18 18M21 3L3 21"/><path d="M12 3l9 9-9 9-9-9z"/></svg></span><span class="lbl">Horoscope</span><span class="ta">ஜாதகம்</span></button>
-    <button type="button" role="tab" id="tab-sankalpa" aria-haspopup="true"><span class="out" aria-hidden="true">↗</span><span class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5c2.2 3 3.2 4.6 3.2 6.6a3.2 3.2 0 0 1-6.4 0c0-2 1-3.6 3.2-6.6z"/><path d="M3.5 14h17c0 3.6-3.8 6.5-8.5 6.5S3.5 17.6 3.5 14z"/></svg></span><span class="lbl">Sankalpa</span><span class="ta">சங்கல்பம்</span></button>
-    <button type="button" role="tab" id="tab-meanings" aria-haspopup="true"><span class="out" aria-hidden="true">↗</span><span class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 6.5C10 5 7 4.5 4 4.5v14c3 0 6 .5 8 2 2-1.5 5-2 8-2v-14c-3 0-6 .5-8 2z"/><path d="M12 6.5v14"/></svg></span><span class="lbl">Meanings</span><span class="ta">பொருள்</span></button>
-    <button type="button" role="tab" id="tab-slokasaagar" aria-haspopup="true"><span class="out" aria-hidden="true">↗</span><span class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 6.5C10 5 7 4.5 4 4.5v14c3 0 6 .5 8 2 2-1.5 5-2 8-2v-14c-3 0-6 .5-8 2zM12 6.5v14M7 9l2 .5M15 9.5l2-.5M7 13l2 .5M15 13.5l2-.5"/></svg></span><span class="lbl">sloka saagar</span><span class="ta">ஸ்லோகா சாகர்</span></button>
-  </nav>
+
 
   <div class="tabpane" id="ctrls">
   <form class="controls" id="form" autocomplete="off">
     <div class="field method-field">
       <label for="panchangMethod">Calculation method · கணிப்பு முறை</label>
-      <select id="panchangMethod" aria-describedby="methodStatus">
+      <div class="method-choice">
+      <select id="panchangMethod">
         <option value="drik">Drik · திருக்கணிதம்</option>
         <option value="vakya">Vakya · வாக்கியம்</option>
       </select>
+      <button type="button" id="methodInfo" aria-label="About the selected calculation method" aria-haspopup="dialog">ⓘ</button>
+      </div>
     </div>
     <div class="field city">
       <label for="cityInput">City · ஊர்</label>
@@ -571,7 +568,14 @@ dialog::backdrop { background: rgb(10 20 14 / .45); }
       <button type="button" id="next">Next ▶</button>
     </div>
   </form>
-  <div id="methodStatus" class="note" role="status" aria-live="polite"></div>
+  <nav class="nav" role="tablist" aria-label="Sections">
+    <button type="button" role="tab" id="tab-today" aria-haspopup="true"><span class="out" aria-hidden="true">↗</span><span class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 10h18"/><circle cx="12" cy="15.5" r="2.4"/></svg></span><span class="lbl">Today</span><span class="ta">இன்று</span></button>
+    <button type="button" role="tab" id="tab-hourly" aria-haspopup="true"><span class="out" aria-hidden="true">↗</span><span class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg></span><span class="lbl">Hour by hour</span><span class="ta">மணி வாரியாக</span></button>
+    <button type="button" role="tab" id="tab-horoscope" aria-haspopup="true"><span class="out" aria-hidden="true">↗</span><span class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 3l18 18M21 3L3 21"/><path d="M12 3l9 9-9 9-9-9z"/></svg></span><span class="lbl">Horoscope</span><span class="ta">ஜாதகம்</span></button>
+    <button type="button" role="tab" id="tab-sankalpa" aria-haspopup="true"><span class="out" aria-hidden="true">↗</span><span class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5c2.2 3 3.2 4.6 3.2 6.6a3.2 3.2 0 0 1-6.4 0c0-2 1-3.6 3.2-6.6z"/><path d="M3.5 14h17c0 3.6-3.8 6.5-8.5 6.5S3.5 17.6 3.5 14z"/></svg></span><span class="lbl">Sankalpa</span><span class="ta">சங்கல்பம்</span></button>
+    <button type="button" role="tab" id="tab-meanings" aria-haspopup="true"><span class="out" aria-hidden="true">↗</span><span class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 6.5C10 5 7 4.5 4 4.5v14c3 0 6 .5 8 2 2-1.5 5-2 8-2v-14c-3 0-6 .5-8 2z"/><path d="M12 6.5v14"/></svg></span><span class="lbl">Meanings</span><span class="ta">பொருள்</span></button>
+    <button type="button" role="tab" id="tab-slokasaagar" aria-haspopup="true"><span class="out" aria-hidden="true">↗</span><span class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 6.5C10 5 7 4.5 4 4.5v14c3 0 6 .5 8 2 2-1.5 5-2 8-2v-14c-3 0-6 .5-8 2zM12 6.5v14M7 9l2 .5M15 9.5l2-.5M7 13l2 .5M15 13.5l2-.5"/></svg></span><span class="lbl">sloka saagar</span><span class="ta">ஸ்லோகா சாகர்</span></button>
+  </nav>
   <div class="msg" id="msg" role="status" hidden></div>
   <div class="where" id="where"></div>
   </div>
@@ -1048,6 +1052,13 @@ dialog::backdrop { background: rgb(10 20 14 / .45); }
     </section>
   </div>
 </div>
+
+<dialog id="methodDialog" aria-label="Calculation method information">
+  <div class="dlg">
+    <div id="methodStatus"></div>
+    <div class="acts"><button type="button" id="methodClose" class="primary">Close</button></div>
+  </div>
+</dialog>
 
 <dialog id="dlg" aria-labelledby="dlgTitle">
   <div class="dlg">
@@ -3366,6 +3377,16 @@ const MEANINGS_TA = {
     if (y < 1600 || y > 2400) { showMsg('Please choose a year between 1600 and 2400.'); return; }
     hideMsg(); state.y = y; state.m = m; state.d = d; update();
   });
+  $('methodInfo').addEventListener('click', () => {
+    const dialog = $('methodDialog');
+    if (dialog.showModal) dialog.showModal(); else dialog.setAttribute('open', '');
+  });
+  function closeMethodDialog() {
+    const dialog = $('methodDialog');
+    if (dialog.close) dialog.close(); else dialog.removeAttribute('open');
+  }
+  $('methodClose').addEventListener('click', closeMethodDialog);
+  $('methodDialog').addEventListener('click', e => { if (e.target === $('methodDialog')) closeMethodDialog(); });
   $('panchangMethod').addEventListener('change',e=>{
     state.method=e.target.value==='vakya'?'vakya':'drik';
     hideMsg(); update();
