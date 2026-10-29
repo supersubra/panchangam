@@ -41,14 +41,14 @@
 :root {
   color-scheme: light;
   --bg: #f3f6f1; --surface: #ffffff; --line: #dbe3d9; --ink: #16231b; --muted: #58685d;
-  --accent: #8f5f00; --accent-soft: #fbefd6;
+  --group-border: #84958a; --accent: #8f5f00; --accent-soft: #fbefd6;
   --bad: #a8261c; --bad-soft: #fbe6e3; --good: #1d7148; --good-soft: #e0f2e7; --neutral-soft: #eceff0;
   --display: "Arima", "Noto Serif Tamil", var(--ix, Georgia), Georgia, serif;
   --body: "Hind Madurai", "Noto Sans Tamil", var(--ix, system-ui), system-ui, sans-serif;
 }
 :root[data-theme="dark"] {
   --bg: #0f1612; --surface: #16201a; --line: #2a3a30; --ink: #e5ece6; --muted: #98aa9d;
-  --accent: #e3ab45; --accent-soft: #33280f;
+  --group-border: #819889; --accent: #e3ab45; --accent-soft: #33280f;
   --bad: #f08a7e; --bad-soft: #3a1a17; --good: #6fd09b; --good-soft: #143223; --neutral-soft: #222c26; color-scheme: dark }
 
 body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: calc(15px * var(--active-text-scale, 1)); line-height: 1.5; }
@@ -64,7 +64,7 @@ h2 span { font-family: var(--body); font-size: .85rem; color: var(--muted); font
 .num { font-variant-numeric: tabular-nums; }
 
 /* Controls */
-.controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: end; border: 1px solid var(--line); border-radius: 12px; padding: 10px; }
+.controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: end; border: 2px solid var(--group-border); border-radius: 12px; padding: 10px; }
 .field { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
 .field label { font-size: .72rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
 .city { position: relative; }
@@ -157,7 +157,7 @@ footer { font-size: .82rem; color: var(--muted); max-width: 70ch; }
 .langbox svg { width: 18px; height: 18px; flex: none; stroke: var(--accent); fill: none; stroke-width: 1.7; stroke-linecap: round; }
 .langsel { font: inherit; font-weight: 600; color: var(--ink); background: transparent; border: 0; padding: 7px 4px; cursor: pointer; max-width: 11em; }
 .langsel:focus-visible { outline: none; }
-.header-options { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; max-width: 100%; }
+.header-options { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; max-width: 100%; box-sizing: border-box; border: 2px solid var(--group-border); border-radius: 12px; padding: 4px; }
 .theme-toggle { width: 44px; height: 44px; padding: 9px; border-radius: 50%; color: var(--accent); flex: none; }
 .title-shortcut { all: unset; cursor: pointer; touch-action: manipulation; user-select: none; -webkit-user-select: none; }
 .title-shortcut:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; border-radius: 4px; }
@@ -171,7 +171,7 @@ footer { font-size: .82rem; color: var(--muted); max-width: 70ch; }
 #adminpage .field { max-width: 320px; }
 #visitorStatus { overflow-wrap: anywhere; }
 .fontbox { display: none; }
-.nav { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 10px; margin-top: 4px; border: 1px solid var(--line); border-radius: 12px; padding: 8px; }
+.nav { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 10px; margin-top: 4px; border: 2px solid var(--group-border); border-radius: 12px; padding: 8px; }
 .nav button { position: relative; display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 12px 6px 10px; border-radius: 16px; background: var(--surface); }
 .nav .ico { width: 44px; height: 44px; border-radius: 14px; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent); }
 .nav svg { width: 24px; height: 24px; stroke: currentColor; fill: none; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
