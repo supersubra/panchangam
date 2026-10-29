@@ -568,6 +568,17 @@ dialog::backdrop { background: rgb(10 20 14 / .45); }
   <div class="where" id="where"></div>
   </div>
 
+  <div class="install-app">
+    <button type="button" id="installApp" aria-expanded="false" aria-controls="installHelp"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m-4-4 4 4 4-4M4 17v3h16v-3"/></svg><span>Install app · செயலியை நிறுவு</span></button>
+    <div id="installHelp" class="install-help" hidden data-keep>
+      <p><strong>Add Daily Panchangam to your home screen</strong></p>
+      <p><strong>iPhone or iPad (Safari):</strong> Tap Share, then Add to Home Screen. Turn on Open as Web App if offered, then tap Add.</p>
+      <p><strong>Android (Chrome):</strong> Open the browser menu (⋮), then choose Install app or Add to Home screen.</p>
+      <p><strong>Other browsers:</strong> Open the browser menu or Share menu and look for Install app or Add to Home Screen. The name and availability depend on your browser.</p>
+    </div>
+  </div>
+  <div class="install-app"><button type="button" id="openDisclaimer">Disclaimer · பொறுப்புத் துறப்பு ↗</button></div>
+
   <div class="tabpane" id="pane-slokasaagar" role="tabpanel" aria-labelledby="tab-slokasaagar" hidden>
     <section class="panel">
       <h2>Sloka Saagar <span class="ta">ஸ்லோகா சாகர்</span></h2>
@@ -628,6 +639,14 @@ dialog::backdrop { background: rgb(10 20 14 / .45); }
 
   <footer id="foot">
     <div id="methodDetails"></div>
+
+  </footer>
+  <p id="visitorNotice" class="note" data-keep hidden>Usage statistics: approximate city, country and visit time are sent to Cloudflare and kept for 48 hours. We do not save IP addresses or birth details in these statistics.</p>
+  </div>
+</div>
+
+<div class="wrap" id="page-disclaimer" hidden>
+  <div class="pagehead"><a href="#">◀ Back to Panchangam</a></div>
     <section id="disclaimer" aria-labelledby="disclaimerTitle">
       <strong id="disclaimerTitle">Disclaimer · பொறுப்புத் துறப்பு</strong>
       <p>This app uses data, reference texts and calculation methods available on the internet. Results are approximate and may contain errors or differ between traditions. Accuracy is not guaranteed; no accuracy percentage is claimed. Please verify important timings independently.</p>
@@ -635,18 +654,6 @@ dialog::backdrop { background: rgb(10 20 14 / .45); }
       <p class="ta">இணையத்தில் கிடைக்கும் தரவுகள், நூல்கள் மற்றும் கணிப்பு முறைகள் பயன்படுத்தப்படுகின்றன. முடிவுகளில் பிழைகள் அல்லது மரபு வேறுபாடுகள் இருக்கலாம். துல்லியத்திற்கு உத்தரவாதமோ சதவீதக் கூற்றோ இல்லை. முக்கிய நேரங்களைத் தனியாகச் சரிபார்க்கவும்.</p>
       <p class="ta">இந்த முடிவுகளின் அடிப்படையில் எடுக்கும் முடிவுகளுக்கும் செயல்களுக்கும் பயனரே பொறுப்பு. அதனால் ஏற்படும் இழப்புகளுக்கும் விளைவுகளுக்கும் தளமும் அதன் உருவாக்குநரும் பொறுப்பேற்க மாட்டார்கள்.</p>
     </section>
-  </footer>
-  <div class="install-app">
-    <button type="button" id="installApp" aria-expanded="false" aria-controls="installHelp"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m-4-4 4 4 4-4M4 17v3h16v-3"/></svg><span>Install app · செயலியை நிறுவு</span></button>
-    <div id="installHelp" class="install-help" hidden data-keep>
-      <p><strong>Add Daily Panchangam to your home screen</strong></p>
-      <p><strong>iPhone or iPad (Safari):</strong> Tap Share, then Add to Home Screen. Turn on Open as Web App if offered, then tap Add.</p>
-      <p><strong>Android (Chrome):</strong> Open the browser menu (⋮), then choose Install app or Add to Home screen.</p>
-      <p><strong>Other browsers:</strong> Open the browser menu or Share menu and look for Install app or Add to Home Screen. The name and availability depend on your browser.</p>
-    </div>
-  </div>
-  <p id="visitorNotice" class="note" data-keep hidden>Usage statistics: approximate city, country and visit time are sent to Cloudflare and kept for 48 hours. We do not save IP addresses or birth details in these statistics.</p>
-  </div>
 </div>
 
 <div class="wrap" id="page-hourly" hidden>
@@ -4066,9 +4073,9 @@ const LISTS = {
   function route() {
     if (location.hash === '#jathagam') { location.hash = 'horoscope'; return; }
     const page = location.hash === '#sankalpa' ? 'sk' : location.hash === '#horoscope' ? 'hs' : location.hash === '#admin' ? 'admin' : '';
-    const resultPage = ['today', 'hourly', 'meanings'].includes(location.hash.slice(1)) ? location.hash.slice(1) : '';
+    const resultPage = ['today', 'hourly', 'meanings', 'disclaimer'].includes(location.hash.slice(1)) ? location.hash.slice(1) : '';
     $('adminpage').hidden = page !== 'admin';
-    for (const name of ['today', 'hourly', 'meanings']) $('page-' + name).hidden = name !== resultPage;
+    for (const name of ['today', 'hourly', 'meanings', 'disclaimer']) $('page-' + name).hidden = name !== resultPage;
     if (resultPage === 'meanings') buildLists();
     $('app').hidden = !!page || !!resultPage;
     if (!page && !resultPage) { $('ctrls').hidden = false; $('pane-slokasaagar').hidden = true; $('tab-slokasaagar').setAttribute('aria-selected', 'false'); } $('skpage').hidden = page !== 'sk'; $('hspage').hidden = page !== 'hs';
@@ -4076,6 +4083,7 @@ const LISTS = {
     if (page === 'hs') { if (!H.city && state.city) hsSetCity(state.city, state.source); else if (!H.userTime && H.city) hsNow(); renderHoroscope(); window.scrollTo(0, 0); }
   }
   window.addEventListener('hashchange', route);
+  $('openDisclaimer').addEventListener('click', () => { location.hash = 'disclaimer'; window.scrollTo(0, 0); });
 
   function showTab(name) {
     if (name === 'slokasaagar') {
