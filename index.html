@@ -528,14 +528,13 @@ dialog::backdrop { background: rgb(10 20 14 / .45); }
 </div>
 <div class="wrap" id="app">
   <div data-hdr="today"></div>
-  <div id="specialDays" class="panel" role="status" hidden></div>
 
   <nav class="nav" role="tablist" aria-label="Sections">
-    <button type="button" role="tab" id="tab-today" aria-controls="pane-today" aria-selected="true"><span class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 10h18"/><circle cx="12" cy="15.5" r="2.4"/></svg></span><span class="lbl">Today</span><span class="ta">இன்று</span></button>
-    <button type="button" role="tab" id="tab-hourly" aria-controls="pane-hourly" aria-selected="false"><span class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg></span><span class="lbl">Hour by hour</span><span class="ta">மணி வாரியாக</span></button>
+    <button type="button" role="tab" id="tab-today" aria-haspopup="true"><span class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 10h18"/><circle cx="12" cy="15.5" r="2.4"/></svg></span><span class="lbl">Today</span><span class="ta">இன்று</span></button>
+    <button type="button" role="tab" id="tab-hourly" aria-haspopup="true"><span class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg></span><span class="lbl">Hour by hour</span><span class="ta">மணி வாரியாக</span></button>
     <button type="button" role="tab" id="tab-horoscope" aria-haspopup="true"><span class="out" aria-hidden="true">↗</span><span class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 3l18 18M21 3L3 21"/><path d="M12 3l9 9-9 9-9-9z"/></svg></span><span class="lbl">Horoscope</span><span class="ta">ஜாதகம்</span></button>
     <button type="button" role="tab" id="tab-sankalpa" aria-haspopup="true"><span class="out" aria-hidden="true">↗</span><span class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5c2.2 3 3.2 4.6 3.2 6.6a3.2 3.2 0 0 1-6.4 0c0-2 1-3.6 3.2-6.6z"/><path d="M3.5 14h17c0 3.6-3.8 6.5-8.5 6.5S3.5 17.6 3.5 14z"/></svg></span><span class="lbl">Sankalpa</span><span class="ta">சங்கல்பம்</span></button>
-    <button type="button" role="tab" id="tab-meanings" aria-controls="pane-meanings" aria-selected="false"><span class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 6.5C10 5 7 4.5 4 4.5v14c3 0 6 .5 8 2 2-1.5 5-2 8-2v-14c-3 0-6 .5-8 2z"/><path d="M12 6.5v14"/></svg></span><span class="lbl">Meanings</span><span class="ta">பொருள்</span></button>
+    <button type="button" role="tab" id="tab-meanings" aria-haspopup="true"><span class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 6.5C10 5 7 4.5 4 4.5v14c3 0 6 .5 8 2 2-1.5 5-2 8-2v-14c-3 0-6 .5-8 2z"/><path d="M12 6.5v14"/></svg></span><span class="lbl">Meanings</span><span class="ta">பொருள்</span></button>
     <button type="button" role="tab" id="tab-slokasaagar" aria-controls="pane-slokasaagar" aria-selected="false"><span class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 6.5C10 5 7 4.5 4 4.5v14c3 0 6 .5 8 2 2-1.5 5-2 8-2v-14c-3 0-6 .5-8 2zM12 6.5v14M7 9l2 .5M15 9.5l2-.5M7 13l2 .5M15 13.5l2-.5"/></svg></span><span class="lbl">sloka saagar</span><span class="ta">ஸ்லோகா சாகர்</span></button>
   </nav>
 
@@ -567,10 +566,26 @@ dialog::backdrop { background: rgb(10 20 14 / .45); }
   <div id="methodStatus" class="note" role="status" aria-live="polite"></div>
   <div class="msg" id="msg" role="status" hidden></div>
   <div class="where" id="where"></div>
-  <div id="nosun" class="nosun" hidden></div>
   </div>
 
-  <div class="tabpane" id="pane-today" role="tabpanel" aria-labelledby="tab-today">
+  <div class="tabpane" id="pane-slokasaagar" role="tabpanel" aria-labelledby="tab-slokasaagar" hidden>
+    <section class="panel">
+      <h2>Sloka Saagar <span class="ta">ஸ்லோகா சாகர்</span></h2>
+      <p>Explore 600+ slokas for daily chanting, with meanings in English and regional languages.</p>
+      <div class="sloka-links">
+        <a href="https://play.google.com/store/apps/details?id=com.supersubra.sloka_saagar&amp;pcampaignid=web_share" target="_blank" rel="noopener noreferrer">Android · Google Play ↗</a>
+        <a href="https://apps.apple.com/in/app/sloka-saagar/id1602117856" target="_blank" rel="noopener noreferrer">iPhone / iPad · App Store ↗</a>
+      </div>
+      <p>Developed by Supersubra<br>supersubra@gmail.com<br>+918667384684</p>
+    </section>
+  </div>
+</div>
+
+<div class="wrap" id="page-today" hidden>
+  <div class="pagehead"><a href="#">◀ Back to Panchangam</a><h1>Today</h1></div>
+  <div class="tabpane" id="pane-today">
+  <div id="nosun" class="nosun" hidden></div>
+  <div id="specialDays" class="panel" role="status" hidden></div>
   <section class="day" id="summary" aria-live="polite"></section>
 
   <div class="grid" id="panels">
@@ -632,8 +647,12 @@ dialog::backdrop { background: rgb(10 20 14 / .45); }
   </div>
   <p id="visitorNotice" class="note" data-keep hidden>Usage statistics: approximate city, country and visit time are sent to Cloudflare and kept for 48 hours. We do not save IP addresses or birth details in these statistics.</p>
   </div>
+</div>
 
-  <div class="tabpane" id="pane-hourly" role="tabpanel" aria-labelledby="tab-hourly" hidden>
+<div class="wrap" id="page-hourly" hidden>
+  <div class="pagehead"><a href="#">◀ Back to Panchangam</a><h1>Hour by hour</h1></div>
+  <div class="tabpane" id="pane-hourly">
+    <div id="hourNoSun" class="nosun" hidden></div>
     <section class="day hourtop" id="hourTop"></section>
     <div class="hfilter" role="group" aria-label="Show">
       <span class="subh">Show</span>
@@ -643,23 +662,15 @@ dialog::backdrop { background: rgb(10 20 14 / .45); }
     <div class="hours" id="hours"></div>
     <p class="note">Each row is one <button type="button" class="term" data-term="hora">hora</button>, about an hour. When a factor starts or ends inside the hour, the row is split. <button type="button" class="term" data-term="planner">How verdicts are decided</button></p>
   </div>
+</div>
 
-  <div class="tabpane" id="pane-meanings" role="tabpanel" aria-labelledby="tab-meanings" hidden>
+<div class="wrap" id="page-meanings" hidden>
+  <div class="pagehead"><a href="#">◀ Back to Panchangam</a><h1>Meanings</h1></div>
+  <div class="tabpane" id="pane-meanings">
     <p class="hint">What each Panchangam word means and why people use it, with the full list of names.</p>
     <nav class="jump" id="jump" aria-label="Jump to"></nav>
     <div class="gloss" id="gloss"></div>
     <div class="lists" id="lists"></div>
-  </div>
-  <div class="tabpane" id="pane-slokasaagar" role="tabpanel" aria-labelledby="tab-slokasaagar" hidden>
-    <section class="panel">
-      <h2>Sloka Saagar <span class="ta">ஸ்லோகா சாகர்</span></h2>
-      <p>Explore 600+ slokas for daily chanting, with meanings in English and regional languages.</p>
-      <div class="sloka-links">
-        <a href="https://play.google.com/store/apps/details?id=com.supersubra.sloka_saagar&amp;pcampaignid=web_share" target="_blank" rel="noopener noreferrer">Android · Google Play ↗</a>
-        <a href="https://apps.apple.com/in/app/sloka-saagar/id1602117856" target="_blank" rel="noopener noreferrer">iPhone / iPad · App Store ↗</a>
-      </div>
-      <p>Developed by Supersubra<br>supersubra@gmail.com<br>+918667384684</p>
-    </section>
   </div>
 </div>
 
@@ -3044,10 +3055,11 @@ const LISTS = {
       $('summary').innerHTML = `<div class="date"><div class="big">${esc(dateEn)}</div><div class="ta">${esc(r.vara[1])}</div></div>`;
       $('nosun').hidden = false; $('panels').hidden = true;
       $('hourTop').innerHTML = ''; $('hours').innerHTML = '';
-      $('nosun').textContent = `The Sun does not rise or does not set in ${c.name} on this day, so a sunrise-based Panchangam cannot be worked out here. Please choose a city closer to the equator.`;
+      $('nosun').textContent = $('hourNoSun').textContent = `The Sun does not rise or does not set in ${c.name} on this day, so a sunrise-based Panchangam cannot be worked out here. Please choose a city closer to the equator.`;
+      $('hourNoSun').hidden = false;
       return;
     }
-    $('nosun').hidden = true; $('panels').hidden = false;
+    $('nosun').hidden = true; $('hourNoSun').hidden = true; $('panels').hidden = false;
     const special = [];
     if (r.tithi[0].i === 29) special.push('Amavasai · <span class="ta">அமாவாசை</span>');
     if (r.pradosham) special.push('Pradosham · <span class="ta">பிரதோஷம்</span>');
@@ -4054,23 +4066,29 @@ const LISTS = {
   function route() {
     if (location.hash === '#jathagam') { location.hash = 'horoscope'; return; }
     const page = location.hash === '#sankalpa' ? 'sk' : location.hash === '#horoscope' ? 'hs' : location.hash === '#admin' ? 'admin' : '';
+    const resultPage = ['today', 'hourly', 'meanings'].includes(location.hash.slice(1)) ? location.hash.slice(1) : '';
     $('adminpage').hidden = page !== 'admin';
-    $('app').hidden = !!page; $('skpage').hidden = page !== 'sk'; $('hspage').hidden = page !== 'hs';
+    for (const name of ['today', 'hourly', 'meanings']) $('page-' + name).hidden = name !== resultPage;
+    if (resultPage === 'meanings') buildLists();
+    $('app').hidden = !!page || !!resultPage;
+    if (!page && !resultPage) { $('ctrls').hidden = false; $('pane-slokasaagar').hidden = true; $('tab-slokasaagar').setAttribute('aria-selected', 'false'); } $('skpage').hidden = page !== 'sk'; $('hspage').hidden = page !== 'hs';
     if (page === 'sk') { if (!S.userLoc && !S.city && state.city) skSetCity(state.city, state.source); else if (!S.userTime && S.city) skNow(); skRender(); skShow('ta'); }
     if (page === 'hs') { if (!H.city && state.city) hsSetCity(state.city, state.source); else if (!H.userTime && H.city) hsNow(); renderHoroscope(); window.scrollTo(0, 0); }
   }
   window.addEventListener('hashchange', route);
 
-  const TABS = ['today', 'hourly', 'meanings', 'slokasaagar'];
   function showTab(name) {
-    for (const t of TABS) { $('pane-' + t).hidden = t !== name; $('tab-' + t).setAttribute('aria-selected', t === name); }
-    $('ctrls').hidden = name === 'meanings' || name === 'slokasaagar';
-    if (name === 'meanings') buildLists();
-    document.querySelectorAll('.gloss .item.hl').forEach(x => x.classList.remove('hl'));
+    if (name === 'slokasaagar') {
+      $('pane-slokasaagar').hidden = false;
+      $('ctrls').hidden = true;
+      $('tab-slokasaagar').setAttribute('aria-selected', 'true');
+    } else {
+      location.hash = name;
+      route();
+    }
     window.scrollTo(0, 0);
   }
-  for (const t of TABS) $('tab-' + t).addEventListener('click', () => showTab(t));
-  if (TABS.includes(location.hash.slice(1))) showTab(location.hash.slice(1));
+  for (const t of ['today', 'hourly', 'meanings', 'slokasaagar']) $('tab-' + t).addEventListener('click', () => showTab(t));
 
   // ---------- change the language ----------
   const loaded = {};
@@ -4090,7 +4108,7 @@ const LISTS = {
     document.querySelectorAll('.lname').forEach(x => { x.textContent = li.en; });
     skCountries(); skLoadFields(); gotraLists();
     if (state.city) update();
-    if (!$('pane-meanings').hidden) buildLists();
+    if (!$('page-meanings').hidden) buildLists();
     skRender(); renderHoroscope();
     loc(document.body);
   }
