@@ -70,8 +70,8 @@ h2 span { font-family: var(--body); font-size: .85rem; color: var(--muted); font
 .city { position: relative; flex: 1 1 260px; }
 input { font: inherit; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 9px 11px; min-width: 0; }
 input:focus-visible, button:focus-visible, select:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-.method-field { flex: 0 1 360px; max-width: 100%; }
-#panchangMethod { font: inherit; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 9px 8px; width: 100%; min-width: 0; min-height: 44px; }
+.method-field { flex: 0 0 100%; max-width: 100%; }
+#panchangMethod { font: inherit; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 9px 8px; width: 100%; max-width: 360px; min-width: 0; min-height: 44px; }
 #methodStatus { margin: 12px 0; padding: 10px 12px; border-left: 3px solid var(--accent); background: var(--accent-soft); border-radius: 6px; }
 #methodStatus p, #disclaimer p { margin: 6px 0; }
 #disclaimer { margin-top: 20px; padding-top: 14px; border-top: 1px solid var(--line); line-height: 1.65; }
@@ -550,6 +550,13 @@ dialog::backdrop { background: rgb(10 20 14 / .45); }
   <div class="tabpane" id="ctrls">
   <div class="hint">Tap any word with a <b>?</b> to learn what it means.</div>
   <form class="controls" id="form" autocomplete="off">
+    <div class="field method-field">
+      <label for="panchangMethod">Calculation method · கணிப்பு முறை</label>
+      <select id="panchangMethod" aria-describedby="methodStatus">
+        <option value="drik">Drik · திருக்கணிதம்</option>
+        <option value="vakya">Vakya · வாக்கியம்</option>
+      </select>
+    </div>
     <div class="field city">
       <label for="cityInput">City · ஊர்</label>
       <input id="cityInput" type="text" placeholder="Type a city, e.g. Madurai" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="suggest">
@@ -558,13 +565,6 @@ dialog::backdrop { background: rgb(10 20 14 / .45); }
     <div class="field">
       <label for="dateInput">Date · தேதி</label>
       <input id="dateInput" type="date" required>
-    </div>
-    <div class="field method-field">
-      <label for="panchangMethod">Calculation method · கணிப்பு முறை</label>
-      <select id="panchangMethod" aria-describedby="methodStatus">
-        <option value="drik">Drik · திருக்கணிதம்</option>
-        <option value="vakya">Vakya · வாக்கியம்</option>
-      </select>
     </div>
     <div class="btns" role="group" aria-label="Change day">
       <button type="button" id="prev">◀ Previous</button>
