@@ -496,9 +496,10 @@ dialog::backdrop { background: rgb(10 20 14 / .45); }
 /* Mobile reading preference. 100% keeps the established type sizes and layout. */
 @media (max-width: 700px) {
   :root { --active-text-scale: var(--text-scale, 1); font-size: calc(100% * var(--active-text-scale)); }
-  .header-options { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; max-width: 100%; }
-  .header-options .langbox { min-width: 0; max-width: 100%; box-sizing: border-box; }
+  .header-options { display: flex; flex-wrap: nowrap; align-items: center; gap: 8px; max-width: 100%; }
+  .header-options .langbox { flex: 0 1 auto; min-width: 0; max-width: 100%; box-sizing: border-box; }
   .header-options .langsel { min-width: 0; max-width: 100%; }
+  .header-options .fontbox { flex: none; }
   .fontbox { display: inline-flex; align-items: center; gap: 5px; padding: 3px 6px 3px 10px; border: 1px solid var(--line); border-radius: 99px; background: var(--surface); min-width: 0; max-width: 100%; box-sizing: border-box; }
   .fontbox > span[aria-hidden] { color: var(--accent); font-weight: 700; }
   .fontbox:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
@@ -547,7 +548,7 @@ dialog::backdrop { background: rgb(10 20 14 / .45); }
       <label for="panchangMethod">Calculation method · கணிப்பு முறை</label>
       <div class="method-choice">
       <select id="panchangMethod">
-        <option value="drik">Drik · திருக்கணிதம்</option>
+        <option value="drik">Drik Panchang · திருக்கணிதம்</option>
         <option value="vakya">Vakya · வாக்கியம்</option>
       </select>
       <button type="button" id="methodInfo" aria-label="About the selected calculation method" aria-haspopup="dialog">ⓘ</button>
@@ -569,7 +570,7 @@ dialog::backdrop { background: rgb(10 20 14 / .45); }
     </div>
   </form>
   <nav class="nav" role="tablist" aria-label="Sections">
-    <button type="button" role="tab" id="tab-today" aria-haspopup="true"><span class="out" aria-hidden="true">↗</span><span class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 10h18"/><circle cx="12" cy="15.5" r="2.4"/></svg></span><span class="lbl">Today</span><span class="ta">இன்று</span></button>
+    <button type="button" role="tab" id="tab-today" aria-haspopup="true"><span class="out" aria-hidden="true">↗</span><span class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 10h18"/><circle cx="12" cy="15.5" r="2.4"/></svg></span><span class="lbl">Selected day</span><span class="ta">தேர்ந்த நாள்</span></button>
     <button type="button" role="tab" id="tab-hourly" aria-haspopup="true"><span class="out" aria-hidden="true">↗</span><span class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg></span><span class="lbl">Hour by hour</span><span class="ta">மணி வாரியாக</span></button>
     <button type="button" role="tab" id="tab-horoscope" aria-haspopup="true"><span class="out" aria-hidden="true">↗</span><span class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 3l18 18M21 3L3 21"/><path d="M12 3l9 9-9 9-9-9z"/></svg></span><span class="lbl">Horoscope</span><span class="ta">ஜாதகம்</span></button>
     <button type="button" role="tab" id="tab-sankalpa" aria-haspopup="true"><span class="out" aria-hidden="true">↗</span><span class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5c2.2 3 3.2 4.6 3.2 6.6a3.2 3.2 0 0 1-6.4 0c0-2 1-3.6 3.2-6.6z"/><path d="M3.5 14h17c0 3.6-3.8 6.5-8.5 6.5S3.5 17.6 3.5 14z"/></svg></span><span class="lbl">Sankalpa</span><span class="ta">சங்கல்பம்</span></button>
@@ -630,7 +631,7 @@ dialog::backdrop { background: rgb(10 20 14 / .45); }
 </div>
 
 <div class="wrap" id="page-today" hidden>
-  <div class="pagehead"><a href="#">◀ Back to Panchangam</a><h1>Today</h1></div>
+  <div class="pagehead"><a href="#">◀ Back to Panchangam</a><h1>Selected day</h1></div>
   <div class="tabpane" id="pane-today">
   <div class="hint">Tap any word with a <b>?</b> to learn what it means.</div>
   <div id="nosun" class="nosun" hidden></div>
@@ -2935,6 +2936,7 @@ const MEANINGS_TA = {
   U(['தமிழ்|हिन्दी|తెలుగు|ಕನ್ನಡ|മലയാളം',
     'மாநில மொழி|क्षेत्रीय भाषा|ప్రాంతీయ భాష|ಪ್ರಾದೇಶಿಕ ಭಾಷೆ|പ്രാദേശിക ഭാഷ', 'மொழி|भाषा|భాష|ಭಾಷೆ|ഭാഷ', 'கிழமை|दिन|వారం|ವಾರ|ദിവസം', 'மணி வாரியாக|घंटेवार|గంటల వారీగా|ಗಂಟೆವಾರು|മണിക്കൂർ തിരിച്ച്',
     'தின பஞ்சாங்கம்|दैनिक पंचांग|దైనిక పంచాంగం|ದೈನಿಕ ಪಂಚಾಂಗ|ദിന പഞ്ചാംഗം',
+    'தேர்ந்த நாள்|चुना हुआ दिन|ఎంచుకున్న రోజు|ಆಯ್ಕೆ ಮಾಡಿದ ದಿನ|തിരഞ്ഞെടുത്ത ദിവസം',
     'ஜாதகம்|जन्म कुंडली|జాతకం|ಜಾತಕ|ജാതകം',
     'ஊர்|शहर|ఊరు|ಊರು|സ്ഥലം', 'நகரம்|नगर|నగరం|ನಗರ|നഗരം', 'தேதி|तारीख|తేదీ|ದಿನಾಂಕ|തീയതി', 'இன்று|आज|ఈ రోజు|ಇಂದು|ഇന്ന്',
     'பஞ்ச அங்கம்|पाँच अंग|ఐదు అంగాలు|ಐದು ಅಂಗಗಳು|അഞ്ച് അംഗങ്ങൾ',
