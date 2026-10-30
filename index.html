@@ -525,6 +525,65 @@ dialog::backdrop { background: rgb(10 20 14 / .45); }
   :root[data-text-size] .hs-chart { overflow-x: auto; }
   :root[data-text-size] .hs-chart svg { width: calc(100% * var(--active-text-scale)); max-width: none; }
 }
+:root { --bg:#faf4e8; --surface:#fffdf7; --ink:#36291f; --muted:#7c6856; --line:#e7d6b7; --group-border:#e7d6b7; --accent:#922f30; --accent-soft:#f9eded; }
+:root[data-theme="dark"] { --bg:#211b18; --surface:#302622; --ink:#f8eddf; --muted:#ccb89f; --line:#584438; --group-border:#584438; --accent:#efa09a; --accent-soft:#48302d; }
+body { margin:0; }
+#app { max-width:840px; gap:22px; padding-bottom:150px; }
+#app .home-appbar { background:transparent; color:var(--ink); padding:8px 0; }
+#app .home-appbar h1 small { color:var(--accent); }
+#app .header-options { margin-left:auto; }
+#app .langbox { border:1px solid var(--line); border-radius:30px; background:var(--surface); }
+#app .controls { padding:20px; gap:18px; border-radius:18px; background:var(--surface); }
+#app .field label { font-size:.8rem; }
+#app #cityInput { max-width:none; }
+#app .method-choice { padding:5px; border:1px solid var(--line); border-radius:14px; }
+#panchangMethod { position:absolute; width:1px; height:1px; opacity:0; pointer-events:none; }
+.method-switch { display:flex; flex:1; gap:6px; }
+.method-switch button { flex:1; border:0; font-size:1.05em; }
+.method-switch button[aria-pressed="true"] { background:var(--accent); color:var(--surface); }
+#app .btns { margin-left:auto; }
+#app #prev, #app #next { display:none; }
+#app #where { margin-top:12px; font-size:.78rem; }
+.home-almanac { background:var(--surface); border:1px solid var(--line); border-radius:16px; overflow:hidden; box-shadow:0 8px 32px #57330e08; }
+.home-ribbon { background:var(--accent); color:var(--surface); display:flex; justify-content:space-between; gap:18px; padding:14px 22px; font-weight:600; flex-wrap:wrap; }
+.home-date { display:grid; grid-template-columns:40px auto 1fr 40px; gap:24px; align-items:center; padding:22px; }
+.home-date strong { font-family:Georgia,serif; font-size:100px; line-height:1; color:var(--accent); }
+.home-date b { font-size:1.5em; }
+.home-date button { border:0; background:transparent; font-size:32px; color:var(--accent); padding:0; }
+.home-almanac table { width:calc(100% - 44px); margin:0 22px; }
+.home-almanac td, .home-almanac th { border-top:1px dashed var(--line); padding:15px 0; }
+.home-almanac th { width:30%; padding-right:12px; }
+.home-almanac td { font-weight:600; }
+.home-almanac .ta { color:var(--accent); }
+.home-times { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; padding:20px; }
+.home-times>div { border-radius:14px; padding:14px 6px; text-align:center; background:var(--accent-soft); font-size:.85em; }
+.home-times b { color:var(--accent); }
+#app .nav { position:fixed; bottom:0; left:0; right:0; z-index:10; max-width:880px; margin:0 auto; background:var(--surface); border:1px solid var(--line); border-radius:18px 18px 0 0; gap:0; padding:8px 4px max(8px,env(safe-area-inset-bottom)); }
+#app .nav button { background:transparent; border:0; padding:6px 2px; gap:4px; }
+#app .nav .ico { background:transparent; width:32px; height:32px; }
+#app .nav .out { display:none; }
+#app .nav { grid-template-columns:repeat(6,minmax(0,1fr)); }
+#app .nav #tab-slokasaagar { grid-column:auto; flex-direction:column; }
+#app .nav #tab-slokasaagar .ta { display:none; }
+#app .nav #tab-slokasaagar .ico { display:grid; }
+#app .nav .lbl { font-size:.75rem; }
+#app .nav .ta { font-size:.65rem; }
+#app .install-app { margin:0; }
+@media(max-width:520px) {
+  #app { gap:16px; padding-top:12px; }
+  #app h1 { font-size:1.45rem; }
+  #app .logo { width:38px; height:38px; }
+  #app .controls { padding:12px; }
+  #app .controls .location-field { grid-template-columns:70px minmax(0,1fr); }
+  .home-date { gap:10px; padding:18px 12px; grid-template-columns:24px auto 1fr 24px; }
+  .home-date strong { font-size:70px; }
+  .home-date b { font-size:1.1em; }
+  .home-ribbon { padding:12px 16px; font-size:.85em; }
+  .home-almanac table { width:calc(100% - 28px); margin:0 14px; }
+  .home-times { padding:14px; gap:6px; }
+  .home-times .when { white-space:normal; }
+}
+
 </style>
 
 <div class="wrap" id="adminpage" data-keep hidden>
@@ -591,6 +650,7 @@ dialog::backdrop { background: rgb(10 20 14 / .45); }
   <div class="where" id="where"></div>
   </div>
 
+  <section id="homeAlmanac" class="home-almanac" aria-live="polite"></section>
   <div class="install-app">
     <button type="button" id="installApp" aria-expanded="false" aria-controls="installHelp"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m-4-4 4 4 4-4M4 17v3h16v-3"/></svg><span>Install app · செயலியை நிறுவு</span></button>
     <div id="installHelp" class="install-help" hidden data-keep>
@@ -3076,6 +3136,22 @@ const MEANINGS_TA = {
       (el.dataset.hdr !== 'today' ? '' : `<div class="header-options"><label class="langbox">${GLOBE}<select class="langsel" data-keep aria-label="Language · மொழி">${I.LANGS.map(l => `<option value="${l.code}">${l.name} · ${l.en}</option>`).join('')}</select></label><label class="fontbox" title="Text size · எழுத்து அளவு (100% default)"><span aria-hidden="true">Aa</span><select id="textSize" aria-label="Text size · எழுத்து அளவு">${TEXT_SIZES.map(size => `<option value="${size}">${size}%</option>`).join('')}</select></label></div>`);
   });
   document.querySelectorAll('.langsel').forEach(sel => sel.addEventListener('change', e => applyLang(e.target.value)));
+  document.querySelector('.home-appbar .brand').insertAdjacentHTML('afterbegin', LOGO);
+  document.querySelector('.header-options').append($('themeToggle'));
+  const methodSwitch = document.createElement('div');
+  methodSwitch.className = 'method-switch';
+  methodSwitch.innerHTML = '<button type="button" data-method="drik">Drik<br>திருக்கணிதம்</button><button type="button" data-method="vakya">Vakya<br>வாக்கியம்</button>';
+  $('panchangMethod').before(methodSwitch);
+  const syncMethodButtons = () => methodSwitch.querySelectorAll('button').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.method === $('panchangMethod').value)));
+  methodSwitch.addEventListener('click', event => {
+    const button = event.target.closest('button');
+    if (!button) return;
+    $('panchangMethod').value = button.dataset.method;
+    $('panchangMethod').dispatchEvent(new Event('change', { bubbles: true }));
+    syncMethodButtons();
+  });
+  $('panchangMethod').addEventListener('change', syncMethodButtons);
+  syncMethodButtons();
   applyTextSize(lsGet('mobileTextSize', '100'));
   document.documentElement.dataset.theme = 'light';
   $('themeToggle').addEventListener('click', () => {
@@ -3151,6 +3227,7 @@ const MEANINGS_TA = {
     const c = state.city;
     const vakya=state.method==='vakya';
     $('panchangMethod').value=state.method;
+    syncMethodButtons();
     $('methodStatus').innerHTML=vakya
       ? '<b>Vakya Panchangam — experimental · வாக்கிய பஞ்சாங்கம் — சோதனை</b><p>Based on traditional tables, compared across the 2026–27 Asal 28 Paambu Panchangam for Thanjavur. Some differences remain. Timings and results for other places are approximate. Available for 1900–2100; full verification is incomplete.</p><p class="ta">வாக்கியக் கணிப்பு சோதனை நிலையில் உள்ளது. நேரங்கள் தோராயமானவை; முழுச் சரிபார்ப்பு முடியவில்லை.</p><p>Applies to this daily Panchangam and hourly planner. Horoscope and Sankalpa continue to use Drik.</p>'
       : '<b>Drik Panchangam · திருக்கணித பஞ்சாங்கம்</b><p>Thirukanitha calculations with Lahiri ayanamsa. The daily Panchangam and hourly planner use this method.</p>';
@@ -3162,6 +3239,11 @@ const MEANINGS_TA = {
 
     const r = P.calculate({ y: state.y, m: state.m, d: state.d, lat: c.lat, lon: c.lon, tz: c.tz, method:state.method });
     const dateEn = `${r.vara[0]}, ${state.d} ${MONTHS_EN[state.m - 1]} ${state.y}`;
+    $('homeAlmanac').innerHTML = r.noSun ? '<p>Sunrise-based Panchangam is unavailable for this location and date.</p>' : `
+      <div class="home-ribbon"><span>${esc(r.tamilMonth.name[1])} ${r.tamilMonth.day} · ${esc(r.tamilMonth.name[0])}</span><span>${esc(r.samvatsara[0])} · ${esc(r.samvatsara[1])}</span></div>
+      <div class="home-date"><button type="button" aria-label="Previous day" onclick="document.getElementById('prev').click()">‹</button><strong>${state.d}</strong><div><b>${MONTHS_EN[state.m - 1]} ${state.y}</b><br>${esc(r.vara[0])}<br><span class="ta">${esc(r.vara[1])}</span></div><button type="button" aria-label="Next day" onclick="document.getElementById('next').click()">›</button></div>
+      <table><tbody>${row('Vara', 'வாரம்', bi(r.vara), 'vara')}${row('Tithi', 'திதி', seqHTML(r.tithi), 'tithi')}${row('Nakshatra', 'நட்சத்திரம்', seqHTML(r.nakshatra), 'nakshatra')}${row('Yoga', 'யோகம்', seqHTML(r.yoga), 'yoga')}${row('Karana', 'கரணம்', seqHTML(r.karana), 'karana')}</tbody></table>
+      <div class="home-times"><div><b>Rahu · ராகு</b><br>${range(r.rahu)}</div><div><b>Yama · எமகண்டம்</b><br>${range(r.yama)}</div><div><b>Gulika · குளிகை</b><br>${range(r.gulika)}</div></div>`;
 
     if (r.noSun) {
       $('specialDays').hidden = true;
