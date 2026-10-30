@@ -152,6 +152,11 @@ footer { font-size: .82rem; color: var(--muted); max-width: 70ch; }
 .logo .ray { stroke: var(--accent); stroke-width: 2.2; stroke-linecap: round; fill: none; }
 .logo .core { fill: var(--accent); }
 .subtop { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.home-appbar { flex: 1 0 100%; width: 100%; box-sizing: border-box; background: var(--accent); color: var(--bg); border-radius: 12px; padding: 12px 16px; }
+.home-appbar h1 small { color: inherit; opacity: .9; }
+.home-appbar .theme-toggle { color: var(--bg); background: transparent; border-color: transparent; }
+.home-appbar :focus-visible { outline-color: var(--bg); }
+[data-hdr="today"] { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }
 .langbox { display: inline-flex; align-items: center; gap: 6px; background: transparent; border: 0; border-radius: 0; padding: 3px 6px 3px 12px; }
 .langbox:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
 .langbox svg { width: 18px; height: 18px; flex: none; stroke: var(--accent); fill: none; stroke-width: 1.7; stroke-linecap: round; }
@@ -577,9 +582,9 @@ dialog::backdrop { background: rgb(10 20 14 / .45); }
   <nav class="nav" role="tablist" aria-label="Sections">
     <button type="button" role="tab" id="tab-today" aria-haspopup="true"><span class="out" aria-hidden="true">↗</span><span class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 10h18"/><circle cx="12" cy="15.5" r="2.4"/></svg></span><span class="lbl">Selected day</span><span class="ta">தேர்ந்த நாள்</span></button>
     <button type="button" role="tab" id="tab-hourly" aria-haspopup="true"><span class="out" aria-hidden="true">↗</span><span class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg></span><span class="lbl">Hour by hour</span><span class="ta">மணி வாரியாக</span></button>
-    <button type="button" role="tab" id="tab-horoscope" aria-haspopup="true"><span class="out" aria-hidden="true">↗</span><span class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 3l18 18M21 3L3 21"/><path d="M12 3l9 9-9 9-9-9z"/></svg></span><span class="lbl">Horoscope</span><span class="ta">ஜாதகம்</span></button>
     <button type="button" role="tab" id="tab-sankalpa" aria-haspopup="true"><span class="out" aria-hidden="true">↗</span><span class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5c2.2 3 3.2 4.6 3.2 6.6a3.2 3.2 0 0 1-6.4 0c0-2 1-3.6 3.2-6.6z"/><path d="M3.5 14h17c0 3.6-3.8 6.5-8.5 6.5S3.5 17.6 3.5 14z"/></svg></span><span class="lbl">Sankalpa</span><span class="ta">சங்கல்பம்</span></button>
     <button type="button" role="tab" id="tab-meanings" aria-haspopup="true"><span class="out" aria-hidden="true">↗</span><span class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 6.5C10 5 7 4.5 4 4.5v14c3 0 6 .5 8 2 2-1.5 5-2 8-2v-14c-3 0-6 .5-8 2z"/><path d="M12 6.5v14"/></svg></span><span class="lbl">Meanings</span><span class="ta">பொருள்</span></button>
+    <button type="button" role="tab" id="tab-horoscope" aria-haspopup="true"><span class="out" aria-hidden="true">↗</span><span class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 3l18 18M21 3L3 21"/><path d="M12 3l9 9-9 9-9-9z"/></svg></span><span class="lbl">Horoscope</span><span class="ta">ஜாதகம்</span></button>
     <button type="button" role="tab" id="tab-slokasaagar" aria-haspopup="true"><span class="out" aria-hidden="true">↗</span><span class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 6.5C10 5 7 4.5 4 4.5v14c3 0 6 .5 8 2 2-1.5 5-2 8-2v-14c-3 0-6 .5-8 2zM12 6.5v14M7 9l2 .5M15 9.5l2-.5M7 13l2 .5M15 13.5l2-.5"/></svg></span><span class="lbl">sloka saagar</span><span class="ta">ஸ்லோகா சாகர்</span></button>
   </nav>
   <div class="msg" id="msg" role="status" hidden></div>
@@ -3067,8 +3072,8 @@ const MEANINGS_TA = {
     const h = HDR[el.dataset.hdr], home = el.dataset.hdr === 'today';
     if (h[2]) el.className = 'pagehead';
     el.innerHTML = (h[2] ? `<button type="button" id="${h[2]}">◀ Back to Panchangam</button>` : '') +
-      `<header class="top"><div class="brand">${home ? THEME_TOGGLE : LOGO}<h1>${home ? `<button type="button" id="visitorShortcut" class="title-shortcut" title="Double-tap for visitor statistics · வருகைப் புள்ளிவிவரங்களுக்கு இருமுறை தட்டவும்">${h[0]}</button>` : h[0]} <small>${h[1]}</small></h1></div>` +
-      (el.dataset.hdr !== 'today' ? '' : `<div class="header-options"><label class="langbox">${GLOBE}<select class="langsel" data-keep aria-label="Language · மொழி">${I.LANGS.map(l => `<option value="${l.code}">${l.name} · ${l.en}</option>`).join('')}</select></label><label class="fontbox" title="Text size · எழுத்து அளவு (100% default)"><span aria-hidden="true">Aa</span><select id="textSize" aria-label="Text size · எழுத்து அளவு">${TEXT_SIZES.map(size => `<option value="${size}">${size}%</option>`).join('')}</select></label></div>`) + '</header>';
+      `<header class="top${home ? ' home-appbar' : ''}"><div class="brand">${home ? THEME_TOGGLE : LOGO}<h1>${home ? `<button type="button" id="visitorShortcut" class="title-shortcut" title="Double-tap for visitor statistics · வருகைப் புள்ளிவிவரங்களுக்கு இருமுறை தட்டவும்">${h[0]}</button>` : h[0]} <small>${h[1]}</small></h1></div></header>` +
+      (el.dataset.hdr !== 'today' ? '' : `<div class="header-options"><label class="langbox">${GLOBE}<select class="langsel" data-keep aria-label="Language · மொழி">${I.LANGS.map(l => `<option value="${l.code}">${l.name} · ${l.en}</option>`).join('')}</select></label><label class="fontbox" title="Text size · எழுத்து அளவு (100% default)"><span aria-hidden="true">Aa</span><select id="textSize" aria-label="Text size · எழுத்து அளவு">${TEXT_SIZES.map(size => `<option value="${size}">${size}%</option>`).join('')}</select></label></div>`);
   });
   document.querySelectorAll('.langsel').forEach(sel => sel.addEventListener('change', e => applyLang(e.target.value)));
   applyTextSize(lsGet('mobileTextSize', '100'));
