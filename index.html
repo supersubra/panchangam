@@ -588,6 +588,13 @@ body { margin:0; }
   #app .controls .date-field { grid-template-columns:minmax(0,1fr); gap:4px; }
 }
 
+/* A single, easy-to-reach Home action on pages opened from Home. */
+body.has-home-bar :is(#hsBack, #skBack, #page-today .pagehead > a, #page-hourly .pagehead > a, #page-meanings .pagehead > a, #page-disclaimer .pagehead > a, #page-slokasaagar .pagehead > a) { display: none; }
+body.has-home-bar { padding-bottom: calc(90px + env(safe-area-inset-bottom, 0px)); }
+.home-bar:not([hidden]) { position: fixed; z-index: 20; left: 0; right: 0; bottom: 0; display: flex; justify-content: center; padding: 6px 12px calc(6px + env(safe-area-inset-bottom, 0px)); background: var(--surface); border-top: 1px solid var(--line); box-shadow: 0 -2px 8px rgb(0 0 0 / .1); }
+.home-bar a { display: inline-flex; min-width: 80px; min-height: 48px; align-items: center; justify-content: center; gap: 8px; padding: 4px 16px; border-radius: 10px; color: var(--accent); text-decoration: none; font-weight: 700; line-height: 1.2; }
+.home-bar a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.home-bar svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 </style>
 
 <div class="wrap" id="adminpage" data-keep hidden>
@@ -1128,6 +1135,9 @@ body { margin:0; }
   </div>
 </div>
 
+<nav id="homeBar" class="home-bar" aria-label="Home navigation" hidden>
+  <a href="#"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5M5.5 9v11h13V9M9.5 20v-6h5v6"/></svg><span>Home · <span class="ta">முகப்பு</span></span></a>
+</nav>
 <dialog id="methodDialog" aria-label="Calculation method information">
   <div class="dlg">
     <div id="methodStatus"></div>
@@ -2885,6 +2895,7 @@ const MEANINGS_TA = {
   const zip = (tamils, hindi) => tamils.forEach((ta, i) => { if (hindi[i] != null) put(ta, hindi[i]); });
   S(['ஸ்லோகா சாகர்|श्लोका सागर', 'பிரதோஷம்|प्रदोष']);
   U([
+    'முகப்பு|मुख पृष्ठ|ముఖ పేజీ|ಮುಖಪುಟ|മുഖപേജ്',
     'வாட்ஸ்அப்பில் பகிர்|व्हाट्सऐप पर साझा करें|వాట్సాప్‌లో పంచుకోండి|ವಾಟ್ಸಾಪ್‌ನಲ್ಲಿ ಹಂಚಿಕೊಳ್ಳಿ|വാട്ട്‌സ്ആപ്പിൽ പങ്കിടുക',
     'செயலியை நிறுவு|ऐप इंस्टॉल करें|యాప్‌ను ఇన్‌స్టాల్ చేయండి|ಆ್ಯಪ್ ಸ್ಥಾಪಿಸಿ|ആപ്പ് ഇൻസ്റ്റാൾ ചെയ്യുക',
     'கணிப்பு முறை|गणना विधि|గణన పద్ధతి|ಲೆಕ್ಕಾಚಾರದ ವಿಧಾನ|കണക്കുകൂട്ടൽ രീതി',
@@ -3522,7 +3533,7 @@ const MEANINGS_TA = {
   $('dlgClose').addEventListener('click', closeDlg);
   dlg.addEventListener('click', e => { if (e.target === dlg) closeDlg(); }); // tap outside the card
   $('dlgAll').addEventListener('click', () => {
-    const id = dlg.dataset.term; closeDlg(); meaningTab('en'); showTab('meanings');
+    const id = dlg.dataset.term; const fromToday = location.hash === '#today'; closeDlg(); meaningTab('en'); showTab(fromToday ? 'meanings-from-today' : 'meanings-from-home');
     const el = document.getElementById('m-' + id);
     if (el) { el.scrollIntoView({ block: 'start' }); el.classList.add('hl'); }
   });
@@ -4310,7 +4321,14 @@ const MEANINGS_TA = {
   function route() {
     if (location.hash === '#jathagam') { location.hash = 'horoscope'; return; }
     const page = location.hash === '#sankalpa' ? 'sk' : location.hash === '#horoscope' ? 'hs' : location.hash === '#admin' ? 'admin' : '';
-    const resultPage = ['today', 'hourly', 'meanings', 'disclaimer', 'slokasaagar'].includes(location.hash.slice(1)) ? location.hash.slice(1) : '';
+    const fromToday = location.hash === '#meanings-from-today';
+    const nestedMeanings = fromToday || location.hash === '#meanings-from-home';
+    const resultPage = nestedMeanings ? 'meanings' : ['today', 'hourly', 'meanings', 'disclaimer', 'slokasaagar'].includes(location.hash.slice(1)) ? location.hash.slice(1) : '';
+    const showHomeBar = !nestedMeanings && (!!resultPage || page === 'sk' || page === 'hs');
+    $('homeBar').hidden = !showHomeBar; document.body.classList.toggle('has-home-bar', showHomeBar);
+    const meaningBack = $('page-meanings').querySelector('.pagehead a');
+    meaningBack.href = fromToday ? '#today' : '#';
+    meaningBack.textContent = fromToday ? '◀ Back to Selected day' : '◀ Back to Panchangam';
     $('adminpage').hidden = page !== 'admin';
     for (const name of ['today', 'hourly', 'meanings', 'disclaimer', 'slokasaagar']) $('page-' + name).hidden = name !== resultPage;
     if (resultPage === 'meanings') buildLists();
