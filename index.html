@@ -403,6 +403,8 @@ button.term:focus-visible { outline: 2px solid var(--accent); outline-offset: 2p
 
 /* Explanation card */
 dialog { border: 1px solid var(--line); border-radius: 14px; background: var(--surface); color: var(--ink); padding: 0; width: min(520px, calc(100% - 32px)); max-height: calc(100% - 48px); box-shadow: 0 20px 50px rgb(0 0 0 / .25); }
+.hs-email-instruction { color: #b42318; font-weight: 600; }
+:root[data-theme="dark"] .hs-email-instruction { color: #ff9b91; }
 dialog::backdrop { background: rgb(10 20 14 / .45); }
 .dlg { padding: 20px 22px 18px; display: flex; flex-direction: column; gap: 10px; }
 .dlg h3 { margin: 0; font-family: var(--display); font-size: 1.4rem; }
@@ -595,6 +597,29 @@ body.has-home-bar { padding-bottom: calc(90px + env(safe-area-inset-bottom, 0px)
 .home-bar a { display: inline-flex; min-width: 80px; min-height: 48px; align-items: center; justify-content: center; gap: 8px; padding: 4px 16px; border-radius: 10px; color: var(--accent); text-decoration: none; font-weight: 700; line-height: 1.2; }
 .home-bar a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .home-bar svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+@media print {
+  body.hs-print { background: white !important; color: black !important; padding: 0 !important; }
+  body.hs-print > :not(#hsPrintSheet) { display: none !important; }
+  #hsPrintSheet { display: block !important; color: black; font: 12px system-ui, sans-serif; }
+  #hsPrintSheet h1 { font-size: 20px; margin: 0 0 6px; }
+  #hsPrintSheet h2 { font-size: 15px; margin: 12px 0 5px; }
+  #hsPrintSheet p { margin: 4px 0; }
+  #hsPrintSheet .hs-chart { width: 280px; max-width: 100%; margin: 8px 0; }
+  #hsPrintSheet .hs-chart .ln { stroke: black; }
+  #hsPrintSheet .hs-chart .cellbg { fill: white; }
+  #hsPrintSheet .hs-chart .lagbg { fill: #eee; }
+  #hsPrintSheet .hs-chart text { fill: black; }
+  #hsPrintSheet table { width: 100%; border-collapse: collapse; color: black; }
+  #hsPrintSheet th, #hsPrintSheet td { background: white !important; color: black !important; border: 1px solid #888; padding: 3px 5px; text-align: left; }
+  #hsPrintSheet tr { break-inside: avoid; }
+  #hsPrintSheet .summary-table { display: table; table-layout: auto; font-size: 10px; }
+  #hsPrintSheet .summary-table thead { position: static; width: auto; height: auto; overflow: visible; clip-path: none; }
+  #hsPrintSheet .summary-table tbody { display: table-row-group; }
+  #hsPrintSheet .summary-table tr { display: table-row; }
+  #hsPrintSheet .summary-table td, #hsPrintSheet .summary-table th { display: table-cell; width: auto; }
+  #hsPrintSheet .summary-table td::before { content: none; }
+  #hsPrintSheet .ta { color: black; }
+}
 </style>
 
 <div class="wrap" id="adminpage" data-keep hidden>
@@ -830,7 +855,7 @@ body.has-home-bar { padding-bottom: calc(90px + env(safe-area-inset-bottom, 0px)
   <div id="hspane-details" class="tabpane" role="tabpanel" aria-labelledby="hstab-details">
     <section class="panel">
       <div class="hs-form-title"><h3>Birth details <span class="ta">பிறப்பு விவரங்கள்</span></h3><span class="hs-kicker">Your starting point</span></div>
-      <p class="note">Enter the time recorded at the place of birth. An accurate birth time matters for the Lagna.</p>
+      <p class="note">Enter the time recorded at the place of birth. An inaccurate time can change the Lagna (ascendant), chart houses and readings, especially near a sign change.</p>
       <form id="hsForm" autocomplete="off">
         <div class="field hs-wide">
           <label for="hsSavedPeople">Saved people <span class="ta">· சேமித்த நபர்கள்</span> <small id="hsSavedCount" data-keep>0 / 8</small></label>
@@ -868,8 +893,15 @@ body.has-home-bar { padding-bottom: calc(90px + env(safe-area-inset-bottom, 0px)
   <div id="hspane-south" class="tabpane" role="tabpanel" aria-labelledby="hstab-south" hidden>
     <section class="panel jpanel">
       <div class="hs-chart-head"><span class="hs-kicker">Rasi chart</span><h3>South Indian <span class="ta">தென்னிந்திய</span></h3><p class="note">Fixed signs · Lagna marked in gold</p></div>
+      <label><input type="checkbox" id="hsPrintSummarySouth"> Include 20-year prediction summary in PDF · 20 ஆண்டு பலன் சுருக்கத்தைச் சேர்</label>
+      <button type="button" id="hsPrintSouth">Print / save PDF · அச்சிடு / PDF சேமி</button>
+      <button type="button" id="hsEmailSouth">Email PDF · மின்னஞ்சலில் அனுப்பு</button><p class="note" id="hsPrintStatusSouth" role="status"></p>
       <div id="hsChart" class="hs-chart"></div>
       <p class="hs-empty">Enter your birth details in the first tab to see your chart.</p>
+    </section>
+    <section class="panel jpanel">
+      <div class="hs-chart-head"><h3>Navamsa (D9) <span class="ta">நவாம்சம்</span></h3><p class="note">Divisional chart from the birth positions. An accurate birth time is especially important for the Navamsa Lagna.</p></div>
+      <div id="hsNavSouth" class="hs-chart"></div><p class="hs-empty">Enter your birth details in the first tab to see your chart.</p>
     </section>
     <div id="hsChartDetails" hidden>
   <section class="panel">
@@ -892,8 +924,15 @@ body.has-home-bar { padding-bottom: calc(90px + env(safe-area-inset-bottom, 0px)
   <div id="hspane-north" class="tabpane" role="tabpanel" aria-labelledby="hstab-north" hidden>
     <section class="panel jpanel">
       <div class="hs-chart-head"><span class="hs-kicker">Rasi chart</span><h3>North Indian <span class="ta">வட இந்திய</span></h3><p class="note">Fixed houses · Lagna at the top · Numbers indicate signs</p></div>
+      <label><input type="checkbox" id="hsPrintSummaryNorth"> Include 20-year prediction summary in PDF · 20 ஆண்டு பலன் சுருக்கத்தைச் சேர்</label>
+      <button type="button" id="hsPrintNorth">Print / save PDF · அச்சிடு / PDF சேமி</button>
+      <button type="button" id="hsEmailNorth">Email PDF · மின்னஞ்சலில் அனுப்பு</button><p class="note" id="hsPrintStatusNorth" role="status"></p>
       <div id="hsNorthChart" class="hs-chart"></div>
       <p class="hs-empty">Enter your birth details in the first tab to see your chart.</p>
+    </section>
+    <section class="panel jpanel">
+      <div class="hs-chart-head"><h3>Navamsa (D9) <span class="ta">நவாம்சம்</span></h3><p class="note">Divisional chart from the birth positions. An accurate birth time is especially important for the Navamsa Lagna.</p></div>
+      <div id="hsNavNorth" class="hs-chart"></div><p class="hs-empty">Enter your birth details in the first tab to see your chart.</p>
     </section>
   </div>
   <div id="hspane-predictions" class="tabpane" role="tabpanel" aria-labelledby="hstab-predictions" hidden>
@@ -1138,6 +1177,19 @@ body.has-home-bar { padding-bottom: calc(90px + env(safe-area-inset-bottom, 0px)
 <nav id="homeBar" class="home-bar" aria-label="Home navigation" hidden>
   <a href="#"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5M5.5 9v11h13V9M9.5 20v-6h5v6"/></svg><span>Home · <span class="ta">முகப்பு</span></span></a>
 </nav>
+<dialog id="hsEmailDialog" aria-labelledby="hsEmailTitle">
+  <div class="dlg">
+    <h3 id="hsEmailTitle">Email horoscope PDF · ஜாதகத்தை மின்னஞ்சலில் அனுப்பு</h3>
+    <p class="hs-email-instruction">First save the horoscope using Print / save PDF. Your email app opens a draft; attach the saved PDF there and choose Send.</p>
+    <p class="note">Your email app chooses the sender account. These addresses are not saved by this app.</p>
+    <form id="hsEmailForm">
+      <div class="field"><label for="hsEmailFrom">Your email · உங்கள் மின்னஞ்சல்</label><input id="hsEmailFrom" type="email" autocomplete="email" required></div>
+      <div class="field"><label for="hsEmailTo">To email · பெறுநர் மின்னஞ்சல்</label><input id="hsEmailTo" type="email" required></div>
+      <div class="acts"><button type="button" id="hsEmailCancel">Cancel · ரத்துசெய்</button><a id="hsEmailCompose" href="mailto:" role="button">Open email app · மின்னஞ்சலைத் திற</a></div>
+    </form>
+  </div>
+</dialog>
+
 <dialog id="methodDialog" aria-label="Calculation method information">
   <div class="dlg">
     <div id="methodStatus"></div>
@@ -1900,7 +1952,23 @@ else root.VakyaCore = api;
     return { ms, grahas, lagna, timeAmbiguous: candidates.length > 1, ayanamsa: ayanamsa(ms), nakshatraNames: N.nakshatra, rasiNames: N.rasi };
   }
 
-  root.Panchang = { calculate, chart, grahaLongitude: grahaLon, tzParts, localToUTC, localDateKey, N };
+  // Parashari D9: each sidereal sign is divided into nine 3°20′ parts.
+  function navamsa(chart) {
+    const place = g => ({ ...g, rasi: Math.floor(norm(g.lon) * 9 / 30) % 12 });
+    return { lagna: place(chart.lagna), grahas: chart.grahas.map(place) };
+  }
+
+  // Panchangam limbs at an instant, independent of sunrise and polar-day availability.
+  function atInstant(ms, tz) {
+    if (!Number.isFinite(ms)) throw new RangeError('Invalid instant');
+    const q = tzParts(ms, tz), weekday = new Date(Date.UTC(q.y, q.m - 1, q.d)).getUTCDay();
+    const t = idxAt('tithi', ms), k = idxAt('karana', ms);
+    return { weekday: N.vara[weekday], tithi: N.tithi[t === 29 ? 15 : t % 15], paksha: N.paksha[t < 15 ? 0 : 1],
+      nakshatra: N.nakshatra[idxAt('nakshatra', ms)], yoga: N.yoga[idxAt('yoga', ms)],
+      karana: k === 0 ? N.karanaFix.k0 : (N.karanaFix[k] || N.karanaMov[(k - 1) % 7]) };
+  }
+
+  root.Panchang = { calculate, chart, navamsa, atInstant, grahaLongitude: grahaLon, tzParts, localToUTC, localDateKey, N };
 })(typeof globalThis !== 'undefined' ? globalThis : this);
 
 </script>
@@ -2895,6 +2963,14 @@ const MEANINGS_TA = {
   const zip = (tamils, hindi) => tamils.forEach((ta, i) => { if (hindi[i] != null) put(ta, hindi[i]); });
   S(['ஸ்லோகா சாகர்|श्लोका सागर', 'பிரதோஷம்|प्रदोष']);
   U([
+    'மின்னஞ்சலில் அனுப்பு|ईमेल से भेजें|ఇమెయిల్ ద్వారా పంపండి|ಇಮೇಲ್ ಮೂಲಕ ಕಳುಹಿಸಿ|ഇമെയിലിൽ അയയ്ക്കുക',
+    'ஜாதகத்தை மின்னஞ்சலில் அனுப்பு|कुंडली ईमेल करें|జాతకాన్ని ఇమెయిల్ చేయండి|ಜಾತಕವನ್ನು ಇಮೇಲ್ ಮಾಡಿ|ജാതകം ഇമെയിൽ ചെയ്യുക',
+    'உங்கள் மின்னஞ்சல்|आपका ईमेल|మీ ఇమెయిల్|ನಿಮ್ಮ ಇಮೇಲ್|നിങ്ങളുടെ ഇമെയിൽ',
+    'பெறுநர் மின்னஞ்சல்|प्राप्तकर्ता का ईमेल|గ్రహీత ఇమెయిల్|ಸ್ವೀಕರಿಸುವವರ ಇಮೇಲ್|സ്വീകർത്താവിന്റെ ഇമെയിൽ',
+    'மின்னஞ்சலைத் திற|ईमेल ऐप खोलें|ఇమెయిల్ యాప్ తెరవండి|ಇಮೇಲ್ ಆ್ಯಪ್ ತೆರೆಯಿರಿ|ഇമെയിൽ ആപ്പ് തുറക്കുക',
+    '20 ஆண்டு பலன் சுருக்கத்தைச் சேர்|20 साल का फल सार जोड़ें|20 సంవత్సరాల ఫలిత సారాంశం చేర్చండి|20 ವರ್ಷದ ಫಲ ಸಾರಾಂಶ ಸೇರಿಸಿ|20 വർഷത്തെ ഫലസംഗ്രഹം ചേർക്കുക',
+    'நவாம்சம்|नवांश|నవాంశం|ನವಾಂಶ|നവാംശം',
+    'அச்சிடு / PDF சேமி|प्रिंट / PDF सहेजें|ప్రింట్ / PDF సేవ్ చేయండి|ಮುದ್ರಿಸಿ / PDF ಉಳಿಸಿ|പ്രിന്റ് / PDF സൂക്ഷിക്കുക',
     'முகப்பு|मुख पृष्ठ|ముఖ పేజీ|ಮುಖಪುಟ|മുഖപേജ്',
     'வாட்ஸ்அப்பில் பகிர்|व्हाट्सऐप पर साझा करें|వాట్సాప్‌లో పంచుకోండి|ವಾಟ್ಸಾಪ್‌ನಲ್ಲಿ ಹಂಚಿಕೊಳ್ಳಿ|വാട്ട്‌സ്ആപ്പിൽ പങ്കിടുക',
     'செயலியை நிறுவு|ऐप इंस्टॉल करें|యాప్‌ను ఇన్‌స్టాల్ చేయండి|ಆ್ಯಪ್ ಸ್ಥಾಪಿಸಿ|ആപ്പ് ഇൻസ്റ്റാൾ ചെയ്യുക',
@@ -3644,7 +3720,7 @@ const MEANINGS_TA = {
     if (c.lagna.rasi === rasi) out.unshift(c.lagna);
     return out;
   }
-  function southSVG(c, dateLabel) {
+  function southSVG(c, dateLabel, chartTitle = 'ராசி · Rasi') {
     const W = 100, parts = [];
     for (let r = 0; r < 12; r++) {
       const [cx, cy] = SOUTH_POS[r], x = cx * W, y = cy * W, isLag = c.lagna.rasi === r;
@@ -3653,7 +3729,7 @@ const MEANINGS_TA = {
       planetsIn(c, r).forEach((g, i) => parts.push(`<text class="pl" x="${x + 8}" y="${y + 28 + i * 13}">${esc(g.id === 'lagna' ? 'லக் Lag' : plLabel(g))}</text>`));
       parts.push(`<text class="rn" x="${x + 5}" y="${y + W - 14}">${esc(P.N.rasi[r][1])}</text><text class="rn" x="${x + 5}" y="${y + W - 5}">${esc(P.N.rasi[r][0])}</text>`);
     }
-    parts.push(`<text class="ctr" x="200" y="190" text-anchor="middle">ராசி · Rasi</text><text class="ctr" x="200" y="210" text-anchor="middle">${esc(dateLabel)}</text>`);
+    parts.push(`<text class="ctr" x="200" y="190" text-anchor="middle">${esc(chartTitle)}</text><text class="ctr" x="200" y="210" text-anchor="middle">${esc(dateLabel)}</text>`);
     return `<svg viewBox="-1 -1 402 402" role="img" aria-label="South Indian Rasi chart">${parts.join('')}</svg>`;
   }
   function northSVG(c, dateLabel) {
@@ -3783,11 +3859,22 @@ const MEANINGS_TA = {
       const report = await window.PredictionSummary.build(chart, Date.now(), tz, () => token !== HS.version);
       if (token !== HS.version) return;
       const transitText = t => `<div class="summary-transit"><b>${esc(t.label)}</b><small>${esc(P.N.rasi[t.rasi][0])} · ${t.score > 0 ? 'Supportive' : t.score < 0 ? 'Caution' : 'Neutral'} transit</small></div>`;
+      const ratingExplanation = p => {
+        const major = window.PredictionSummary.natalScore(chart, p.major);
+        const minor = window.PredictionSummary.natalScore(chart, p.minor);
+        const signed = n => n > 0 ? `+${n}` : String(n);
+        const factor = t => `${t.label}, ${P.N.rasi[t.rasi][0]}: ${signed(t.score)} (${t.score > 0 ? 'supportive' : t.score < 0 ? 'caution' : 'neutral'})`;
+        return `<p>Dasa lord ${esc(major.reason)} Natal score: ${signed(major.score)}.</p>
+          <p>Bhukti lord ${esc(minor.reason)} Natal score: ${signed(minor.score)}.</p>
+          <p>Saturn from birth Moon: ${esc(factor(p.saturn))}.</p>
+          <p>Jupiter from birth Moon: ${esc(factor(p.jupiter))}.</p>
+          <p>Average of the two natal scores plus both transit scores = ${signed(p.rating.score)}. This app's simplified rating: ${esc(p.rating.label)}.</p>`;
+      };
       const rows = report.rows.map(p => `<tr class="rating-${p.rating.key}" data-summary-row>
         <td data-label="Period">${summaryPeriod(p)}</td>
         <td data-label="Dasa–Bhukti">${esc(PR.NAMES[p.major])}–${esc(PR.NAMES[p.minor])}</td>
         <td data-label="Provisional traditional rating"><span class="summary-rating ${p.rating.key}">${p.rating.label}</span>
-          <details><summary>Why this rating?</summary>${p.rating.reasons.map(s => `<p>${esc(s)}</p>`).join('')}</details></td>
+          <details><summary>Why this rating?</summary>${ratingExplanation(p)}</details></td>
         <td data-label="Transits from birth Moon">${transitText(p.saturn)}${transitText(p.jupiter)}</td></tr>`).join('');
       const highlights = report.highlights.map(p => `<tr data-transit-highlight><td data-label="Period">${summaryPeriod(p)}</td><td data-label="Transit">${esc(p.label)}</td><td data-label="Sign">${esc(P.N.rasi[p.rasi][0])}</td></tr>`).join('');
       $('hsSummaryResult').innerHTML = `<section class="panel"><h3>${esc(predictionDate(report.start))} – ${esc(predictionDate(report.end))}</h3>
@@ -3840,7 +3927,9 @@ const MEANINGS_TA = {
       $('hsError').hidden = !($('hsDate').value || $('hsTime').value); $('hsTimeNote').hidden = true;
       $('hsShowPredictions').disabled = true;
       $('hsShowSummary').disabled = true;
-      for (const id of ['hsChart', 'hsNorthChart', 'hsKey', 'hsRows', 'hsTransit', 'hsTrWhen']) $(id).replaceChildren();
+      $('hsPrintSouth').disabled = $('hsPrintNorth').disabled = true;
+      $('hsEmailSouth').disabled = $('hsEmailNorth').disabled = true;
+      for (const id of ['hsChart', 'hsNorthChart', 'hsNavSouth', 'hsNavNorth', 'hsKey', 'hsRows', 'hsTransit', 'hsTrWhen']) $(id).replaceChildren();
       $('hsChartDetails').hidden = true;
       document.querySelectorAll('#hspage .hs-empty').forEach(el => { el.hidden = false; });
       hsIdentity();
@@ -3849,10 +3938,15 @@ const MEANINGS_TA = {
     HP.chart = c;
     $('hsError').hidden = true; $('hsShowPredictions').disabled = false;
     $('hsShowSummary').disabled = HS.busy;
+    $('hsPrintSouth').disabled = $('hsPrintNorth').disabled = false;
+    $('hsEmailSouth').disabled = $('hsEmailNorth').disabled = false;
     $('hsTimeNote').hidden = !c.timeAmbiguous;
     const dateLabel = `${H.d} ${MONTHS_EN[H.m - 1]} ${H.y}, ${p2(H.h)}:${p2(H.mi)}`;
     $('hsChart').innerHTML = southSVG(c, dateLabel);
     $('hsNorthChart').innerHTML = northSVG(c, dateLabel);
+    const nav = P.navamsa(c);
+    $('hsNavSouth').innerHTML = southSVG(nav, dateLabel, 'நவாம்சம் · Navamsa').replace('South Indian Rasi chart', 'South Indian Navamsa chart');
+    $('hsNavNorth').innerHTML = northSVG(nav, dateLabel).replace('North Indian Rasi chart', 'North Indian Navamsa chart');
     $('hsChartDetails').hidden = false;
     document.querySelectorAll('#hspage .hs-empty').forEach(el => { el.hidden = true; });
     hsIdentity();
@@ -3905,6 +3999,93 @@ const MEANINGS_TA = {
     return true;
   }
   $('hsForm').addEventListener('submit', e => { e.preventDefault(); if (hsValidate()) hsTab('south', true); });
+  async function hsPrint(style) {
+    if (!hsValidate() || HS.busy) return;
+    const includeSummary = $('hsPrintSummary' + (style === 'north' ? 'North' : 'South')).checked;
+    if (includeSummary && $('hsSummaryResult').hidden) {
+      const status = $('hsPrintStatus' + (style === 'north' ? 'North' : 'South'));
+      status.textContent = 'Calculating the 20-year summary for the PDF…';
+      await hsShowSummary();
+      if ($('hsSummaryResult').hidden) { status.textContent = $('hsSummaryStatus').textContent; return; }
+      status.textContent = '';
+    }
+    if (!hsValidate()) return;
+    const sheet = document.createElement('article');
+    sheet.id = 'hsPrintSheet';
+    sheet.hidden = true;
+    const name = $('hsName').value.trim(), gotra = $('hsGotra').value.trim(), city = H.city;
+    const chart = style === 'north' ? $('hsNorthChart') : $('hsChart');
+    const navChart = style === 'north' ? $('hsNavNorth') : $('hsNavSouth');
+    const birth = HP.chart, instant = P.atInstant(birth.ms, city.tz), nav = P.navamsa(birth);
+    const offsetMs = Date.UTC(H.y, H.m - 1, H.d, H.h, H.mi) - birth.ms;
+    const offsetSeconds = Math.round(Math.abs(offsetMs) / 1000);
+    const offset = `UTC${offsetMs < 0 ? '−' : '+'}${p2(Math.floor(offsetSeconds / 3600))}:${p2(Math.floor(offsetSeconds / 60) % 60)}${offsetSeconds % 60 ? ':' + p2(offsetSeconds % 60) : ''}`;
+    const birthInfo = [['Civil weekday', instant.weekday], ['Tithi', instant.tithi], ['Paksha', instant.paksha], ['Nakshatra', instant.nakshatra], ['Yoga', instant.yoga], ['Karana', instant.karana]];
+    const planetary = [birth.lagna, ...birth.grahas].map((g, i) => {
+      const nm = g.id === 'lagna' ? ['Lagna', 'லக்னம்'] : P.N.planet[g.id] || ({ rahu: ['Rahu', 'ராகு'], ketu: ['Ketu', 'கேது'] })[g.id];
+      const f = g.id === 'lagna' ? null : PR.facts(birth, g.id);
+      const dignity = !f ? '—' : ['rahu', 'ketu'].includes(g.id) ? 'Not assigned' : ({ own: 'Own sign', exalted: 'Exalted', debilitated: 'Debilitated', ordinary: 'Other' })[f.dignity];
+      return `<tr><td>${bi(nm)}${f && f.retro ? ' R' : ''}</td><td>${bi(P.N.rasi[g.rasi])}</td><td>${Math.floor(g.deg)}° ${p2(Math.floor((g.deg % 1) * 60))}′</td><td>${bi(P.N.nakshatra[g.nak])} · ${g.pada}</td><td>${f ? f.house : 1}</td><td>${f ? esc(PR.NAMES[f.dispositor]) : '—'}</td><td>${esc(dignity)}</td><td>${bi(P.N.rasi[i ? nav.grahas[i - 1].rasi : nav.lagna.rasi])}</td></tr>`;
+    }).join('');
+    const birthArgs = { y: H.y, m: H.m, d: H.d, h: H.h, mi: H.mi, tz: city.tz };
+    const periods = PR.build(birth, birthArgs).periods, first = periods[0];
+    const dashaRows = periods.map(p => `<tr><td>${esc(PR.NAMES[p.major])}</td><td>${esc(PR.NAMES[p.minor])}</td><td>${esc(predictionTime(p.start))}</td><td>${esc(predictionTime(p.end))}</td></tr>`).join('');
+    const summaryTable = includeSummary ? $('hsSummaryResult').querySelector('.summary-table').outerHTML : '';
+    const summaryTitle = includeSummary ? $('hsSummaryResult').querySelector('h3').textContent : '';
+    sheet.innerHTML = `<h1>Horoscope · ${esc(style === 'north' ? 'North Indian' : 'South Indian')}</h1>
+      ${name ? `<p><b>Name:</b> ${esc(name)}</p>` : ''}${gotra ? `<p><b>Gotra:</b> ${esc(gotra)}</p>` : ''}
+      <p><b>Birth:</b> ${esc(`${H.d} ${MONTHS_EN[H.m - 1]} ${H.y}, ${p2(H.h)}:${p2(H.mi)}`)}</p>
+      <p><b>Place:</b> ${esc(city.name)}${city.region ? ', ' + esc(city.region) : ''} · ${esc(city.tz)} (${esc(offset)})</p>
+      <p><b>Coordinates:</b> ${Math.abs(city.lat).toFixed(4)}°${city.lat >= 0 ? 'N' : 'S'}, ${Math.abs(city.lon).toFixed(4)}°${city.lon >= 0 ? 'E' : 'W'}</p>
+      ${HP.chart.timeAmbiguous ? '<p>This local time occurs twice; the earlier occurrence is used.</p>' : ''}
+      <h2>Birth Panchangam</h2><p>Values at the birth time; weekday is the local civil weekday.</p><table><tbody>${birthInfo.map(([label, value]) => `<tr><th>${esc(label)}</th><td>${bi(value)}</td></tr>`).join('')}</tbody></table>
+      <h2>Calculation settings</h2><p>Drik astronomical positions; Lahiri ayanamsa ${birth.ayanamsa.toFixed(4)}° at birth; mean Rahu and Ketu; whole-sign houses. Vimshottari uses 365.25 days per year. Times are in ${esc(city.tz)}.</p>
+      <h2>Rasi chart</h2><div class="hs-chart">${chart.innerHTML}</div>
+      <h2>Navamsa (D9) chart</h2><div class="hs-chart">${navChart.innerHTML}</div>
+      <p>Navamsa placements are sensitive to birth time, especially the Lagna.</p>
+      <h2>Birth star · Rasi · Vasi · Lagna</h2><table><tbody>${$('hsKey').innerHTML}</tbody></table>
+      <h2>Planet positions</h2><table><thead><tr><th>Planet</th><th>Rasi</th><th>Degree</th><th>Star · pada</th><th>House</th><th>Sign lord</th><th>Dignity</th><th>Navamsa</th></tr></thead><tbody>${planetary}</tbody></table>
+      <p>Sidereal Lahiri positions; Rahu and Ketu are mean nodes. R means retrograde.</p>
+      <h2>Vimshottari Dasa–Bhukti from birth</h2><p>At birth: ${esc(PR.NAMES[first.major])} Dasa / ${esc(PR.NAMES[first.minor])} Bhukti. Dasa balance: ${((first.majorEnd - birth.ms) / 86400000).toFixed(1)} days, ending ${esc(predictionTime(first.majorEnd))}. Bhukti ends ${esc(predictionTime(first.subEnd))}.</p>
+      <p>Periods cover birth to the 100th birthday; the first and last rows may be clipped. End times belong to the next period. This range does not predict lifespan.</p><table><thead><tr><th>Dasa</th><th>Bhukti</th><th>From</th><th>Until</th></tr></thead><tbody>${dashaRows}</tbody></table>
+      ${includeSummary ? `<h2>20-year prediction summary · ${esc(summaryTitle)}</h2><p>Simplified app heuristic for reflection, not a standard classical rating or a scientifically validated prediction. Saturn and Jupiter houses are from the birth Moon; transit times are approximate.</p>${summaryTable}` : ''}
+      <footer style="break-inside: avoid; margin-top: 16px"><hr><p>Daily Panchangam: <a href="https://supersubra.github.io/panchangam/">https://supersubra.github.io/panchangam/</a></p><p>Developed by Supersubra, author of the Sloka Saagar app.</p></footer>`;
+    // Browsers use the page title as the suggested name in Save as PDF.
+    const oldTitle = document.title;
+    const safeName = name.toLowerCase().normalize('NFKC').replace(/[^\p{L}\p{M}\p{N}]+/gu, '_').replace(/^_+|_+$/g, '') || 'horoscope';
+    document.title = `${safeName}_${H.y}${MONTHS_EN[H.m - 1].slice(0, 3).toUpperCase()}${p2(H.d)}_horoscope`;
+    document.body.appendChild(sheet);
+    loc(sheet);
+    document.body.classList.add('hs-print');
+    const clean = () => { document.title = oldTitle; document.body.classList.remove('hs-print'); sheet.remove(); window.removeEventListener('afterprint', clean); };
+    window.addEventListener('afterprint', clean);
+    window.print();
+  }
+  $('hsPrintSouth').addEventListener('click', () => hsPrint('south'));
+  $('hsPrintNorth').addEventListener('click', () => hsPrint('north'));
+  let emailToEdited = false;
+  function emailLink() {
+    const to = $('hsEmailTo').value.trim();
+    $('hsEmailCompose').href = `mailto:${encodeURIComponent(to)}?subject=${encodeURIComponent('Horoscope PDF')}&body=${encodeURIComponent('Please attach the saved horoscope PDF before sending.')}`;
+  }
+  function openHoroscopeEmail() {
+    if (!hsValidate()) return;
+    $('hsEmailForm').reset(); emailToEdited = false; emailLink();
+    const d = $('hsEmailDialog'); if (d.showModal) d.showModal(); else d.setAttribute('open', '');
+    $('hsEmailFrom').focus();
+  }
+  function closeHoroscopeEmail() {
+    const d = $('hsEmailDialog'); if (d.close) d.close(); else d.removeAttribute('open');
+    $('hsEmailForm').reset(); emailToEdited = false; emailLink();
+  }
+  $('hsEmailSouth').addEventListener('click', openHoroscopeEmail);
+  $('hsEmailNorth').addEventListener('click', openHoroscopeEmail);
+  $('hsEmailFrom').addEventListener('input', () => { if (!emailToEdited) $('hsEmailTo').value = $('hsEmailFrom').value; emailLink(); });
+  $('hsEmailTo').addEventListener('input', () => { emailToEdited = true; emailLink(); });
+  $('hsEmailCancel').addEventListener('click', closeHoroscopeEmail);
+  $('hsEmailDialog').addEventListener('close', () => { $('hsEmailForm').reset(); emailToEdited = false; emailLink(); });
+  $('hsEmailForm').addEventListener('submit', e => { e.preventDefault(); if ($('hsEmailForm').reportValidity()) $('hsEmailCompose').click(); });
+  $('hsEmailCompose').addEventListener('click', e => { if (!$('hsEmailForm').reportValidity()) e.preventDefault(); });
   const HS_MAX_PEOPLE = 8;
   const hsPeopleCount = n => `${n} ${n === 1 ? 'person' : 'people'}`;
   let hsPeople = [], hsSelectedId = '', hsStoredValue = null, hsStorageReady = false;
