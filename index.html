@@ -405,6 +405,14 @@ button.term:focus-visible { outline: 2px solid var(--accent); outline-offset: 2p
 dialog { border: 1px solid var(--line); border-radius: 14px; background: var(--surface); color: var(--ink); padding: 0; width: min(520px, calc(100% - 32px)); max-height: calc(100% - 48px); box-shadow: 0 20px 50px rgb(0 0 0 / .25); }
 .hs-email-instruction { color: #b42318; font-weight: 600; }
 :root[data-theme="dark"] .hs-email-instruction { color: #ff9b91; }
+#feedbackDialog { font-size: inherit; }
+#feedbackDialog fieldset { border: 0; padding: 0; margin: 0; min-width: 0; }
+#feedbackDialog .field { margin-bottom: 12px; }
+#feedbackDialog input:not([type="checkbox"]), #feedbackDialog select, #feedbackDialog textarea { width: 100%; box-sizing: border-box; min-width: 0; font: inherit; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 9px; }
+#feedbackDialog textarea { resize: vertical; }
+#feedbackDialog .feedback-check { display: flex; gap: 8px; align-items: start; margin: 12px 0; }
+#feedbackDialog .feedback-check input { flex: none; margin-top: 6px; }
+#feedbackStatus { overflow-wrap: anywhere; }
 dialog::backdrop { background: rgb(10 20 14 / .45); }
 .dlg { padding: 20px 22px 18px; display: flex; flex-direction: column; gap: 10px; }
 .dlg h3 { margin: 0; font-family: var(--display); font-size: 1.4rem; }
@@ -741,6 +749,7 @@ body.has-home-bar { padding-bottom: calc(90px + env(safe-area-inset-bottom, 0px)
   </div>
 
   <section id="homeAlmanac" class="home-almanac" aria-live="polite"></section>
+  <div class="install-app"><button type="button" id="openFeedback" aria-haspopup="dialog">Feedback / Report an issue · கருத்து / பிழை தெரிவி</button></div>
   <div class="install-app">
     <button type="button" id="installApp" aria-expanded="false" aria-controls="installHelp"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m-4-4 4 4 4-4M4 17v3h16v-3"/></svg><span>Install app · செயலியை நிறுவு</span></button>
     <div id="installHelp" class="install-help" hidden data-keep>
@@ -1233,6 +1242,38 @@ body.has-home-bar { padding-bottom: calc(90px + env(safe-area-inset-bottom, 0px)
 <nav id="homeBar" class="home-bar" aria-label="Home navigation" hidden>
   <a href="#"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5M5.5 9v11h13V9M9.5 20v-6h5v6"/></svg><span>Home · <span class="ta">முகப்பு</span></span></a>
 </nav>
+<dialog id="feedbackDialog" aria-labelledby="feedbackTitle" aria-describedby="feedbackPrivacy">
+  <div class="dlg">
+    <h3 id="feedbackTitle" tabindex="-1">Feedback · கருத்து</h3>
+    <p id="feedbackPrivacy" class="note">Your feedback is private, not published. Formspree stores it for the developer. Contact details are used only to follow up.<br><span>உங்கள் கருத்து பொதுவில் காட்டப்படாது. உருவாக்குநருக்காக Formspree சேமிக்கும். தொடர்பு விவரங்கள் பதிலளிக்க மட்டும் பயன்படும்.</span></p>
+    <form id="feedbackForm" action="https://formspree.io/f/xjyypjvv" method="post">
+      <fieldset id="feedbackFields">
+        <input type="hidden" name="_subject" value="Daily Panchangam feedback">
+        <input type="text" name="_gotcha" tabindex="-1" autocomplete="off" hidden aria-hidden="true">
+        <div class="field"><label for="feedbackCategory">Category · வகை</label><select id="feedbackCategory" name="category" required>
+          <option value="Suggestion">Suggestion · ஆலோசனை</option><option value="Calculation discrepancy">Calculation discrepancy · கணிப்பில் வேறுபாடு</option><option value="New feature">New feature · புதிய வசதி</option><option value="Other">Other · மற்றவை</option>
+        </select></div>
+        <div class="field"><label for="feedbackMessage">Your message · உங்கள் கருத்து *</label><textarea id="feedbackMessage" name="message" rows="4" required maxlength="5000" data-keep></textarea></div>
+        <fieldset id="feedbackDetails" hidden disabled>
+          <legend>Details (optional) · <span>விவரங்கள் (விருப்பம்)</span></legend>
+          <div class="field"><label for="feedbackDate">Date · தேதி</label><input id="feedbackDate" name="date" type="date"></div>
+          <div class="field"><label for="feedbackCity">City · ஊர்</label><input id="feedbackCity" name="city" maxlength="160" data-keep></div>
+          <div class="field"><label for="feedbackMethod">Calculation method · கணிப்பு முறை</label><select id="feedbackMethod" name="method"><option value="drik">Drik · திருக்கணிதம்</option><option value="vakya">Vakya · வாக்கியம்</option></select></div>
+          <div class="field"><label for="feedbackExpected">Expected result / source · <span>எதிர்பார்த்த முடிவு / ஆதாரம்</span></label><textarea id="feedbackExpected" name="expected_result_or_source" rows="2" maxlength="1500" data-keep></textarea></div>
+        </fieldset>
+        <div class="field"><label for="feedbackName">Name (optional) · <span>பெயர் (விருப்பம்)</span></label><input id="feedbackName" name="name" maxlength="120" autocomplete="name" data-keep></div>
+        <label class="feedback-check"><input type="checkbox" id="feedbackUpdates"><span>I would like updates · பதில் பெற விரும்புகிறேன்</span></label>
+        <div id="feedbackContact" hidden>
+          <div class="field"><label for="feedbackContactType">Contact me by · தொடர்பு வழி</label><select id="feedbackContactType"><option value="email">Email · மின்னஞ்சல்</option><option value="phone">Mobile · கைபேசி</option></select></div>
+          <div class="field" id="feedbackEmailField"><label for="feedbackEmail">Email · மின்னஞ்சல் *</label><input id="feedbackEmail" name="email" type="email" autocomplete="email" maxlength="254" disabled data-keep></div>
+          <div class="field" id="feedbackPhoneField" hidden><label for="feedbackPhone">Mobile with country code · நாட்டுக் குறியீட்டுடன் கைபேசி எண் *</label><input id="feedbackPhone" name="phone" type="tel" autocomplete="tel" placeholder="+91 9876543210" maxlength="26" disabled data-keep></div>
+        </div>
+      </fieldset>
+      <p id="feedbackStatus" role="status" aria-live="polite"></p>
+      <div class="acts"><button type="button" id="feedbackClose">Close · மூடு</button><button type="submit" id="feedbackSend" class="primary">Send feedback · கருத்தை அனுப்பு</button></div>
+    </form>
+  </div>
+</dialog>
 <dialog id="hsEmailDialog" aria-labelledby="hsEmailTitle">
   <div class="dlg">
     <h3 id="hsEmailTitle">Email horoscope PDF · ஜாதகத்தை மின்னஞ்சலில் அனுப்பு</h3>
@@ -3019,6 +3060,29 @@ const MEANINGS_TA = {
   const zip = (tamils, hindi) => tamils.forEach((ta, i) => { if (hindi[i] != null) put(ta, hindi[i]); });
   S(['ஸ்லோகா சாகர்|श्लोका सागर', 'பிரதோஷம்|प्रदोष']);
   U([
+    'கருத்து / பிழை தெரிவி|सुझाव / त्रुटि बताएँ|అభిప్రాయం / లోపం తెలపండి|ಅಭಿಪ್ರಾಯ / ದೋಷ ತಿಳಿಸಿ|അഭിപ്രായം / പിശക് അറിയിക്കുക',
+    'கருத்து|प्रतिक्रिया|అభిప్రాయం|ಅಭಿಪ್ರಾಯ|അഭിപ്രായം',
+    'வகை|श्रेणी|వర్గం|ವರ್ಗ|വിഭാഗം',
+    'ஆலோசனை|सुझाव|సూచన|ಸಲಹೆ|നിർദ്ദേശം',
+    'கணிப்பில் வேறுபாடு|गणना में अंतर|గణనలో తేడా|ಲೆಕ್ಕಾಚಾರದಲ್ಲಿ ವ್ಯತ್ಯಾಸ|കണക്കിലെ വ്യത്യാസം',
+    'புதிய வசதி|नई सुविधा|కొత్త సదుపాయం|ಹೊಸ ಸೌಲಭ್ಯ|പുതിയ സൗകര്യം',
+    'மற்றவை|अन्य|ఇతరాలు|ಇತರೆ|മറ്റുള്ളവ',
+    'உங்கள் கருத்து|आपकी प्रतिक्रिया|మీ అభిప్రాయం|ನಿಮ್ಮ ಅಭಿಪ್ರಾಯ|നിങ്ങളുടെ അഭിപ്രായം',
+    'விவரங்கள் (விருப்பம்)|विवरण (वैकल्पिक)|వివరాలు (ఐచ్ఛికం)|ವಿವರಗಳು (ಐಚ್ಛಿಕ)|വിവരങ്ങൾ (ഐച്ഛികം)',
+    'பெயர் (விருப்பம்)|नाम (वैकल्पिक)|పేరు (ఐచ్ఛికం)|ಹೆಸರು (ಐಚ್ಛಿಕ)|പേര് (ഐച്ഛികം)',
+    'எதிர்பார்த்த முடிவு / ஆதாரம்|अपेक्षित परिणाम / स्रोत|ఆశించిన ఫలితం / ఆధారం|ನಿರೀಕ್ಷಿತ ಫಲಿತಾಂಶ / ಮೂಲ|പ്രതീക്ഷിച്ച ഫലം / ഉറവിടം',
+    'பதில் பெற விரும்புகிறேன்|मुझे जानकारी चाहिए|నాకు సమాచారం కావాలి|ನನಗೆ ಮಾಹಿತಿ ಬೇಕು|എനിക്ക് വിവരം ലഭിക്കണം',
+    'தொடர்பு வழி|संपर्क का तरीका|సంప్రదింపు విధానం|ಸಂಪರ್ಕ ವಿಧಾನ|ബന്ധപ്പെടാനുള്ള മാർഗം',
+    'மின்னஞ்சல்|ईमेल|ఇమెయిల్|ಇಮೇಲ್|ഇമെയിൽ',
+    'கைபேசி|मोबाइल|మొబైల్|ಮೊಬೈಲ್|മൊബൈൽ',
+    'நாட்டுக் குறியீட்டுடன் கைபேசி எண்|देश कोड सहित मोबाइल नंबर|దేశ కోడ్‌తో మొబైల్ నంబర్|ದೇಶದ ಕೋಡ್ ಸಹಿತ ಮೊಬೈಲ್ ಸಂಖ್ಯೆ|രാജ്യ കോഡ് ഉൾപ്പെടെയുള്ള മൊബൈൽ നമ്പർ',
+    'மூடு|बंद करें|మూసివేయండి|ಮುಚ್ಚಿ|അടയ്ക്കുക',
+    'கருத்தை அனுப்பு|प्रतिक्रिया भेजें|అభిప్రాయం పంపండి|ಅಭಿಪ್ರಾಯ ಕಳುಹಿಸಿ|അഭിപ്രായം അയയ്ക്കുക',
+    'அனுப்பப்படுகிறது|भेजा जा रहा है|పంపుతోంది|ಕಳುಹಿಸಲಾಗುತ್ತಿದೆ|അയയ്ക്കുന്നു',
+    'நன்றி! உங்கள் கருத்து அனுப்பப்பட்டது.|धन्यवाद! आपकी प्रतिक्रिया भेज दी गई है।|ధన్యవాదాలు! మీ అభిప్రాయం పంపబడింది.|ಧನ್ಯವಾದಗಳು! ನಿಮ್ಮ ಅಭಿಪ್ರಾಯ ಕಳುಹಿಸಲಾಗಿದೆ.|നന്ദി! നിങ്ങളുടെ അഭിപ്രായം അയച്ചു.',
+    'அனுப்ப முடியவில்லை. இணைய இணைப்பைச் சரிபார்த்து மீண்டும் முயலவும்.|भेज नहीं सके। इंटरनेट कनेक्शन जाँचकर फिर कोशिश करें।|పంపలేకపోయాము. ఇంటర్నెట్ కనెక్షన్ తనిఖీ చేసి మళ్లీ ప్రయత్నించండి.|ಕಳುಹಿಸಲಾಗಲಿಲ್ಲ. ಇಂಟರ್ನೆಟ್ ಸಂಪರ್ಕ ಪರಿಶೀಲಿಸಿ ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ.|അയയ്ക്കാനായില്ല. ഇന്റർനെറ്റ് കണക്ഷൻ പരിശോധിച്ച് വീണ്ടും ശ്രമിക്കുക.',
+    'அனுப்பியதை உறுதிசெய்ய முடியவில்லை. மீண்டும் அனுப்பினால் இருமுறை செல்லலாம்.|भेजने की पुष्टि नहीं हो सकी। फिर भेजने पर दो बार पहुँच सकता है।|పంపినట్లు నిర్ధారించలేకపోయాము. మళ్లీ పంపితే రెండుసార్లు చేరవచ్చు.|ಕಳುಹಿಸಿದ್ದನ್ನು ಖಚಿತಪಡಿಸಲಾಗಲಿಲ್ಲ. ಮತ್ತೆ ಕಳುಹಿಸಿದರೆ ಎರಡು ಬಾರಿ ತಲುಪಬಹುದು.|അയച്ചത് ഉറപ്പാക്കാനായില്ല. വീണ്ടും അയച്ചാൽ രണ്ടുതവണ ലഭിക്കാം.',
+    'உங்கள் கருத்து பொதுவில் காட்டப்படாது. உருவாக்குநருக்காக Formspree சேமிக்கும். தொடர்பு விவரங்கள் பதிலளிக்க மட்டும் பயன்படும்.|आपकी प्रतिक्रिया सार्वजनिक नहीं होगी। Formspree इसे डेवलपर के लिए रखता है। संपर्क विवरण केवल उत्तर देने के लिए हैं।|మీ అభిప్రాయం బహిరంగంగా చూపబడదు. డెవలపర్ కోసం Formspree నిల్వ చేస్తుంది. సంప్రదింపు వివరాలు జవాబివ్వడానికి మాత్రమే.|ನಿಮ್ಮ ಅಭಿಪ್ರಾಯ ಸಾರ್ವಜನಿಕವಾಗಿ ತೋರಿಸಲಾಗುವುದಿಲ್ಲ. ಡೆವಲಪರ್‌ಗಾಗಿ Formspree ಸಂಗ್ರಹಿಸುತ್ತದೆ. ಸಂಪರ್ಕ ವಿವರಗಳು ಉತ್ತರಿಸಲು ಮಾತ್ರ.|നിങ്ങളുടെ അഭിപ്രായം പരസ്യമാക്കില്ല. ഡെവലപ്പർക്കായി Formspree സൂക്ഷിക്കുന്നു. ബന്ധപ്പെടാനുള്ള വിവരങ്ങൾ മറുപടിക്ക് മാത്രം.',
     'மின்னஞ்சலில் அனுப்பு|ईमेल से भेजें|ఇమెయిల్ ద్వారా పంపండి|ಇಮೇಲ್ ಮೂಲಕ ಕಳುಹಿಸಿ|ഇമെയിലിൽ അയയ്ക്കുക',
     'ஜாதகத்தை மின்னஞ்சலில் அனுப்பு|कुंडली ईमेल करें|జాతకాన్ని ఇమెయిల్ చేయండి|ಜಾತಕವನ್ನು ಇಮೇಲ್ ಮಾಡಿ|ജാതകം ഇമെയിൽ ചെയ്യുക',
     'உங்கள் மின்னஞ்சல்|आपका ईमेल|మీ ఇమెయిల్|ನಿಮ್ಮ ಇಮೇಲ್|നിങ്ങളുടെ ഇമെയിൽ',
@@ -4761,6 +4825,90 @@ window.VISITOR_CONFIG = Object.freeze({ workerUrl: 'https://panchangam-visitors.
     fetch(endpoint + '/visit', { method: 'POST', credentials: 'omit', referrerPolicy: 'no-referrer', signal: controller.signal })
       .catch(() => {}).finally(() => clearTimeout(timeout));
   }
+})();
+
+</script>
+<script>
+// Only the public form endpoint belongs here. No account credentials are needed.
+(function () {
+  const $ = id => document.getElementById(id);
+  const form = $('feedbackForm'), dialog = $('feedbackDialog');
+  let pending = false, fresh = true;
+  const status = text => {
+    const [english, tamil] = text.split(' · ');
+    const translated = document.createElement('span');
+    translated.textContent = tamil;
+    $('feedbackStatus').replaceChildren(document.createTextNode(english + ' · '), translated);
+  };
+  function options() {
+    const updates = $('feedbackUpdates').checked;
+    const email = $('feedbackContactType').value === 'email';
+    $('feedbackContact').hidden = !updates;
+    $('feedbackEmailField').hidden = !email;
+    $('feedbackPhoneField').hidden = email;
+    $('feedbackEmail').disabled = !updates || !email;
+    $('feedbackPhone').disabled = !updates || email;
+    $('feedbackEmail').required = updates && email;
+    $('feedbackPhone').required = updates && !email;
+    const discrepancy = $('feedbackCategory').value === 'Calculation discrepancy';
+    $('feedbackDetails').hidden = !discrepancy;
+    $('feedbackDetails').disabled = !discrepancy;
+  }
+  $('openFeedback').addEventListener('click', () => {
+    if (fresh) {
+      $('feedbackDate').value = $('dateInput').value;
+      $('feedbackCity').value = $('cityInput').value;
+      $('feedbackMethod').value = $('panchangMethod').value;
+      fresh = false;
+    }
+    options(); dialog.showModal();
+    $('feedbackTitle').focus(); dialog.scrollTop = 0;
+  });
+  $('feedbackClose').addEventListener('click', () => dialog.close());
+  for (const id of ['feedbackUpdates', 'feedbackContactType', 'feedbackCategory']) $(id).addEventListener('change', options);
+  for (const id of ['feedbackMessage', 'feedbackPhone']) $(id).addEventListener('input', () => $(id).setCustomValidity(''));
+  form.addEventListener('submit', async event => {
+    event.preventDefault();
+    if (pending) return;
+    options();
+    $('feedbackMessage').setCustomValidity($('feedbackMessage').value.trim() ? '' : 'Please enter your message.');
+    const phone = $('feedbackPhone');
+    const phoneDigits = phone.value.replace(/\D/g, '');
+    const validPhone = /^\+[1-9][0-9 ()-]{5,24}$/.test(phone.value.trim()) && phoneDigits.length >= 7 && phoneDigits.length <= 15;
+    phone.setCustomValidity(!phone.disabled && !validPhone ? 'Include the country code, for example +91 9876543210.' : '');
+    if (!form.reportValidity()) return;
+    // Build before disabling controls; disabled contact/detail fields are omitted.
+    const data = Object.fromEntries(new FormData(form));
+    data.message = data.message.trim();
+    data.updates_requested = $('feedbackUpdates').checked ? 'Yes' : 'No';
+    pending = true;
+    $('feedbackFields').disabled = true;
+    $('feedbackSend').disabled = true;
+    form.setAttribute('aria-busy', 'true');
+    status('Sending… · அனுப்பப்படுகிறது…');
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 20000);
+    try {
+      const response = await fetch(form.action, {
+        method: 'POST', headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
+        body: JSON.stringify(data), signal: controller.signal, credentials: 'omit'
+      });
+      const result = await response.json();
+      if (!response.ok || result.ok !== true) throw new Error('Submission not accepted');
+      form.reset(); fresh = true;
+      status('Thank you! Your feedback has been sent. · நன்றி! உங்கள் கருத்து அனுப்பப்பட்டது.');
+    } catch (error) {
+      status(error.name === 'AbortError'
+        ? 'Delivery could not be confirmed. Your message is still here. Retrying may send it twice. · அனுப்பியதை உறுதிசெய்ய முடியவில்லை. மீண்டும் அனுப்பினால் இருமுறை செல்லலாம்.'
+        : 'Could not send. Your message is still here. Please check your connection and try again. · அனுப்ப முடியவில்லை. இணைய இணைப்பைச் சரிபார்த்து மீண்டும் முயலவும்.');
+    } finally {
+      clearTimeout(timeout); pending = false;
+      $('feedbackFields').disabled = false;
+      $('feedbackSend').disabled = false;
+      form.removeAttribute('aria-busy'); options();
+    }
+  });
+  options();
 })();
 
 </script>
