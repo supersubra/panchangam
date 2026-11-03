@@ -132,6 +132,7 @@ th .ta, td .ta { display: block; font-weight: 400; font-size: .88rem; }
 .install-app { margin-top: 8px; }
 .install-app button, .install-app .share-button { box-sizing: border-box; display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: min(100%, 340px); min-height: 52px; padding: 9px 13px; border: 1px solid transparent; border-radius: 8px; color: #fff; font: inherit; font-weight: 600; text-align: center; text-decoration: none; }
 .install-app #installApp { background: #1959a6; }
+.install-app #openFeedback { background: #17665e; }
 .install-app #openDisclaimer { background: #a52b30; }
 .install-app .share-button { background: #16743b; }
 .install-app :is(button, .share-button):hover { filter: brightness(1.12); }
@@ -749,7 +750,7 @@ body.has-home-bar { padding-bottom: calc(90px + env(safe-area-inset-bottom, 0px)
   </div>
 
   <section id="homeAlmanac" class="home-almanac" aria-live="polite"></section>
-  <div class="install-app"><button type="button" id="openFeedback" aria-haspopup="dialog">Feedback / Report an issue · கருத்து / பிழை தெரிவி</button></div>
+  <div class="install-app"><button type="button" id="openFeedback" aria-haspopup="dialog"><span>Feedback / Report an issue · <span>கருத்து / பிழை தெரிவி</span></span></button></div>
   <div class="install-app">
     <button type="button" id="installApp" aria-expanded="false" aria-controls="installHelp"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m-4-4 4 4 4-4M4 17v3h16v-3"/></svg><span>Install app · செயலியை நிறுவு</span></button>
     <div id="installHelp" class="install-help" hidden data-keep>
