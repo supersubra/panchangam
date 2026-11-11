@@ -71,6 +71,7 @@ h2 span { font-family: var(--body); font-size: .85rem; color: var(--muted); font
 .controls .location-field { display: grid; grid-template-columns: minmax(0, 110px) minmax(0, 1fr); align-items: center; gap: 8px; flex: 0 0 100%; width: 100%; }
 .controls .location-field input { width: 100%; box-sizing: border-box; }
 #cityInput { max-width: 360px; }
+#calendarTradition { width:100%; max-width:520px; min-height:44px; font:inherit; color:var(--ink); background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:9px 8px; }
 input { font: inherit; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 9px 11px; min-width: 0; }
 input:focus-visible, button:focus-visible, select:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .method-field { flex: 0 0 100%; max-width: 100%; }
@@ -738,6 +739,13 @@ body.has-home-bar { padding-bottom: calc(90px + env(safe-area-inset-bottom, 0px)
       <button type="button" id="next">Next ▶</button>
       </div>
     </div>
+    <div class="field location-field">
+      <label for="calendarTradition">Calendar tradition · நாட்காட்டி முறை</label>
+      <div><select id="calendarTradition" aria-describedby="calendarHelp">
+        <option value="tamil-solar">Tamil solar · தமிழ் சூரிய மாதம் (Default)</option>
+        <option value="amanta">Lunar — Amanta · அமாவாசை முடிவு</option>
+      </select><div class="note" id="calendarHelp"></div></div>
+    </div>
   </form>
   <nav class="nav" role="tablist" aria-label="Sections">
     <button type="button" role="tab" id="tab-today" aria-haspopup="true"><span class="out" aria-hidden="true">↗</span><span class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 10h18"/><circle cx="12" cy="15.5" r="2.4"/></svg></span><span class="lbl">Selected day</span><span class="ta">தேர்ந்த நாள்</span></button>
@@ -1073,11 +1081,7 @@ body.has-home-bar { padding-bottom: calc(90px + env(safe-area-inset-bottom, 0px)
       </div>
       <datalist id="skGotraList"></datalist><datalist id="skGotraTaList"></datalist>
       <div class="note">Name and gotra are saved in this browser only. Gotras you type are remembered and offered next time.</div>
-      <div class="hfilter" role="group" aria-label="Month style">
-        <span class="subh">Month</span>
-        <button type="button" class="pill" id="skLunar" aria-pressed="true">Lunar (Chaitra…)</button>
-        <button type="button" class="pill" id="skSolar" aria-pressed="false">Tamil solar (Chithirai…)</button>
-      </div>
+      <div class="note" id="skCalendarNote"></div>
     </section>
     <section class="panel">
       <h2>Devanagari tab <span>देवनागरी · optional</span></h2>
@@ -1225,7 +1229,7 @@ body.has-home-bar { padding-bottom: calc(90px + env(safe-area-inset-bottom, 0px)
       <h2>From cosmic time to today's Panchangam</h2>
       <dl class="sk-info-terms">
         <dt>Samvatsara, Ayana and Ritu</dt><dd>The named year in the 60-year cycle; Uttarayana or Dakshinayana, the half-year; and one of the six traditional seasons.</dd>
-        <dt>Masa and Paksha</dt><dd>The month and the Moon's waxing fortnight (Shukla) or waning fortnight (Krishna). This app lets you choose a lunar month or Tamil solar month in Settings.</dd>
+        <dt>Masa and Paksha</dt><dd>The month and the Moon's waxing fortnight (Shukla) or waning fortnight (Krishna). Choose Tamil solar (the default) or Amanta lunar months using Calendar tradition on the home page.</dd>
         <dt>Tithi and Vasara</dt><dd>The lunar day, determined by the angle between the Moon and Sun, and the weekday.</dd>
         <dt>Nakshatra, Yoga and Karana</dt><dd>The Moon's stellar division, the Sun–Moon longitude combination, and a half-tithi. Together with Tithi and Vasara, these are the five limbs of the Panchangam.</dd>
       </dl>
@@ -3061,6 +3065,11 @@ const MEANINGS_TA = {
   const zip = (tamils, hindi) => tamils.forEach((ta, i) => { if (hindi[i] != null) put(ta, hindi[i]); });
   S(['ஸ்லோகா சாகர்|श्लोका सागर', 'பிரதோஷம்|प्रदोष']);
   U([
+    'நாட்காட்டி முறை|कैलेंडर परंपरा|క్యాలెండర్ సంప్రదాయం|ಪಂಚಾಂಗ ಪದ್ಧತಿ|കലണ്ടർ സമ്പ്രദായം',
+    'தமிழ் சூரிய மாதம்|तमिल सौर मास|తమిళ సౌర మాసం|ತಮಿಳು ಸೌರ ಮಾಸ|തമിഴ് സൗര മാസം',
+    'அமாவாசை முடிவு|अमावस्या पर समाप्ति|అమావాస్యతో ముగింపు|ಅಮಾವಾಸ್ಯೆಗೆ ಅಂತ್ಯ|അമാവാസിയിൽ അവസാനം',
+    'சாந்திர மாதம்|चांद्र मास|చాంద్ర మాసం|ಚಾಂದ್ರ ಮಾಸ|ചാന്ദ്ര മാസം',
+
     'கருத்து / பிழை தெரிவி|सुझाव / त्रुटि बताएँ|అభిప్రాయం / లోపం తెలపండి|ಅಭಿಪ್ರಾಯ / ದೋಷ ತಿಳಿಸಿ|അഭിപ്രായം / പിശക് അറിയിക്കുക',
     'கருத்து|प्रतिक्रिया|అభిప్రాయం|ಅಭಿಪ್ರಾಯ|അഭിപ്രായം',
     'வகை|श्रेणी|వర్గం|ವರ್ಗ|വിഭാഗം',
@@ -3295,6 +3304,19 @@ const MEANINGS_TA = {
   const I = window.I18N;
   const lsGet = (k, d) => { try { const v = localStorage.getItem(k); return v == null ? d : v; } catch (e) { return d; } };
   const lsSet = (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} };
+  // Month tradition is independent of language and the Drik/Vakya calculation method.
+  const calendar = { solar: lsGet('calendarTradition', 'tamil-solar') !== 'amanta' };
+  function calendarDescription() {
+    return calendar.solar ? 'Tamil solar (Chithirai–Panguni)' : 'Lunar — Amanta (Chaitra–Phalguna)';
+  }
+  function syncCalendarLabels() {
+    $('calendarTradition').value = calendar.solar ? 'tamil-solar' : 'amanta';
+    $('calendarHelp').textContent = calendar.solar
+      ? 'Chithirai–Panguni. Used for the main month and Sankalpa. Choice remembered on this device.'
+      : 'Month ends at Amavasya. Used for the main month and Sankalpa. Leap-month handling is not yet supported.';
+    $('skCalendarNote').textContent = 'Calendar tradition: ' + calendarDescription() + '. Change this on the home page.';
+  }
+  syncCalendarLabels();
   const TEXT_SIZES = [80, 90, 100, 110, 120, 130, 140, 150];
   function applyTextSize(value, save = false) {
     const size = TEXT_SIZES.includes(Number(value)) ? Number(value) : 100;
@@ -3452,7 +3474,7 @@ const MEANINGS_TA = {
     const r = P.calculate({ y: state.y, m: state.m, d: state.d, lat: c.lat, lon: c.lon, tz: c.tz, method:state.method });
     const dateEn = `${r.vara[0]}, ${state.d} ${MONTHS_EN[state.m - 1]} ${state.y}`;
     $('homeAlmanac').innerHTML = r.noSun ? '<p>Sunrise-based Panchangam is unavailable for this location and date.</p>' : `
-      <div class="home-ribbon"><span>${esc(r.tamilMonth.name[1])} ${r.tamilMonth.day} · ${esc(r.tamilMonth.name[0])}</span><span>${esc(r.samvatsara[0])} · ${esc(r.samvatsara[1])}</span></div>
+      <div class="home-ribbon"><span>${calendar.solar ? esc(r.tamilMonth.name[1]) + ' ' + r.tamilMonth.day + ' · ' + esc(r.tamilMonth.name[0]) : esc(Sankalpa.T.lunarM[r.lunarMonth][1]) + ' · ' + esc(Sankalpa.T.lunarM[r.lunarMonth][0]) + ' (Amanta)'}</span><span>${esc(r.samvatsara[0])} · ${esc(r.samvatsara[1])}</span></div>
       <div class="home-date"><button type="button" aria-label="Previous day" onclick="document.getElementById('prev').click()">‹</button><strong>${state.d}</strong><div><b>${MONTHS_EN[state.m - 1]} ${state.y}</b><br>${esc(r.vara[0])}<br><span class="ta">${esc(r.vara[1])}</span></div><button type="button" aria-label="Next day" onclick="document.getElementById('next').click()">›</button></div>
       <table><tbody>${row('Vara', 'வாரம்', bi(r.vara), 'vara')}${row('Tithi', 'திதி', seqHTML(r.tithi), 'tithi')}${row('Nakshatra', 'நட்சத்திரம்', seqHTML(r.nakshatra), 'nakshatra')}${row('Yoga', 'யோகம்', seqHTML(r.yoga), 'yoga')}${row('Karana', 'கரணம்', seqHTML(r.karana), 'karana')}</tbody></table>
       <div class="home-times"><div><b>Rahu · ராகு</b><br>${range(r.rahu)}</div><div><b>Yama · எமகண்டம்</b><br>${range(r.yama)}</div><div><b>Gulika · குளிகை</b><br>${range(r.gulika)}</div></div>`;
@@ -3494,7 +3516,7 @@ const MEANINGS_TA = {
 
     $('year').innerHTML =
       row('Samvatsara', 'வருடம்', bi(r.samvatsara), 'samvatsara') +
-      row('Tamil month', 'தமிழ் மாதம்', `${esc(tm.name[0])} ${tm.day} <span class="ta">${esc(tm.name[1])} ${tm.day}</span>`, 'month') +
+      (calendar.solar ? row('Tamil month', 'தமிழ் மாதம்', `${esc(tm.name[0])} ${tm.day} <span class="ta">${esc(tm.name[1])} ${tm.day}</span>`, 'month') : row('Lunar month (Amanta)', 'சாந்திர மாதம்', bi(Sankalpa.T.lunarM[r.lunarMonth]), 'month')) +
       row('Ayana', 'அயனம்', bi(r.ayana), 'ayana') +
       row('Ritu', 'ருது', bi(r.ritu), 'ritu') +
       row('Paksha', 'பட்சம்', bi(r.paksha), 'paksha');
@@ -4436,7 +4458,7 @@ const MEANINGS_TA = {
 
   // ---------- Sankalpa Mantra: its own page with four tabs ----------
   const SK = Sankalpa, TA_MONTHS = ['ஜனவரி','பிப்ரவரி','மார்ச்','ஏப்ரல்','மே','ஜூன்','ஜூலை','ஆகஸ்ட்','செப்டம்பர்','அக்டோபர்','நவம்பர்','டிசம்பர்'];
-  const S = { city: null, region: '', cc: '', ct: '', y: 0, m: 0, d: 0, h: 0, mi: 0, solar: false, userLoc: false, userTime: false };
+  const S = { city: null, region: '', cc: '', ct: '', y: 0, m: 0, d: 0, h: 0, mi: 0, solar: calendar.solar, userLoc: false, userTime: false };
   const SK_IDS = ['skName', 'skNameTa', 'skGotra', 'skGotraTa', 'skNameDv', 'skGotraDv', 'skCityDv', 'skRegionDv'];
   const GOTRAS = [['Bharadwaja', 'பாரத்வாஜ'], ['Kashyapa', 'காஶ்யப'], ['Vasishtha', 'வஸிஷ்ட'], ['Vishvamitra', 'விஶ்வாமித்ர'], ['Atri', 'அத்ரி'], ['Gautama', 'கௌதம'], ['Jamadagni', 'ஜமதக்னி'], ['Agastya', 'அகஸ்த்ய'], ['Kaundinya', 'கௌண்டின்ய'], ['Harita', 'ஹாரீத'], ['Srivatsa', 'ஸ்ரீவத்ஸ'], ['Koushika', 'கௌஶிக'], ['Sandilya', 'ஶாண்டில்ய'], ['Vadhula', 'வாதூல'], ['Angirasa', 'ஆங்கிரஸ'], ['Parashara', 'பராஶர'], ['Mudgala', 'முத்கல'], ['Kutsa', 'குத்ஸ'], ['Maudgalya', 'மௌத்கல்ய'], ['Upamanyu', 'உபமன்யு']];
   let savedGotras = []; try { savedGotras = JSON.parse(lsGet('skGotras', '[]')) || []; } catch (e) {}
@@ -4540,8 +4562,14 @@ const MEANINGS_TA = {
     skRender();
   });
   for (const id of ['skGotra', 'skGotraTa']) $(id).addEventListener('change', saveGotra);
-  function skSetSolar(v) { S.solar = v; $('skSolar').setAttribute('aria-pressed', v); $('skLunar').setAttribute('aria-pressed', !v); skRender(); }
-  $('skLunar').addEventListener('click', () => skSetSolar(false)); $('skSolar').addEventListener('click', () => skSetSolar(true));
+  $('calendarTradition').addEventListener('change', e => {
+    calendar.solar = e.target.value !== 'amanta';
+    S.solar = calendar.solar;
+    lsSet('calendarTradition', calendar.solar ? 'tamil-solar' : 'amanta');
+    syncCalendarLabels();
+    if (state.city) render();
+    skRender();
+  });
   gotraLists();
 
   function skRender() {
